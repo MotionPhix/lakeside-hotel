@@ -146,3 +146,30 @@ export const hotelModules: HotelModule[] = [
         phase: 5,
     },
 ];
+
+export type ModuleSection = {
+    title: string;
+    /** Modules listed under the heading, as sub-items. */
+    keys: string[];
+    /**
+     * Set false for a section that is a page in its own right rather than a
+     * heading over children - the overview. The heading then becomes the link
+     * and nothing is nested beneath it.
+     */
+    nested?: boolean;
+};
+
+/**
+ * How those modules are grouped in the sidebar, in reading order. Keys rather
+ * than copies of the modules, so a module renamed in the registry above cannot
+ * leave a stale duplicate behind here.
+ */
+export const moduleSections: ModuleSection[] = [
+    { title: 'Overview', keys: ['dashboard'], nested: false },
+    { title: 'Front desk', keys: ['bookings', 'guests', 'inquiries'] },
+    { title: 'Rooms', keys: ['rooms', 'availability', 'pricing'] },
+    { title: 'Website', keys: ['content', 'media', 'reviews', 'promotions'] },
+    { title: 'Team', keys: ['users'] },
+    { title: 'Insights', keys: ['reports'] },
+    { title: 'System', keys: ['system'] },
+];

@@ -243,6 +243,23 @@ button[aria-haspopup='dialog'] {
     @apply !h-11 !w-11;
 }
 
+/*
+ * The same trap, one layer out. A button wrapped in a Radix trigger reports the
+ * wrapper's slot - `tooltip-trigger`, `popover-trigger` - instead of `button`, so
+ * the two rules above never see it and it falls back to the 36px the component
+ * asked for. That is what left the header's bell 36 wide while its neighbours
+ * were 44. The sidebar toggle names its own slot for the same reason.
+ *
+ * Only the icon-only case is matched here. A trigger wrapped around anything
+ * else is left alone: the account menu at the foot of the sidebar is a `size="lg"`
+ * trigger, and forcing h-11 on it would shrink a 64px row to 44.
+ */
+[data-slot='tooltip-trigger'][data-size^='icon'],
+[data-slot='popover-trigger'][data-size^='icon'],
+[data-slot='sidebar-trigger'] {
+    @apply !h-11 !w-11;
+}
+
 /* A select fills its column like every other control, rather than
    shrink-wrapping whichever option happens to be longest. */
 [role='combobox'] {
