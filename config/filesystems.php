@@ -47,6 +47,24 @@ return [
             'report' => false,
         ],
 
+        /*
+         * Public media bucket for the website.
+         *
+         * Files written here live directly under `public/bucket`, so the web
+         * server serves them without needing `php artisan storage:link`.
+         * The Spatie Media Library stores every upload on this disk - see
+         * `disk_name` in config/media-library.php.
+         */
+
+        'bucket' => [
+            'driver' => 'local',
+            'root' => public_path('bucket'),
+            'url' => env('MEDIA_URL', '/bucket'),
+            'visibility' => 'public',
+            'throw' => false,
+            'report' => false,
+        ],
+
         's3' => [
             'driver' => 's3',
             'key' => env('AWS_ACCESS_KEY_ID'),

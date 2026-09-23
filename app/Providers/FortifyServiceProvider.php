@@ -3,12 +3,15 @@
 namespace App\Providers;
 
 use App\Actions\Fortify\ResetUserPassword;
+use App\Models\User;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Password;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Laravel\Fortify\Features;
 use Laravel\Fortify\Fortify;
@@ -30,6 +33,7 @@ class FortifyServiceProvider extends ServiceProvider
     {
         $this->configureActions();
         $this->configureViews();
+        $this->configureAuthentication();
         $this->configureRateLimiting();
     }
 
@@ -39,6 +43,30 @@ class FortifyServiceProvider extends ServiceProvider
     private function configureActions(): void
     {
         Fortify::resetUserPasswordsUsing(ResetUserPassword::class);
+    }
+
+    /**
+     * Refuse sign in for staff accounts an administrator has deactivated.
+     */
+    private function configureAuthentication(): void
+    {
+        Fortify::authenticateUsing(function (Request $request): ?User {
+            $user = User::query()
+                ->where(Fortify::username(), $request->input(Fortify::username()))
+                ->first();
+
+            if (! $user instanceof User || ! Hash::check((string) $request->input('password'), $user->password)) {
+                return null;
+            }
+
+            if (! $user->isActive()) {
+                throw ValidationException::withMessages([
+                    Fortify::username() => __('This account has been deactivated. Please contact the hotel administrator.'),
+                ]);
+            }
+
+            return $user;
+        });
     }
 
     /**
