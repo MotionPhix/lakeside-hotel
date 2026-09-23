@@ -163,6 +163,18 @@ export type ConferencePackageData = {
     cover: MediaImage | null;
 };
 
+export type ConferenceHallData = {
+    id: number;
+    name: string;
+    slug: string;
+    capacity: number;
+    capacity_label: string;
+    layout: string | null;
+    description: string | null;
+    features: string[];
+    cover: MediaImage | null;
+};
+
 export type GalleryItemData = {
     id: number;
     title: string | null;

@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Activity;
+use App\Models\ConferenceHall;
 use App\Models\ConferencePackage;
 use App\Models\DiningVenue;
 use App\Models\MenuItem;
@@ -10,8 +11,9 @@ use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
 
 /**
- * Everything the hotel sells that is not a bed: where guests eat and drink, what
- * they can do on the lake, and the packages for conferences and weddings.
+ * Everything the hotel sells that is not a bed: where guests eat and drink, the
+ * named conference halls and the packages sold to fill them, and the leisure
+ * list from the company profile.
  */
 class ExperienceSeeder extends Seeder
 {
@@ -21,12 +23,13 @@ class ExperienceSeeder extends Seeder
     public function run(): void
     {
         $this->seedDining();
-        $this->seedActivities();
+        $this->seedConferenceHalls();
         $this->seedConferencePackages();
+        $this->seedActivities();
     }
 
     /**
-     * Restaurants, bars and their menus.
+     * The Lakeview Restaurant, the bar and the poolside bar.
      */
     private function seedDining(): void
     {
@@ -35,8 +38,8 @@ class ExperienceSeeder extends Seeder
             [
                 'name' => 'The Lakeview Restaurant',
                 'type' => 'restaurant',
-                'tagline' => 'Chambo, tilapia and produce from around Salima',
-                'description' => 'Our main restaurant opens onto the terrace, with tables set along the water. Breakfast runs from early for the fishermen, lunch is light, and dinner is where the kitchen shows what it can do with the day\'s catch.',
+                'tagline' => 'Tradition and modernity, with the lake in front of you',
+                'description' => 'Our multi-cuisine restaurant combines tradition with modernity in an exceptional way, and seats close to 400 people in one sitting. Even if you are not staying the night, enjoy your meal while gazing at the beauty that is Lake Malawi. International and local dishes, prepared by a team of skilled chefs.',
                 'opening_hours' => [
                     'breakfast' => '06:30 - 10:00',
                     'lunch' => '12:00 - 15:00',
@@ -48,12 +51,12 @@ class ExperienceSeeder extends Seeder
         );
 
         $bar = DiningVenue::query()->updateOrCreate(
-            ['slug' => 'anchor-bar-lounge'],
+            ['slug' => 'bar-and-lounge'],
             [
-                'name' => 'The Anchor Bar & Lounge',
+                'name' => 'The Bar & Lounge',
                 'type' => 'bar',
-                'tagline' => 'Cold drinks, lake views, and the best sunset in Senga Bay',
-                'description' => 'The bar opens onto the gardens, facing west across the water. Local gins, South African wine, cocktails built around baobab and mango, and a bar snack menu through the afternoon.',
+                'tagline' => 'Cold drinks, a pool table, and the best sunset in Senga Bay',
+                'description' => 'The lounge opens onto the gardens, facing west across the water, with a full size pool table and the bar alongside it. Local gins, South African wine, cocktails built around baobab and mango, and a bar snack menu through the afternoon.',
                 'opening_hours' => ['daily' => '11:00 - 23:00'],
                 'dress_code' => null,
                 'sort_order' => 2,
@@ -66,7 +69,7 @@ class ExperienceSeeder extends Seeder
                 'name' => 'Poolside Bar',
                 'type' => 'pool_bar',
                 'tagline' => 'Lunch and drinks without leaving the sun deck',
-                'description' => 'A short menu of grills, salads and cold drinks served at the pool between late morning and sunset. Towels and sun loungers are provided.',
+                'description' => 'A short menu of grills, salads and cold drinks served at the pool between late morning and sunset. Towels and sun loungers are provided, and the gazebo gives you shade when the sun is at its worst.',
                 'opening_hours' => ['daily' => '10:00 - 18:00'],
                 'dress_code' => 'Swimwear welcome',
                 'sort_order' => 3,
@@ -76,9 +79,9 @@ class ExperienceSeeder extends Seeder
         $menu = [
             // [venue, category, name, description, price, signature, vegetarian]
             [$restaurant, 'starters', 'Chambo Fish Cakes', 'Lake chambo, cassava crumb, chilli lime mayonnaise', 14_000, true, false],
+            [$restaurant, 'starters', 'Seafood Cocktail', 'Prawns and lake fish, avocado, citrus dressing, served chilled', 18_000, true, false],
             [$restaurant, 'starters', 'Mzuzu Mushroom Soup', 'Wild mushrooms from the northern highlands, cream, herb oil', 12_000, false, true],
             [$restaurant, 'starters', 'Roast Maize and Peanut Salad', 'Charred maize, groundnut, tomato, coriander', 11_000, false, true],
-            [$restaurant, 'starters', 'Grilled Tilapia Skewers', 'Marinated tilapia, pepper, onion, served warm', 15_000, false, false],
 
             [$restaurant, 'mains', 'Grilled Lake Malawi Chambo', 'Whole chambo off the grill, lemon butter, nsima or chips', 38_000, true, false],
             [$restaurant, 'mains', 'Beef Ndiwo with Nsima', 'Slow cooked beef in a groundnut and tomato relish, with nsima', 32_000, true, false],
@@ -87,6 +90,7 @@ class ExperienceSeeder extends Seeder
             [$restaurant, 'mains', 'Beef Fillet with Pepper Sauce', 'Local beef fillet, green peppercorn cream, roast potatoes', 45_000, false, false],
             [$restaurant, 'mains', 'Grilled Tilapia Fillets', 'Tilapia fillets, garlic butter, rice and garden salad', 34_000, false, false],
 
+            [$restaurant, 'grills', 'Slider Tower', 'A tower of mini burgers with our house relish, built to share', 42_000, true, false],
             [$restaurant, 'grills', 'Lake Platter for Two', 'Chambo, tilapia and prawns, grilled with lemon and herbs', 78_000, true, false],
             [$restaurant, 'grills', 'Barbecue Chicken Half', 'Half chicken marinated in peri-peri, with chips and slaw', 28_000, false, false],
 
@@ -124,107 +128,41 @@ class ExperienceSeeder extends Seeder
     }
 
     /**
-     * Things to do on the water and around the bay.
+     * The named conference halls and their delegate capacities.
+     *
+     * The profile describes four halls but only names three. Only the named ones
+     * are seeded; the fourth can be added in the dashboard once it is confirmed.
      */
-    private function seedActivities(): void
+    private function seedConferenceHalls(): void
     {
-        $activities = [
-            [
-                'name' => 'Sunset Lake Cruise',
-                'description' => 'Out past the rocks on a covered boat for the two hours either side of sunset. Drinks and snacks on board, and the best light of the day over the water.',
-                'duration_minutes' => 120,
-                'price' => 65_000,
-                'price_basis' => 'per_person',
-                'min_participants' => 2,
-                'max_participants' => 16,
-                'is_featured' => true,
-            ],
-            [
-                'name' => 'Boat Trip to Lizard Island',
-                'description' => 'A short crossing to the island just offshore, where the water is clear over the rock shelves. Snorkelling gear included. Back in time for lunch.',
-                'duration_minutes' => 120,
-                'price' => 55_000,
-                'price_basis' => 'per_person',
-                'min_participants' => 2,
-                'max_participants' => 12,
-                'is_featured' => true,
-            ],
-            [
-                'name' => 'Fishing Trip at Dawn',
-                'description' => 'Head out before first light with a local skipper. Rods, bait and a flask of coffee provided. Whatever you catch, the kitchen will cook for your lunch.',
-                'duration_minutes' => 210,
-                'price' => 140_000,
-                'price_basis' => 'per_group',
-                'min_participants' => 1,
-                'max_participants' => 4,
-                'is_featured' => true,
-            ],
-            [
-                'name' => 'Kayaking the Bay',
-                'description' => 'Single and double kayaks available from the beach. Paddle the sheltered water along the shoreline at your own pace.',
-                'duration_minutes' => 60,
-                'price' => 25_000,
-                'price_basis' => 'per_hour',
-                'min_participants' => 1,
-                'max_participants' => 8,
-                'is_featured' => false,
-            ],
-            [
-                'name' => 'Snorkelling the Rock Shelves',
-                'description' => 'Guided snorkelling over the cichlid colonies at the edge of the bay. Mask, fins and a guide who knows where the fish are.',
-                'duration_minutes' => 90,
-                'price' => 40_000,
-                'price_basis' => 'per_person',
-                'min_participants' => 2,
-                'max_participants' => 10,
-                'is_featured' => false,
-            ],
-            [
-                'name' => 'Beach Volleyball',
-                'description' => 'A net and a ball on the sand, free to use. Guests regularly end up with a match running through the afternoon.',
-                'duration_minutes' => 60,
-                'price' => 0,
-                'price_basis' => 'complimentary',
-                'min_participants' => 4,
-                'max_participants' => 20,
-                'is_featured' => false,
-            ],
-            [
-                'name' => 'Team Building Day',
-                'description' => 'A full programme on the beach and the water for corporate groups: boat races, raft building, a lake swim and lunch on the terrace. Run by our activities team.',
-                'duration_minutes' => 300,
-                'price' => 320_000,
-                'price_basis' => 'per_group',
-                'min_participants' => 10,
-                'max_participants' => 60,
-                'is_featured' => true,
-            ],
-            [
-                'name' => 'Senga Bay Village and Market Walk',
-                'description' => 'A guided walk to the fishing village and the market with a local guide. Watch the boats come in, see how the nets are mended, and buy from the stalls.',
-                'duration_minutes' => 180,
-                'price' => 45_000,
-                'price_basis' => 'per_person',
-                'min_participants' => 2,
-                'max_participants' => 10,
-                'is_featured' => false,
-            ],
-            [
-                'name' => 'Kuti Wildlife Reserve Safari',
-                'description' => 'A half day trip to Kuti, a community run reserve near Salima, with zebra, sable antelope, giraffe and over three hundred bird species. Transport and a guide included.',
-                'duration_minutes' => 300,
-                'price' => 180_000,
-                'price_basis' => 'per_person',
-                'min_participants' => 2,
-                'max_participants' => 8,
-                'is_featured' => true,
-            ],
+        $halls = [
+            ['name' => 'Namalenje Hall', 'capacity' => 250, 'layout' => 'Theatre, classroom or banquet'],
+            ['name' => 'Mikute Hall', 'capacity' => 100, 'layout' => 'Theatre, classroom or boardroom'],
+            ['name' => 'Mbenje Hall', 'capacity' => 50, 'layout' => 'Boardroom or hollow square'],
         ];
 
-        foreach ($activities as $index => $activity) {
-            Activity::query()->updateOrCreate(
-                ['slug' => Str::slug($activity['name'])],
-                $activity + [
+        $features = [
+            'Mineral water and candy on the table',
+            'HD overhead projector',
+            'Cordless and pin microphones',
+            'Flipcharts',
+            'Inbuilt HD sound system',
+            'IDD telephone',
+            'High speed free Wi-Fi',
+            'Printer, scanner and photocopier',
+            'Meeting stationery',
+            'IT butler service',
+        ];
+
+        foreach ($halls as $index => $hall) {
+            ConferenceHall::query()->updateOrCreate(
+                ['slug' => Str::slug($hall['name'])],
+                [
+                    'name' => $hall['name'],
+                    'capacity' => $hall['capacity'],
+                    'layout' => $hall['layout'],
+                    'description' => "One of the halls in our conference centre, seating up to {$hall['capacity']} delegates.",
+                    'features' => $features,
                     'sort_order' => $index + 1,
                     'is_active' => true,
                 ],
@@ -233,7 +171,7 @@ class ExperienceSeeder extends Seeder
     }
 
     /**
-     * Packages for conferences, retreats, weddings and private events.
+     * Packages sold to fill the halls, plus weddings and private events.
      */
     private function seedConferencePackages(): void
     {
@@ -242,19 +180,21 @@ class ExperienceSeeder extends Seeder
                 'name' => 'Day Delegate Conference',
                 'type' => 'conference',
                 'tagline' => 'The full working day, catered, looking out over the lake',
-                'description' => 'A complete day delegate rate for meetings and workshops. Includes the venue, equipment, two tea breaks and a buffet lunch. The room seats 120 theatre style or splits into two smaller spaces.',
+                'description' => 'A complete day delegate rate for meetings, workshops and trainings. Includes the hall, the audio-visual equipment, two tea breaks and a buffet lunch at the Lakeview Restaurant.',
                 'capacity_min' => 10,
-                'capacity_max' => 120,
+                'capacity_max' => 250,
                 'price' => 55_000,
                 'price_basis' => 'per_person',
                 'includes' => [
-                    'Conference venue hire',
-                    'Projector, screen and flip charts',
+                    'Conference hall hire',
+                    'HD projector, screen and flipcharts',
+                    'Cordless and pin microphones',
+                    'Inbuilt HD sound system',
                     'Mid-morning tea and coffee with pastries',
-                    'Buffet lunch on the terrace',
+                    'Buffet lunch at the Lakeview Restaurant',
                     'Afternoon tea and coffee',
-                    'Dedicated events coordinator',
-                    'Free WiFi throughout',
+                    'High speed Wi-Fi throughout',
+                    'IT butler service',
                 ],
                 'is_featured' => true,
             ],
@@ -262,9 +202,9 @@ class ExperienceSeeder extends Seeder
                 'name' => 'Residential Conference',
                 'type' => 'corporate_retreat',
                 'tagline' => 'Bring the team, stay the night, get the work done',
-                'description' => 'Conference by day, rooms and dinner by night. Designed for leadership offsites and strategy retreats, with the lake as the incentive to stay an extra day.',
+                'description' => 'Conference by day, rooms and dinner by night. Designed for leadership offsites and strategy retreats, with 42 rooms on site so the whole team stays together.',
                 'capacity_min' => 8,
-                'capacity_max' => 60,
+                'capacity_max' => 100,
                 'price' => 285_000,
                 'price_basis' => 'per_person',
                 'includes' => [
@@ -278,17 +218,37 @@ class ExperienceSeeder extends Seeder
                 'is_featured' => true,
             ],
             [
+                'name' => 'Half Day Meeting',
+                'type' => 'conference',
+                'tagline' => 'For when the meeting only needs a morning',
+                'description' => 'A half day in one of the smaller halls with one tea break and lunch, for board sessions and management meetings.',
+                'capacity_min' => 6,
+                'capacity_max' => 50,
+                'price' => 35_000,
+                'price_basis' => 'per_person',
+                'includes' => [
+                    'Conference hall hire for up to four hours',
+                    'Projector and screen',
+                    'Mineral water and candy on the table',
+                    'Tea, coffee and pastries',
+                    'Buffet lunch at the Lakeview Restaurant',
+                    'High speed Wi-Fi throughout',
+                ],
+                'is_featured' => false,
+            ],
+            [
                 'name' => 'Lakeside Wedding Package',
                 'type' => 'wedding',
                 'tagline' => 'Say it on the sand, celebrate on the terrace',
-                'description' => 'A ceremony on our stretch of beach followed by a reception on the terrace, with the sun going down behind you. Includes the set up, the catering and a coordinator who has run a lot of these.',
+                'description' => 'A ceremony on our stretch of beach followed by a reception on the terrace or in Namalenje Hall, with the sun going down behind you. Includes the set up, the catering and a coordinator who has run a lot of these.',
                 'capacity_min' => 30,
-                'capacity_max' => 200,
+                'capacity_max' => 250,
                 'price' => 1_850_000,
                 'price_basis' => 'per_event',
                 'includes' => [
                     'Beach ceremony set up with seating and archway',
-                    'Terrace reception with tables, linen and lighting',
+                    'Reception on the terrace or in Namalenje Hall',
+                    'Tables, linen and lighting',
                     'Three course plated dinner or buffet for 100 guests',
                     'Welcome drinks and a toast',
                     'Wedding cake table and cake stand',
@@ -299,34 +259,16 @@ class ExperienceSeeder extends Seeder
                 'is_featured' => true,
             ],
             [
-                'name' => 'Half Day Meeting',
-                'type' => 'conference',
-                'tagline' => 'For when the meeting only needs a morning',
-                'description' => 'A half day in the conference room with one tea break and lunch, for smaller meetings and board sessions.',
-                'capacity_min' => 6,
-                'capacity_max' => 40,
-                'price' => 35_000,
-                'price_basis' => 'per_person',
-                'includes' => [
-                    'Conference venue hire for up to four hours',
-                    'Projector and screen',
-                    'Tea, coffee and pastries',
-                    'Buffet lunch on the terrace',
-                    'Free WiFi throughout',
-                ],
-                'is_featured' => false,
-            ],
-            [
                 'name' => 'Private Event and Party Hire',
                 'type' => 'private_event',
                 'tagline' => 'Birthdays, anniversaries and celebrations by the lake',
-                'description' => 'Take the terrace or the beach for your own celebration. We will set the space, cater it and staff it, and leave you to enjoy it.',
+                'description' => 'Take the terrace, the beach or a hall for your own celebration. We will set the space, cater it and staff it, and leave you to enjoy it.',
                 'capacity_min' => 20,
-                'capacity_max' => 150,
+                'capacity_max' => 200,
                 'price' => 650_000,
                 'price_basis' => 'per_event',
                 'includes' => [
-                    'Terrace or beach venue hire for an evening',
+                    'Venue hire for an evening',
                     'Set up, tables, linen and lighting',
                     'Bar service with a dedicated barman',
                     'Sound system',
@@ -341,6 +283,175 @@ class ExperienceSeeder extends Seeder
             ConferencePackage::query()->updateOrCreate(
                 ['slug' => Str::slug($package['name'])],
                 $package + [
+                    'sort_order' => $index + 1,
+                    'is_active' => true,
+                ],
+            );
+        }
+    }
+
+    /**
+     * The leisure list from the company profile.
+     */
+    private function seedActivities(): void
+    {
+        $activities = [
+            [
+                'name' => 'Island Tour by Speed Boat',
+                'description' => 'Out to the islands on our 200 horsepower speed boat, with music on board and a skipper who knows where the fish are. The full day out on the lake.',
+                'duration_minutes' => 180,
+                'price' => 95_000,
+                'price_basis' => 'per_person',
+                'min_participants' => 2,
+                'max_participants' => 10,
+                'is_featured' => true,
+            ],
+            [
+                'name' => 'Water Skiing',
+                'description' => 'Water skiing behind the speed boat, with instruction if you have never tried it. Buoyancy aids provided.',
+                'duration_minutes' => 30,
+                'price' => 45_000,
+                'price_basis' => 'per_person',
+                'min_participants' => 1,
+                'max_participants' => 6,
+                'is_featured' => true,
+            ],
+            [
+                'name' => 'Boating on the Bay',
+                'description' => 'A relaxed turn around the bay in the speed boat. Good for families with small children and for anyone who wants the water without the effort.',
+                'duration_minutes' => 60,
+                'price' => 35_000,
+                'price_basis' => 'per_person',
+                'min_participants' => 2,
+                'max_participants' => 10,
+                'is_featured' => false,
+            ],
+            [
+                'name' => 'Snorkelling the Rock Shelves',
+                'description' => 'Guided snorkelling over the cichlid colonies at the edge of the bay. Mask, fins and a guide who knows where the fish are.',
+                'duration_minutes' => 90,
+                'price' => 40_000,
+                'price_basis' => 'per_person',
+                'min_participants' => 2,
+                'max_participants' => 10,
+                'is_featured' => true,
+            ],
+            [
+                'name' => 'Tubing',
+                'description' => 'Hold on. A towable ring behind the speed boat, which is as much fun as it sounds and considerably wetter.',
+                'duration_minutes' => 20,
+                'price' => 30_000,
+                'price_basis' => 'per_person',
+                'min_participants' => 1,
+                'max_participants' => 6,
+                'is_featured' => false,
+            ],
+            [
+                'name' => 'Parasailing',
+                'description' => 'Up above the bay with the whole of Senga Bay and the lake beneath you. Subject to wind and water conditions.',
+                'duration_minutes' => 15,
+                'price' => 85_000,
+                'price_basis' => 'per_person',
+                'min_participants' => 1,
+                'max_participants' => 4,
+                'is_featured' => true,
+            ],
+            [
+                'name' => 'Fishing off the Islands',
+                'description' => 'Head out with a local skipper and fish the water around the islands. Rods and bait provided, and the kitchen will cook whatever you land for your lunch.',
+                'duration_minutes' => 210,
+                'price' => 140_000,
+                'price_basis' => 'per_group',
+                'min_participants' => 1,
+                'max_participants' => 4,
+                'is_featured' => false,
+            ],
+            [
+                'name' => 'Bird Watching and Feeding',
+                'description' => 'A guided walk along the shore and the river mouth for fish eagles, kingfishers and herons, with feeding stations set up along the way.',
+                'duration_minutes' => 120,
+                'price' => 35_000,
+                'price_basis' => 'per_person',
+                'min_participants' => 1,
+                'max_participants' => 8,
+                'is_featured' => false,
+            ],
+            [
+                'name' => 'Private Family Cinema',
+                'description' => 'A private film on our HD projector, set up for your family in the evening. We will bring the snacks and the cushions.',
+                'duration_minutes' => 120,
+                'price' => 55_000,
+                'price_basis' => 'per_group',
+                'min_participants' => 2,
+                'max_participants' => 20,
+                'is_featured' => false,
+            ],
+            [
+                'name' => 'Kids Golf',
+                'description' => 'A putting green and childrens clubs, free for guests. Keeps the small ones busy while the grown ups have lunch.',
+                'duration_minutes' => 60,
+                'price' => 0,
+                'price_basis' => 'complimentary',
+                'min_participants' => 1,
+                'max_participants' => 10,
+                'is_featured' => false,
+            ],
+            [
+                'name' => 'Gaming Lounge',
+                'description' => 'A lounge with a gaming zone and board games, open through the day and into the evening. Free for guests.',
+                'duration_minutes' => null,
+                'price' => 0,
+                'price_basis' => 'complimentary',
+                'min_participants' => 1,
+                'max_participants' => 20,
+                'is_featured' => false,
+            ],
+            [
+                'name' => 'Photo and Pre-Wedding Shoots',
+                'description' => 'Use of the beach, jetty, gardens and gazebo for photography sessions and pre-wedding shoots, subject to company policy. Our team will show you the best light at each time of day.',
+                'duration_minutes' => 180,
+                'price' => 150_000,
+                'price_basis' => 'per_group',
+                'min_participants' => 2,
+                'max_participants' => 15,
+                'is_featured' => true,
+            ],
+            [
+                'name' => 'Bonfire Night',
+                'description' => 'A fire on the beach after dark, with seating around it and drinks service. Popular with conference groups on their last night.',
+                'duration_minutes' => 180,
+                'price' => 120_000,
+                'price_basis' => 'per_group',
+                'min_participants' => 6,
+                'max_participants' => 60,
+                'is_featured' => false,
+            ],
+            [
+                'name' => 'Candle Night Dinner',
+                'description' => 'A private candle-lit dinner on the deck or the beach, with a set menu and a waiter looking after your table alone. Popular with honeymooners and anniversaries.',
+                'duration_minutes' => 150,
+                'price' => 95_000,
+                'price_basis' => 'per_group',
+                'min_participants' => 2,
+                'max_participants' => 8,
+                'is_featured' => true,
+            ],
+            [
+                'name' => 'Spa Treatments',
+                'description' => 'Massage and beauty treatments arranged on request in your room or at the pool. Please ask reception the day before.',
+                'duration_minutes' => 60,
+                'price' => 60_000,
+                'price_basis' => 'per_person',
+                'min_participants' => 1,
+                'max_participants' => 4,
+                'is_featured' => false,
+            ],
+        ];
+
+        foreach ($activities as $index => $activity) {
+            Activity::query()->updateOrCreate(
+                ['slug' => Str::slug($activity['name'])],
+                $activity + [
                     'sort_order' => $index + 1,
                     'is_active' => true,
                 ],

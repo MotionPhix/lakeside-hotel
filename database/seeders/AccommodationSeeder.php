@@ -15,9 +15,10 @@ use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
 
 /**
- * What the hotel sells and sleeps: the facilities, the five room categories from
- * the website, the physical rooms behind them, the rates that move through the
- * year, and the closures that take a room off sale.
+ * What the hotel sells and sleeps, taken from the company profile: 42 rooms
+ * across seven categories, the amenities each one offers, the facilities on site,
+ * the conference facility list, the rates that move through the year, and the
+ * closures that take a room off sale.
  */
 class AccommodationSeeder extends Seeder
 {
@@ -35,28 +36,49 @@ class AccommodationSeeder extends Seeder
     }
 
     /**
-     * The facilities shown on the website and listed against each room.
+     * Room amenities, the facilities on site, and the conference facility list.
      *
      * @return array<string, Amenity>
      */
     private function seedAmenities(): array
     {
         $amenities = [
-            ['Free WiFi', 'wifi', 'general', 'Complimentary high speed internet across the hotel and gardens.', 1],
-            ['Restaurant', 'utensils', 'dining', 'The Lakeview Restaurant serves breakfast, lunch and dinner with the lake in view.', 2],
-            ['Bar & Lounge', 'wine', 'dining', 'The Anchor Bar & Lounge, plus a poolside bar.', 3],
-            ['Conference Facilities', 'presentation', 'business', 'A conference centre seating up to 120 delegates, splitting into two rooms.', 4],
-            ['Swimming Pool', 'waves', 'leisure', 'An outdoor pool with a sun deck and poolside service.', 5],
-            ['Lake Activities', 'ship', 'leisure', 'Cruises, fishing trips, kayaking and snorkelling, arranged from the jetty.', 6],
-            ['Secure Parking', 'car', 'general', 'Free off-street parking inside the hotel grounds.', 7],
-            ['Room Service', 'concierge-bell', 'room', 'In-room dining during restaurant hours.', 8],
-            ['Event Hosting', 'party-popper', 'business', 'Weddings, private parties and corporate events on the beach and terrace.', 9],
-            ['Air Conditioning', 'snowflake', 'room', 'Individually controlled air conditioning in every room.', 10],
-            ['En-suite Bathroom', 'shower-head', 'room', 'Private bathroom with hot water throughout the day.', 11],
-            ['Satellite TV', 'tv', 'room', 'DSTV with sport and international news channels.', 12],
-            ['Laundry Service', 'shirt', 'general', 'Same day laundry, collected from your room in the morning.', 13],
-            ['Beach Access', 'umbrella', 'leisure', 'Direct access to our private stretch of lakeshore.', 14],
-            ['Mosquito Nets', 'bug-off', 'room', 'Treated mosquito nets over every bed.', 15],
+            // In the rooms.
+            ['Air Conditioning', 'snowflake', 'room', 'Individually controlled air conditioning in every room.', 1],
+            ['Free Wi-Fi', 'wifi', 'room', 'Complimentary high speed internet across the hotel and gardens.', 2],
+            ['DSTV', 'tv', 'room', 'Satellite television with sport and international news.', 3],
+            ['Mini Fridge', 'refrigerator', 'room', 'A stocked mini fridge in every room.', 4],
+            ['Tea and Coffee Kettle', 'coffee', 'room', 'A kettle with tea and coffee replenished daily.', 5],
+            ['En-suite Bathroom', 'shower-head', 'room', 'Private bathroom with hot water throughout the day.', 6],
+            ['Hair-dryer', 'wind', 'room', 'A hair-dryer in every bathroom.', 7],
+            ['Mosquito Nets', 'bug-off', 'room', 'Treated mosquito nets over every bed.', 8],
+            ['Breakfast Included', 'utensils', 'room', 'Breakfast for two at the Lakeview Restaurant is included in every rate.', 9],
+            ['Lake Views', 'waves', 'room', 'Every room looks out over the gardens towards Lake Malawi.', 10],
+
+            // On site.
+            ['Swimming Pool', 'waves', 'general', 'An outdoor pool with a sun deck, gazebo and loungers overlooking the lake.', 11],
+            ['Lakeview Restaurant', 'utensils', 'general', 'Our multi-cuisine restaurant, seating close to 400 people.', 12],
+            ['Bar & Lounge', 'wine', 'general', 'The bar and lounge, with a pool table and the lake beyond.', 13],
+            ['Pool Table', 'target', 'general', 'A full size pool table in the lounge.', 14],
+            ['Conference Centre', 'presentation', 'general', 'Four conference halls seating up to 250 delegates.', 15],
+            ['Secure Parking', 'car', 'general', 'Free off-street parking inside the hotel grounds.', 16],
+            ['Room Service', 'concierge-bell', 'general', 'In-room dining during restaurant hours.', 17],
+            ['Beach Access', 'umbrella', 'general', 'Direct access to our private stretch of lakeshore.', 18],
+            ['Gardens', 'trees', 'general', 'Lawns and gardens running down to the water, with a thatched gazebo.', 19],
+            ['Laundry Service', 'shirt', 'general', 'Same day laundry, collected from your room in the morning.', 20],
+            ['Water Sports', 'ship', 'general', 'A 200 horsepower speed boat, water skiing, tubing and parasailing from our jetty.', 21],
+
+            // Conference facility list, from the profile.
+            ['Mineral Water and Candy on Table', 'cup-soda', 'conference', 'Still water and sweets set on every table before delegates arrive.', 22],
+            ['HD Overhead Projector', 'projector', 'conference', 'An HD overhead projector with a full size screen.', 23],
+            ['Cordless and Pin Microphones', 'mic', 'conference', 'Cordless and lapel microphones for speakers and panels.', 24],
+            ['Flipcharts', 'file-text', 'conference', 'Flipcharts and markers for break-out sessions.', 25],
+            ['Inbuilt HD Sound System', 'speaker', 'conference', 'An inbuilt HD sound system with a mixing desk.', 26],
+            ['IDD Telephone', 'phone', 'conference', 'An IDD telephone for international calls.', 27],
+            ['High Speed Free Wi-Fi', 'wifi', 'conference', 'High speed Wi-Fi throughout the conference centre.', 28],
+            ['Printer, Scanner and Photocopier', 'printer', 'conference', 'A printer, scanner and photocopier available to delegates.', 29],
+            ['Meeting Stationery', 'pen', 'conference', 'Notepads and pens at every seat.', 30],
+            ['IT Butler Service', 'laptop', 'conference', 'A dedicated technician on hand for the duration of your event.', 31],
         ];
 
         $models = [];
@@ -79,98 +101,136 @@ class AccommodationSeeder extends Seeder
     }
 
     /**
-     * The five room categories featured on the website.
+     * The seven room categories, from standard doubles to executive suites.
      *
      * @param  array<string, Amenity>  $amenities
      * @return array<string, RoomType>
      */
     private function seedRoomTypes(array $amenities): array
     {
+        $standard = ['En-suite Bathroom', 'Air Conditioning', 'Free Wi-Fi', 'DSTV', 'Breakfast Included', 'Mosquito Nets', 'Lake Views'];
+        $deluxe = ['En-suite Bathroom', 'Air Conditioning', 'Free Wi-Fi', 'DSTV', 'Mini Fridge', 'Tea and Coffee Kettle', 'Hair-dryer', 'Breakfast Included', 'Mosquito Nets', 'Lake Views'];
+        $suite = [...$deluxe, 'Room Service', 'Laundry Service', 'Beach Access'];
+
         $definitions = [
             [
-                'name' => 'Standard Rooms',
-                'slug' => 'standard-rooms',
-                'tagline' => 'Everything you need, with the lake a few steps away',
-                'description' => 'Our standard rooms open onto the gardens, a short walk from the water. Each has a queen bed, en-suite bathroom with hot water, air conditioning and satellite television. They are the simplest way to wake up at Senga Bay.',
+                'name' => 'Standard Double',
+                'slug' => 'standard-double',
+                'tagline' => 'Everything you need, with the lake a short walk away',
+                'description' => 'Our standard doubles open onto the gardens, a short walk from the water. Each has a double bed, an en-suite shower with hot water, air conditioning, satellite television and free Wi-Fi. Breakfast for two is included, and the lake is a minute away.',
                 'capacity_adults' => 2,
                 'capacity_children' => 0,
-                'size_sqm' => 26,
-                'bed_configuration' => 'One queen bed',
+                'size_sqm' => 24,
+                'bed_configuration' => 'One double bed',
                 'base_price' => 95_000,
                 'weekend_price' => 115_000,
                 'extra_person_price' => 30_000,
                 'min_nights' => 1,
                 'sort_order' => 1,
                 'is_featured' => true,
-                'amenities' => ['Free WiFi', 'Air Conditioning', 'En-suite Bathroom', 'Satellite TV', 'Mosquito Nets', 'Room Service', 'Secure Parking'],
+                'amenities' => $standard,
             ],
             [
-                'name' => 'Deluxe Rooms',
-                'slug' => 'deluxe-rooms',
-                'tagline' => 'More space, and a private terrace facing the gardens',
-                'description' => 'Deluxe rooms are larger, with a seating area and a private terrace looking over the gardens towards the lake. Choose a king bed or two doubles. Ideal for couples and for longer stays.',
-                'capacity_adults' => 2,
-                'capacity_children' => 1,
-                'size_sqm' => 34,
-                'bed_configuration' => 'One king bed or two doubles',
-                'base_price' => 145_000,
-                'weekend_price' => 175_000,
-                'extra_person_price' => 35_000,
+                'name' => 'Deluxe Single',
+                'slug' => 'deluxe-single',
+                'tagline' => 'A quiet room for the solo traveller',
+                'description' => 'A comfortable single room for guests travelling alone on business or passing through Salima, with the same lake views and garden setting as the rest of the hotel.',
+                'capacity_adults' => 1,
+                'capacity_children' => 0,
+                'size_sqm' => 22,
+                'bed_configuration' => 'One single bed',
+                'base_price' => 110_000,
+                'weekend_price' => 130_000,
+                'extra_person_price' => 30_000,
                 'min_nights' => 1,
                 'sort_order' => 2,
-                'is_featured' => true,
-                'amenities' => ['Free WiFi', 'Air Conditioning', 'En-suite Bathroom', 'Satellite TV', 'Mosquito Nets', 'Room Service', 'Beach Access', 'Laundry Service'],
+                'is_featured' => false,
+                'amenities' => $standard,
             ],
             [
-                'name' => 'Executive Suites',
-                'slug' => 'executive-suites',
-                'tagline' => 'A separate lounge, and the best view in the house',
-                'description' => 'Executive suites have a bedroom, a separate sitting room and a wide veranda looking out over the bay. They are our most requested rooms for honeymoons, anniversaries and long working stays.',
+                'name' => 'Twin Room',
+                'slug' => 'twin-room',
+                'tagline' => 'Two beds, two friends, one lake',
+                'description' => 'Twin rooms have two single beds and a little more floor space, which makes them the usual choice for friends travelling together or colleagues sharing on a conference booking.',
                 'capacity_adults' => 2,
-                'capacity_children' => 2,
-                'size_sqm' => 58,
-                'bed_configuration' => 'One king bed with a separate lounge',
-                'base_price' => 260_000,
-                'weekend_price' => 310_000,
-                'extra_person_price' => 45_000,
+                'capacity_children' => 1,
+                'size_sqm' => 30,
+                'bed_configuration' => 'Two single beds',
+                'base_price' => 145_000,
+                'weekend_price' => 175_000,
+                'extra_person_price' => 30_000,
                 'min_nights' => 1,
                 'sort_order' => 3,
                 'is_featured' => true,
-                'amenities' => ['Free WiFi', 'Air Conditioning', 'En-suite Bathroom', 'Satellite TV', 'Mosquito Nets', 'Room Service', 'Beach Access', 'Laundry Service', 'Bar & Lounge'],
+                'amenities' => $deluxe,
             ],
             [
-                'name' => 'Family Rooms',
-                'slug' => 'family-rooms',
-                'tagline' => 'Room for five, right by the pool',
-                'description' => 'Family rooms sleep up to five, with a king bed and three singles separated by a curtained area. They sit beside the pool and a short walk from the beach, which tends to be where the children want to be.',
+                'name' => 'Deluxe Double',
+                'slug' => 'deluxe-double',
+                'tagline' => 'A king-size bed and a view of the water',
+                'description' => 'Our most requested room. A king-size bed, a mini fridge, a kettle for morning coffee, and a wide window onto the gardens and the lake beyond.',
                 'capacity_adults' => 2,
-                'capacity_children' => 3,
-                'size_sqm' => 46,
-                'bed_configuration' => 'One king bed and three single beds',
-                'base_price' => 185_000,
-                'weekend_price' => 215_000,
-                'extra_person_price' => 30_000,
+                'capacity_children' => 1,
+                'size_sqm' => 34,
+                'bed_configuration' => 'One king-size bed',
+                'base_price' => 165_000,
+                'weekend_price' => 195_000,
+                'extra_person_price' => 35_000,
                 'min_nights' => 1,
                 'sort_order' => 4,
                 'is_featured' => true,
-                'amenities' => ['Free WiFi', 'Air Conditioning', 'En-suite Bathroom', 'Satellite TV', 'Mosquito Nets', 'Swimming Pool', 'Beach Access', 'Room Service'],
+                'amenities' => $deluxe,
             ],
             [
-                'name' => 'Lakeside Chalets',
-                'slug' => 'lakeside-chalets',
-                'tagline' => 'Your own deck over the water',
-                'description' => 'Our five chalets stand at the edge of the property, each with a private deck facing the water. Wake up, walk out with a coffee, and watch the fishermen come in. These are the rooms guests ask for by name.',
+                'name' => 'Deluxe Family',
+                'slug' => 'deluxe-family',
+                'tagline' => 'Room for five, right by the pool',
+                'description' => 'Deluxe family rooms sleep up to five, with a king-size bed and a bunk bed. They sit close to the pool and a short walk from the beach, which tends to be where the children want to be.',
                 'capacity_adults' => 2,
-                'capacity_children' => 2,
-                'size_sqm' => 72,
-                'bed_configuration' => 'One king bed, day bed and private deck',
-                'base_price' => 320_000,
-                'weekend_price' => 380_000,
-                'extra_person_price' => 45_000,
-                'min_nights' => 2,
+                'capacity_children' => 3,
+                'size_sqm' => 42,
+                'bed_configuration' => 'One king-size bed and a bunk bed',
+                'base_price' => 195_000,
+                'weekend_price' => 225_000,
+                'extra_person_price' => 30_000,
+                'min_nights' => 1,
                 'sort_order' => 5,
                 'is_featured' => true,
-                'amenities' => ['Free WiFi', 'Air Conditioning', 'En-suite Bathroom', 'Satellite TV', 'Mosquito Nets', 'Beach Access', 'Room Service', 'Laundry Service', 'Lake Activities'],
+                'amenities' => [...$deluxe, 'Swimming Pool'],
+            ],
+            [
+                'name' => 'Honeymoon Suite',
+                'slug' => 'honeymoon-suite',
+                'tagline' => 'The quietest corner of the property',
+                'description' => 'A secluded suite with a king-size bed, a sitting area and a veranda facing the water. We can arrange a private candle-lit dinner on the deck, a boat trip to the islands, and a late check out on your last morning.',
+                'capacity_adults' => 2,
+                'capacity_children' => 0,
+                'size_sqm' => 48,
+                'bed_configuration' => 'One king-size bed with a sitting area',
+                'base_price' => 285_000,
+                'weekend_price' => 330_000,
+                'extra_person_price' => 45_000,
+                'min_nights' => 2,
+                'sort_order' => 6,
+                'is_featured' => true,
+                'amenities' => [...$suite, 'Bar & Lounge'],
+            ],
+            [
+                'name' => 'Executive Suite',
+                'slug' => 'executive-suite',
+                'tagline' => 'A separate lounge, for longer stays',
+                'description' => 'Designed for business professionals staying a while. A king-size bed, a separate lounge for working or meeting, and the full run of the hotel. Popular with guests combining a conference with a few days on the lake.',
+                'capacity_adults' => 2,
+                'capacity_children' => 2,
+                'size_sqm' => 58,
+                'bed_configuration' => 'One king-size bed with a separate lounge',
+                'base_price' => 310_000,
+                'weekend_price' => 360_000,
+                'extra_person_price' => 45_000,
+                'min_nights' => 1,
+                'sort_order' => 7,
+                'is_featured' => true,
+                'amenities' => [...$suite, 'Conference Centre', 'Bar & Lounge'],
             ],
         ];
 
@@ -199,18 +259,22 @@ class AccommodationSeeder extends Seeder
     }
 
     /**
-     * The physical rooms behind each category.
+     * The 42 physical rooms behind the categories.
      *
      * @param  array<string, RoomType>  $roomTypes
      */
     private function seedRooms(array $roomTypes): void
     {
+        // slug => [prefix, first number, how many, floor]. The counts add up to
+        // the 42 rooms the company profile advertises.
         $layout = [
-            'standard-rooms' => ['prefix' => 'Room', 'from' => 101, 'count' => 8, 'floor' => 'Ground'],
-            'deluxe-rooms' => ['prefix' => 'Room', 'from' => 201, 'count' => 6, 'floor' => 'First'],
-            'executive-suites' => ['prefix' => 'Suite', 'from' => 1, 'count' => 3, 'floor' => 'First'],
-            'family-rooms' => ['prefix' => 'Room', 'from' => 301, 'count' => 4, 'floor' => 'Ground'],
-            'lakeside-chalets' => ['prefix' => 'Chalet', 'from' => 1, 'count' => 5, 'floor' => 'Beach'],
+            'standard-double' => ['prefix' => 'Room', 'from' => 101, 'count' => 10, 'floor' => 'Ground'],
+            'deluxe-single' => ['prefix' => 'Room', 'from' => 111, 'count' => 6, 'floor' => 'Ground'],
+            'twin-room' => ['prefix' => 'Room', 'from' => 201, 'count' => 6, 'floor' => 'First'],
+            'deluxe-double' => ['prefix' => 'Room', 'from' => 207, 'count' => 8, 'floor' => 'First'],
+            'deluxe-family' => ['prefix' => 'Room', 'from' => 215, 'count' => 5, 'floor' => 'First'],
+            'honeymoon-suite' => ['prefix' => 'Suite', 'from' => 1, 'count' => 3, 'floor' => 'Second'],
+            'executive-suite' => ['prefix' => 'Suite', 'from' => 4, 'count' => 4, 'floor' => 'Second'],
         ];
 
         foreach ($layout as $slug => $config) {
@@ -285,7 +349,7 @@ class AccommodationSeeder extends Seeder
                 'type' => RatePlanType::Corporate,
                 'adjustment_type' => RateAdjustmentType::Percentage,
                 'amount' => -15,
-                'notes' => 'Applies to negotiated corporate accounts.',
+                'notes' => 'Applies to negotiated corporate accounts and conference delegates.',
             ],
             [
                 'code' => 'MIDWEEK',
@@ -306,14 +370,14 @@ class AccommodationSeeder extends Seeder
                 'notes' => 'Three nights or more, applied to the whole stay.',
             ],
             [
-                'code' => 'CHALET-LONGSTAY',
-                'name' => 'Chalet long stay',
+                'code' => 'SUITE-LONGSTAY',
+                'name' => 'Suite long stay',
                 'type' => RatePlanType::Promotional,
                 'adjustment_type' => RateAdjustmentType::Percentage,
                 'amount' => -12,
                 'min_nights' => 4,
-                'room_type_id' => $roomTypes['lakeside-chalets']->id ?? null,
-                'notes' => 'Four nights or more in a lakeside chalet.',
+                'room_type_id' => $roomTypes['honeymoon-suite']->id ?? null,
+                'notes' => 'Four nights or more in the honeymoon suite.',
             ],
         ];
 
@@ -342,11 +406,11 @@ class AccommodationSeeder extends Seeder
      */
     private function seedClosures(array $roomTypes): void
     {
-        $chalet = $roomTypes['lakeside-chalets'] ?? null;
-        $standard = $roomTypes['standard-rooms'] ?? null;
+        $suites = $roomTypes['honeymoon-suite'] ?? null;
+        $standard = $roomTypes['standard-double'] ?? null;
 
-        if ($chalet instanceof RoomType) {
-            $room = $chalet->rooms()->orderBy('name')->first();
+        if ($suites instanceof RoomType) {
+            $room = $suites->rooms()->orderBy('name')->first();
 
             if ($room !== null) {
                 AvailabilityBlock::query()->updateOrCreate(
@@ -354,7 +418,7 @@ class AccommodationSeeder extends Seeder
                     [
                         'ends_on' => now()->addDays(16)->toDateString(),
                         'reason' => AvailabilityBlockReason::Renovation,
-                        'notes' => 'Deck resurfacing. Booked as maintenance in the diary.',
+                        'notes' => 'Veranda resurfacing. Booked as maintenance in the diary.',
                     ],
                 );
             }

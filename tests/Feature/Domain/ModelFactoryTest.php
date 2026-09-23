@@ -8,6 +8,7 @@ use App\Models\Amenity;
 use App\Models\AvailabilityBlock;
 use App\Models\Booking;
 use App\Models\BookingItem;
+use App\Models\ConferenceHall;
 use App\Models\ConferencePackage;
 use App\Models\ContentBlock;
 use App\Models\Coupon;
@@ -25,6 +26,7 @@ use App\Models\RatePlan;
 use App\Models\Room;
 use App\Models\RoomType;
 use App\Models\Setting;
+use App\Models\SiteSection;
 use App\Models\Testimonial;
 use App\Models\User;
 
@@ -71,14 +73,18 @@ test('the database seeder builds a complete, browsable hotel', function () {
     $this->seed();
 
     expect(User::query()->count())->toBe(count(Role::staff()))
-        ->and(RoomType::query()->active()->count())->toBe(5)
-        ->and(Room::query()->count())->toBe(26)
-        ->and(Amenity::query()->active()->count())->toBe(15)
+        // The seven room categories and the 42 rooms the company profile advertises.
+        ->and(RoomType::query()->active()->count())->toBe(7)
+        ->and(Room::query()->count())->toBe(42)
+        ->and(Setting::value('hotel.rooms_total'))->toBe('42')
+        ->and(Amenity::query()->active()->count())->toBe(31)
+        ->and(Amenity::query()->category('conference')->count())->toBe(10)
         ->and(RatePlan::query()->active()->count())->toBe(7)
         ->and(AvailabilityBlock::query()->count())->toBe(2)
         ->and(DiningVenue::query()->active()->count())->toBe(3)
-        ->and(MenuItem::query()->count())->toBe(25)
-        ->and(Activity::query()->active()->count())->toBe(9)
+        ->and(MenuItem::query()->count())->toBe(26)
+        ->and(Activity::query()->active()->count())->toBe(15)
+        ->and(ConferenceHall::query()->active()->count())->toBe(3)
         ->and(ConferencePackage::query()->active()->count())->toBe(5)
         ->and(Offer::query()->count())->toBe(6)
         ->and(Coupon::query()->count())->toBe(7)
@@ -86,8 +92,9 @@ test('the database seeder builds a complete, browsable hotel', function () {
         ->and(Testimonial::query()->awaitingModeration()->count())->toBe(2)
         ->and(GalleryItem::query()->active()->count())->toBe(18)
         ->and(NearbyAttraction::query()->active()->count())->toBe(8)
-        ->and(Setting::query()->count())->toBe(27)
-        ->and(ContentBlock::query()->count())->toBe(6)
+        ->and(Setting::query()->count())->toBe(35)
+        ->and(ContentBlock::query()->count())->toBe(9)
+        ->and(SiteSection::query()->published('home')->count())->toBe(13)
         ->and(Booking::query()->count())->toBe(52)
         ->and(Booking::query()->holdingInventory()->count())->toBe(27)
         ->and(Payment::query()->count())->toBe(41)

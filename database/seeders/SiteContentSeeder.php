@@ -10,11 +10,12 @@ use App\Models\Setting;
 use Illuminate\Database\Seeder;
 
 /**
- * The hotel's own words: contact details, the About story, booking policies, the
- * homepage hero, the gallery structure and what is worth seeing nearby.
+ * The hotel's own words and details, taken from the Lakeside Hotel company
+ * profile. Everything here is editable in the dashboard.
  *
- * Photographs are attached to these records in a later pass, once the lakeside
- * image set exists.
+ * Two things are deliberately left blank because the profile does not give them:
+ * the social media URLs, and the exact map coordinates. The footer hides a social
+ * link until it is filled in, so nothing renders broken in the meantime.
  */
 class SiteContentSeeder extends Seeder
 {
@@ -39,30 +40,39 @@ class SiteContentSeeder extends Seeder
             // [key, value, section, type]
             ['hotel.name', 'Lakeside Hotel and Conference Centre', 'general', 'string'],
             ['hotel.tagline', 'Your Lakeside Escape in Senga Bay', 'general', 'string'],
+            ['hotel.established', '1998', 'general', 'string'],
             ['hotel.address', 'Senga Bay, Salima District, Malawi', 'contact', 'string'],
-            ['hotel.phone', '+265 1 252 148', 'contact', 'string'],
-            ['hotel.whatsapp', '+265 99 512 3400', 'contact', 'string'],
-            ['hotel.email', 'reservations@lakesidehotel.mw', 'contact', 'email'],
-            ['hotel.events_email', 'events@lakesidehotel.mw', 'contact', 'email'],
+            ['hotel.reservations_office', 'Infinity Complex, Sir Glyn Joones Rd., Area 3, Lilongwe', 'contact', 'string'],
+            ['hotel.phone', '+265 1 263 400', 'contact', 'string'],
+            ['hotel.phone_alt', '+265 884 484 999', 'contact', 'string'],
+            ['hotel.phone_alt_2', '+265 986 100 309', 'contact', 'string'],
+            ['hotel.whatsapp', '+265 999 311 228', 'contact', 'string'],
+            ['hotel.email', 'reservations@lakesidehotelmw.net', 'contact', 'email'],
+            ['hotel.marketing_email', 'marketing@lakesidehotelmw.net', 'contact', 'email'],
+            ['hotel.events_email', 'reservations@lakesidehotelmw.net', 'contact', 'email'],
+            ['hotel.website', 'https://www.lakesidehotelmw.net', 'contact', 'string'],
             ['hotel.latitude', '-13.716700', 'contact', 'string'],
             ['hotel.longitude', '34.616700', 'contact', 'string'],
             ['hotel.map_zoom', '14', 'contact', 'integer'],
             ['hotel.check_in_time', '14:00', 'booking', 'time'],
             ['hotel.check_out_time', '11:00', 'booking', 'time'],
             ['hotel.currency', 'MWK', 'booking', 'string'],
+            ['hotel.rooms_total', '42', 'general', 'integer'],
             ['booking.vat_rate', '16.5', 'booking', 'decimal'],
             ['booking.tourism_levy_rate', '1', 'booking', 'decimal'],
             ['booking.deposit_percentage', '50', 'booking', 'integer'],
             ['booking.pay_at_hotel_enabled', '1', 'booking', 'boolean'],
             ['booking.online_payment_enabled', '1', 'booking', 'boolean'],
             ['booking.cancellation_policy', 'Free cancellation up to 7 days before arrival. Within 7 days the first night is charged. No shows are charged in full.', 'booking', 'text'],
-            ['booking.child_policy', 'Children under 12 stay free when sharing with two adults. Cots are available on request.', 'booking', 'text'],
-            ['booking.transfer_note', 'Airport transfers from Lilongwe Kamuzu International Airport take about 1 hour 45 minutes. Please book at least 24 hours ahead.', 'booking', 'text'],
-            ['social.facebook', 'https://www.facebook.com/lakesidehotelsengabay', 'social', 'string'],
-            ['social.instagram', 'https://www.instagram.com/lakesidehotelsengabay', 'social', 'string'],
-            ['social.tripadvisor', 'https://www.tripadvisor.com/', 'social', 'string'],
+            ['booking.child_policy', 'Children under 12 stay free when sharing with two adults. Cots and extra beds are available on request.', 'booking', 'text'],
+            ['booking.transfer_note', 'We can collect you from Kamuzu International Airport in Lilongwe, or from our reservations office in Area 3. The drive to Senga Bay takes about one hour forty-five minutes. Please request your transfer at least 24 hours before arrival.', 'booking', 'text'],
+            ['restaurant.capacity', '400', 'general', 'integer'],
+            // Left blank on purpose: the profile shows social icons but no URLs.
+            ['social.facebook', '', 'social', 'string'],
+            ['social.instagram', '', 'social', 'string'],
+            ['social.tripadvisor', '', 'social', 'string'],
             ['seo.default_title', 'Lakeside Hotel and Conference Centre | Senga Bay, Salima', 'seo', 'string'],
-            ['seo.default_description', 'Book a lakeside room, chalet or suite at Lakeside Hotel and Conference Centre in Senga Bay, Salima. Lake Malawi views, restaurant, pool, conference facilities and lake activities.', 'seo', 'text'],
+            ['seo.default_description', 'Book a lakeside room, suite or family room at Lakeside Hotel and Conference Centre in Senga Bay, Salima. Lake Malawi views, the Lakeview Restaurant, four conference halls and lake activities.', 'seo', 'text'],
             ['analytics.google_id', '', 'seo', 'string'],
         ];
 
@@ -80,40 +90,71 @@ class SiteContentSeeder extends Seeder
             [
                 'key' => 'about',
                 'title' => 'A lakeside retreat in Senga Bay',
-                'subtitle' => 'Warm Malawian hospitality on the shores of Lake Malawi',
+                'subtitle' => 'Warm Malawian hospitality on the shores of Lake Malawi, since 1998',
                 'sort_order' => 1,
-                'body' => 'Lakeside Hotel sits on the quiet shoreline at Senga Bay, where the water is clear, the sunsets are long, and the pace of the day is set by the lake itself.
+                'body' => 'Established in 1998, Lakeside Hotel and Conference Centre is one of the most highly appreciated getaways in Salima. With vast years of experience, we have valuable insight in the industry, local knowledge and cultural sensitivity. We share the connection we have with the surrounding communities with our guests, creating a unique experience.
 
-We are a short drive from Salima and about an hour and three quarters from Lilongwe, which makes us an easy weekend escape from the capital and a natural stopping point on the way north.
+We sit on the shore of Lake Malawi at Senga Bay, where the water is clear, the sunsets are long, and the pace of the day is set by the lake itself. We are a short drive from Salima town and about an hour and three quarters from Lilongwe, which makes us an easy weekend away from the capital and a natural stopping point on the road north.
 
-Our rooms, suites and chalets all look out over gardens or water. Our kitchen cooks what the lake and the surrounding farms give us. And our team has been welcoming travellers to this stretch of coast for years - whether you are here for a family holiday, a conference, or a wedding on the beach.',
+Our 42 rooms look out across gardens or water. The Lakeview Restaurant cooks what the lake and the surrounding farms give us. And our team has been welcoming travellers to this stretch of coast for over twenty five years.',
+            ],
+            [
+                'key' => 'mission',
+                'title' => 'Our mission',
+                'subtitle' => 'Why we do this',
+                'sort_order' => 2,
+                'body' => 'Lakeside Hotel, with its history, is devoted to establishing abiding relationships with our clients by providing highly personalised services and pleasant hospitality in a comfortable and elegant setting.',
+            ],
+            [
+                'key' => 'vision',
+                'title' => 'Our vision',
+                'subtitle' => 'Where we are going',
+                'sort_order' => 3,
+                'body' => 'We aim to have our name known as one of the premier luxury destinations in the country and be the destination of choice for communities and investors. We want to create a personalised experience for every guest, that they will treasure forever.',
             ],
             [
                 'key' => 'about.lake',
                 'title' => 'On the water',
                 'subtitle' => 'Lake Malawi, right on the doorstep',
-                'sort_order' => 2,
-                'body' => 'Lake Malawi holds more fish species than any other lake in the world. You can snorkel over the rock shelves at the edge of the bay, watch fish eagles hunt from the jetty, or take a boat out to Lizard Island and be back in time for lunch.',
+                'sort_order' => 4,
+                'body' => 'Lake Malawi holds more fish species than any other lake in the world. You can snorkel over the rock shelves at the edge of the bay, watch fish eagles hunt from the jetty, or take our speed boat out to the islands and be back in time for lunch.',
             ],
             [
                 'key' => 'dining.intro',
-                'title' => 'Food from the lake and the farm',
-                'subtitle' => 'Chambo, tilapia, and produce from around Salima',
-                'sort_order' => 3,
-                'body' => 'Our kitchen is built around chambo and tilapia landed the same morning, vegetables from growers around Salima, and the flavours of Malawian home cooking. Breakfast, lunch and dinner are served on the terrace overlooking the water.',
+                'title' => 'The Lakeview Restaurant',
+                'subtitle' => 'Tradition and modernity, with the lake in front of you',
+                'sort_order' => 5,
+                'body' => 'We cordially invite you to our Lakeview Restaurant, which combines tradition with modernity in an exceptional way.
+
+Even if you are not staying the night, enjoy your meal while gazing at the beauty that is Lake Malawi. We cater to our guests however they wish to be served: are you coming for a day and just want lunch and a swim, or hosting a business conference and need us to cater for your colleagues?
+
+We serve international and local dishes, prepared by a team of skilled chefs. Our multi-cuisine restaurant seats close to 400 people in one sitting, giving you dining service in an environment right on the lake.',
             ],
             [
                 'key' => 'conferences.intro',
-                'title' => 'Meetings with a view',
-                'subtitle' => 'Conference, retreat and event facilities at the lake',
-                'sort_order' => 4,
-                'body' => 'Our conference centre looks out over the gardens to the water. It seats up to 120 delegates theatre style, splits into two smaller rooms, and comes with a dedicated events coordinator, projector and screen, and full catering. Teams come here to work, and stay for the sunsets.',
+                'title' => 'Conference facilities at the lake',
+                'subtitle' => 'Four halls, up to 250 delegates, Wi-Fi throughout',
+                'sort_order' => 6,
+                'body' => 'Our conference facilities offer a high-class and stylish environment for social get-togethers, in-residence conferences and business meetings.
+
+The ultra-modern, contemporarily furnished conference centre seats up to 250 delegates, with Namalenje, Mikute and Mbenje halls taking 250, 100 and 50 respectively. Each hall can be set up theatre style, as a classroom or as a boardroom, and they combine for larger gatherings.
+
+The facility is backed up with Wi-Fi internet connectivity, the latest audio-visual devices, professional support and warm hospitality.',
+            ],
+            [
+                'key' => 'leisure.intro',
+                'title' => 'Leisure on the lake',
+                'subtitle' => 'Water sports, island trips and quiet evenings',
+                'sort_order' => 7,
+                'body' => 'We offer a range of water activities including water skiing, boating, snorkelling and an island tour on a 200 horsepower speed boat, music included.
+
+There is tubing, parasailing, fishing off the island, and bird watching and feeding. Back on land there is a private family cinema with an HD projector, kids golf, a lounge with a gaming zone, photo and pre-wedding shoots, bonfire nights, candle-lit dinners and spa treatments on request.',
             ],
             [
                 'key' => 'booking.policies',
                 'title' => 'Booking policies',
                 'subtitle' => 'Everything you need to know before you reserve',
-                'sort_order' => 5,
+                'sort_order' => 8,
                 'body' => 'Rates are quoted per room per night in Malawian Kwacha and include breakfast for two. Government value added tax of 16.5% and the 1% tourism levy are added at checkout.
 
 Check in is from 14:00 and check out is by 11:00. Later check out can be arranged at reception, subject to availability.
@@ -124,10 +165,14 @@ We accept card payments and mobile money through Airtel Money and TNM Mpamba, or
             ],
             [
                 'key' => 'transfers',
-                'title' => 'Airport transfers',
+                'title' => 'Getting here',
                 'subtitle' => 'From Lilongwe to the lake, arranged for you',
-                'sort_order' => 6,
-                'body' => 'We can collect you from Kamuzu International Airport in Lilongwe. The drive to Senga Bay takes about one hour forty-five minutes. Please request your transfer when you book, or at least 24 hours before arrival.',
+                'sort_order' => 9,
+                'body' => 'Senga Bay is on the S122 shore road, about 25 km from Salima town and roughly an hour and three quarters from Lilongwe.
+
+Our reservations office is at Infinity Complex, Sir Glyn Joones Rd., Area 3, Lilongwe - before the Lilongwe Waterboard - where you are welcome to call in.
+
+We can collect you from Kamuzu International Airport. Please request your transfer when you book, or at least 24 hours before arrival.',
             ],
         ];
 
@@ -144,7 +189,7 @@ We accept card payments and mobile money through Airtel Money and TNM Mpamba, or
         $slides = [
             [
                 'headline' => 'Your Lakeside Escape in Senga Bay',
-                'subheadline' => 'Wake up to Lake Malawi at your window. Rooms, suites and chalets on a quiet stretch of shoreline, with warm Malawian hospitality.',
+                'subheadline' => 'Wake up to Lake Malawi at your window. Forty two rooms, from standard doubles to executive suites, on a quiet stretch of shoreline.',
                 'cta_label' => 'Book Your Stay',
                 'cta_url' => '/booking',
                 'secondary_cta_label' => 'Explore Rooms',
@@ -153,7 +198,7 @@ We accept card payments and mobile money through Airtel Money and TNM Mpamba, or
             ],
             [
                 'headline' => 'Sunsets over the water',
-                'subheadline' => 'Dinner on the terrace, a cold drink at the pool bar, and the sun going down across the bay.',
+                'subheadline' => 'Dinner at the Lakeview Restaurant, a drink at the bar, and the sun going down across the bay.',
                 'cta_label' => 'See Dining',
                 'cta_url' => '/dining',
                 'secondary_cta_label' => 'View Gallery',
@@ -162,7 +207,7 @@ We accept card payments and mobile money through Airtel Money and TNM Mpamba, or
             ],
             [
                 'headline' => 'Days on Lake Malawi',
-                'subheadline' => 'Sunset cruises, fishing trips, snorkelling over the rock shelves, or nothing at all.',
+                'subheadline' => 'Island tours on our 200 horsepower speed boat, water skiing, snorkelling, or nothing at all.',
                 'cta_label' => 'Explore Activities',
                 'cta_url' => '/activities',
                 'secondary_cta_label' => 'Check Availability',
@@ -177,29 +222,29 @@ We accept card payments and mobile money through Airtel Money and TNM Mpamba, or
     }
 
     /**
-     * The gallery grid. Photographs are attached to these tiles later.
+     * The gallery grid. Photographs are attached to these tiles in a later pass.
      */
     private function seedGallery(): void
     {
         $tiles = [
-            ['Lakeside gardens', 'The lawns running down to the water', 'hotel', true],
+            ['The swimming pool', 'The pool and sun deck overlooking the lake', 'pool', true],
             ['Beachfront at Senga Bay', 'Our stretch of shoreline in the early morning', 'beach', true],
             ['Sunset over the bay', 'The view from the terrace at dusk', 'lake', true],
-            ['Deluxe room', 'Garden facing deluxe rooms', 'rooms', true],
-            ['Lakeside chalet', 'A chalet with its own deck over the water', 'rooms', true],
-            ['The pool', 'The swimming pool and sun deck', 'pool', true],
-            ['Lakeview Restaurant', 'Dinner service on the terrace', 'dining', true],
-            ['Anchor Bar & Lounge', 'Drinks at the bar', 'dining', false],
-            ['Sunset cruise', 'Out on the water as the light goes', 'activities', true],
-            ['Fishing at dawn', 'Heading out before the heat', 'activities', true],
-            ['Conference centre', 'The main conference room set for a plenary', 'events', true],
+            ['Namalenje Hall', 'Our largest conference hall set for a plenary', 'events', true],
+            ['The Lakeview Restaurant', 'Dinner service on the terrace', 'dining', true],
+            ['Deluxe Double', 'A deluxe double with the lake in view', 'rooms', true],
+            ['The bar and lounge', 'Drinks, a pool table and the lake beyond', 'dining', true],
+            ['Island tour by speed boat', 'Out on the water as the light goes', 'activities', true],
+            ['Gazebo and gardens', 'The thatched gazebo by the pool', 'hotel', true],
             ['Wedding on the beach', 'A ceremony on the sand at golden hour', 'weddings', true],
-            ['Lizard Island', 'The short boat ride to the island', 'lake', false],
-            ['Jetty and gardens', 'Walking down to the jetty', 'hotel', false],
-            ['Family room', 'A family room set up for four', 'rooms', false],
-            ['Grilled chambo', 'Chambo straight off the grill', 'dining', false],
-            ['Tea on the terrace', 'Afternoon tea overlooking the lake', 'hotel', false],
-            ['Pool bar', 'The poolside bar at midday', 'pool', false],
+            ['Deluxe Family', 'A family room set up for five', 'rooms', false],
+            ['Standard Double', 'A standard double room', 'rooms', false],
+            ['Grilled chambo', 'Chambo straight off the grill with nsima', 'dining', false],
+            ['Water skiing', 'Out on the lake behind the speed boat', 'activities', false],
+            ['Birdlife on the shore', 'Fish eagles and kingfishers along the bay', 'lake', false],
+            ['Conference break-out room', 'Mikute Hall set for a workshop', 'events', false],
+            ['Poolside at midday', 'Loungers, shade and cold drinks', 'pool', false],
+            ['Bonfire on the beach', 'Evenings on the sand', 'beach', false],
         ];
 
         foreach ($tiles as $index => [$title, $caption, $category, $featured]) {
@@ -223,7 +268,7 @@ We accept card payments and mobile money through Airtel Money and TNM Mpamba, or
     private function seedNearbyAttractions(): void
     {
         $attractions = [
-            ['Lizard Island', 'nature', 'A short boat ride from the hotel jetty, with clear water for snorkelling and a colony of monitor lizards on the rocks.', 3.5, 15],
+            ['Lizard Island', 'nature', 'A short boat ride from our jetty, with clear water for snorkelling over the rock shelves and monitor lizards on the rocks.', 3.5, 15],
             ['Senga Bay Market', 'market', 'Fresh fish, vegetables and everyday supplies, best visited in the morning when the boats come in.', 2.0, 10],
             ['Kuti Wildlife Reserve', 'nature', 'A community run reserve near Salima with zebra, sable antelope, giraffe and over 300 bird species.', 32.0, 45],
             ['Nkhotakota Wildlife Reserve', 'nature', 'One of Malawi\'s oldest and largest reserves, now restocked with elephant and buffalo.', 88.0, 105],

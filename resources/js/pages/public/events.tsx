@@ -1,15 +1,23 @@
 import { Head, Link } from '@inertiajs/react';
 import { ArrowRight, Users } from 'lucide-react';
+import { AmenityIcon } from '@/components/public/amenity-icon';
 import { PackageCard } from '@/components/public/cards';
 import { ContactCta } from '@/components/public/contact-cta';
 import { PageHero } from '@/components/public/page-hero';
 import { Reveal } from '@/components/public/reveal';
 import { Section, SectionHeading } from '@/components/public/section';
 import { Button } from '@/components/ui/button';
-import type { ConferencePackageData, ContentBlockData } from '@/types';
+import type {
+    AmenitySummary,
+    ConferenceHallData,
+    ConferencePackageData,
+    ContentBlockData,
+} from '@/types';
 
 type Props = {
     intro: ContentBlockData | null;
+    halls: ConferenceHallData[];
+    facilities: AmenitySummary[];
     conferencePackages: ConferencePackageData[];
     weddingPackages: ConferencePackageData[];
     totalPackages: number;
@@ -18,6 +26,8 @@ type Props = {
 
 export default function Events({
     intro,
+    halls,
+    facilities,
     conferencePackages,
     weddingPackages,
     totalPackages,
@@ -28,8 +38,8 @@ export default function Events({
             label: 'Delegates, theatre style',
             value: `Up to ${largestCapacity}`,
         },
+        { label: 'Halls', value: `${halls.length}` },
         { label: 'Packages available', value: `${totalPackages}` },
-        { label: 'Conference rooms', value: 'Two, or one' },
         { label: 'Catering', value: 'In-house' },
     ];
 
@@ -75,6 +85,94 @@ export default function Events({
                     </dl>
                 </div>
             </Section>
+
+            {halls.length > 0 && (
+                <Section tone="white">
+                    <Reveal>
+                        <SectionHeading
+                            eyebrow="The halls"
+                            title="Halls from 50 to 250 delegates"
+                            description="Each hall can be set up theatre style, as a classroom or as a boardroom, and they combine for larger gatherings."
+                        />
+                    </Reveal>
+                    <div className="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                        {halls.map((hall, index) => (
+                            <Reveal key={hall.id} delay={index * 70}>
+                                <article className="flex h-full flex-col rounded-xl border border-navy/10 bg-white p-6">
+                                    <h3 className="font-display text-xl font-semibold text-navy">
+                                        {hall.name}
+                                    </h3>
+                                    <p className="mt-3 font-display text-4xl font-semibold text-lake">
+                                        {hall.capacity}
+                                    </p>
+                                    <p className="text-xs text-navy/55">
+                                        delegates
+                                    </p>
+                                    {hall.layout && (
+                                        <p className="mt-4 text-sm text-navy/65">
+                                            {hall.layout}
+                                        </p>
+                                    )}
+                                    {hall.features.length > 0 && (
+                                        <ul className="mt-5 space-y-2 text-sm">
+                                            {hall.features
+                                                .slice(0, 6)
+                                                .map((feature) => (
+                                                    <li
+                                                        key={feature}
+                                                        className="flex gap-2.5 text-navy/75"
+                                                    >
+                                                        <span
+                                                            aria-hidden
+                                                            className="mt-2 size-1.5 shrink-0 rounded-full bg-gold"
+                                                        />
+                                                        {feature}
+                                                    </li>
+                                                ))}
+                                        </ul>
+                                    )}
+                                </article>
+                            </Reveal>
+                        ))}
+                    </div>
+                </Section>
+            )}
+
+            {facilities.length > 0 && (
+                <Section tone="mist">
+                    <Reveal>
+                        <SectionHeading
+                            eyebrow="Included"
+                            title="Conference facility amenities"
+                            description="Every hall comes with the same list, and the IT butler service is on hand for the duration of your event."
+                        />
+                    </Reveal>
+                    <ul className="mt-10 grid gap-x-8 gap-y-5 sm:grid-cols-2 lg:grid-cols-3">
+                        {facilities.map((facility, index) => (
+                            <Reveal key={facility.id} delay={index * 35}>
+                                <li className="flex items-start gap-3">
+                                    <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-lake-light text-lake">
+                                        <AmenityIcon
+                                            name={facility.icon}
+                                            className="size-4"
+                                        />
+                                    </span>
+                                    <div>
+                                        <p className="text-sm font-medium text-navy">
+                                            {facility.name}
+                                        </p>
+                                        {facility.description && (
+                                            <p className="mt-0.5 text-xs text-navy/55">
+                                                {facility.description}
+                                            </p>
+                                        )}
+                                    </div>
+                                </li>
+                            </Reveal>
+                        ))}
+                    </ul>
+                </Section>
+            )}
 
             {conferencePackages.length > 0 && (
                 <Section tone="sand">

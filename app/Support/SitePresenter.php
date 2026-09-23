@@ -4,6 +4,7 @@ namespace App\Support;
 
 use App\Models\Activity;
 use App\Models\Amenity;
+use App\Models\ConferenceHall;
 use App\Models\ConferencePackage;
 use App\Models\ContentBlock;
 use App\Models\DiningVenue;
@@ -396,6 +397,24 @@ class SitePresenter
             'price_basis' => $package->price_basis,
             'includes' => array_values($package->includes ?? []),
             'cover' => self::cover($package),
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public static function conferenceHall(ConferenceHall $hall): array
+    {
+        return [
+            'id' => $hall->getKey(),
+            'name' => $hall->name,
+            'slug' => $hall->slug,
+            'capacity' => $hall->capacity,
+            'capacity_label' => $hall->capacityForHumans(),
+            'layout' => $hall->layout,
+            'description' => $hall->description,
+            'features' => array_values($hall->features ?? []),
+            'cover' => self::cover($hall),
         ];
     }
 

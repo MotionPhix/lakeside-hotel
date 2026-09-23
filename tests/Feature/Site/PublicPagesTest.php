@@ -40,8 +40,8 @@ test('the homepage carries the content its sections need', function () {
             ->component('public/home')
             ->has('heroSlides', 3)
             ->where('heroSlides.0.headline', 'Your Lakeside Escape in Senga Bay')
-            ->has('roomTypes', 5)
-            ->has('amenities', 15)
+            ->has('roomTypes', 6)
+            ->has('amenities', 9)
             ->has('diningVenues', 3)
             ->has('activities')
             ->has('conferencePackages')
@@ -57,16 +57,16 @@ test('the homepage carries the content its sections need', function () {
 test('a room category page resolves by its slug', function () {
     $this->seed();
 
-    $roomType = RoomType::query()->where('slug', 'lakeside-chalets')->firstOrFail();
+    $roomType = RoomType::query()->where('slug', 'executive-suite')->firstOrFail();
 
     $this->get(route('site.rooms.show', $roomType))
         ->assertOk()
         ->assertInertia(fn (Assert $page) => $page
             ->component('public/rooms/show')
-            ->where('roomType.name', 'Lakeside Chalets')
-            ->where('roomType.total_rooms', 5)
-            ->where('roomType.base_price', '320000.00')
-            ->where('roomType.from_price', '320000.00')
+            ->where('roomType.name', 'Executive Suite')
+            ->where('roomType.total_rooms', 4)
+            ->where('roomType.base_price', '310000.00')
+            ->where('roomType.from_price', '310000.00')
             ->has('roomType.amenities')
             ->has('otherRoomTypes', 3)
         );
@@ -85,11 +85,12 @@ test('hotel settings are shared with every page', function () {
         ->assertInertia(fn (Assert $page) => $page
             ->where('site.name', 'Lakeside Hotel and Conference Centre')
             ->where('site.tagline', 'Your Lakeside Escape in Senga Bay')
-            ->where('site.contact.email', 'reservations@lakesidehotel.mw')
+            ->where('site.contact.email', 'reservations@lakesidehotelmw.net')
+            ->where('site.contact.phone', '+265 1 263 400')
             ->where('site.contact.latitude', -13.7167)
             ->where('site.booking.vat_rate', 16.5)
             ->where('site.booking.currency', 'MWK')
-            ->where('site.whatsapp_link', 'https://wa.me/265995123400')
+            ->where('site.whatsapp_link', 'https://wa.me/265999311228')
         );
 });
 
@@ -115,9 +116,13 @@ test('the events page separates conference packages from weddings', function () 
         ->assertOk()
         ->assertInertia(fn (Assert $page) => $page
             ->component('public/events')
+            ->has('halls', 3)
+            ->where('halls.0.name', 'Namalenje Hall')
+            ->where('halls.0.capacity', 250)
+            ->has('facilities', 10)
             ->has('conferencePackages')
             ->has('weddingPackages')
-            ->where('largestCapacity', 200)
+            ->where('largestCapacity', 250)
         );
 });
 

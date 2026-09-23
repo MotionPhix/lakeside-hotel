@@ -37,7 +37,9 @@ class HomeController extends Controller
             ),
             'about' => SitePresenter::contentBlock(ContentBlock::forKey('about')),
             'roomTypes' => SitePresenter::roomTypes($this->featuredRoomTypes()),
-            'amenities' => SitePresenter::amenities(Amenity::query()->active()->get()),
+            'amenities' => SitePresenter::amenities(
+                Amenity::query()->active()->category('general')->limit(9)->get(),
+            ),
             'diningVenues' => $this->diningVenues(),
             'activities' => SitePresenter::collection(
                 Activity::query()->active()->featured()->limit(6)->get(),
@@ -82,7 +84,7 @@ class HomeController extends Controller
 
         return $featured->isNotEmpty()
             ? $featured
-            : RoomType::query()->active()->with('amenities')->limit(5)->get();
+            : RoomType::query()->active()->with('amenities')->limit(6)->get();
     }
 
     /**
