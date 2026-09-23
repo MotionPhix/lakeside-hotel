@@ -43,11 +43,12 @@ function toIso(date: Date | undefined): string {
 }
 
 /**
- * The default trigger styling, matching the Input component so a picker sits
- * level with the text fields either side of it.
+ * The trigger styling, matching the Input component so a picker sits level with
+ * the text fields either side of it. The height comes from the control-height
+ * rule in app.css rather than being set here.
  */
 const triggerClass =
-    'border-input h-9 w-full justify-start gap-2 rounded-md border bg-transparent px-3 text-left text-sm font-normal shadow-xs hover:bg-transparent';
+    'border-input w-full justify-start gap-2 rounded-md border bg-transparent px-3 text-left text-sm font-normal shadow-xs hover:bg-transparent';
 
 export function DatePicker({
     value,

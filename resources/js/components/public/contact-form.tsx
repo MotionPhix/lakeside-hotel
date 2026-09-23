@@ -116,7 +116,6 @@ export function ContactForm() {
                         clearable
                         placeholder="Not sure yet"
                         min={new Date().toISOString().slice(0, 10)}
-                        className="h-11"
                     />
                     <InputError message={errors.preferred_date} />
                 </div>

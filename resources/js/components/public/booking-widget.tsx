@@ -28,8 +28,10 @@ const ANY_ROOM = 'any';
  * The field styling shared by every control in the booking bar, so the date
  * picker and the selects sit level with each other.
  */
+// Height, and the select width, come from the control-height rule in app.css;
+// these are the light-only brand colours for the public site.
 const fieldClass =
-    'border-navy/15 h-11 w-full rounded-md bg-white text-sm text-navy';
+    'border-navy/15 w-full rounded-md bg-white text-sm text-navy';
 
 /**
  * The quick booking bar on the homepage: dates, party size and room preference.

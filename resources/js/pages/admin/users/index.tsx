@@ -138,7 +138,9 @@ export default function StaffIndex({
                             setRole(value === 'all' ? '' : value)
                         }
                     >
-                        <SelectTrigger className="w-[200px]">
+                        {/* Capped rather than sized: selects are full width by
+                            default now, which would stretch this toolbar. */}
+                        <SelectTrigger className="max-w-56">
                             <SelectValue placeholder="All roles" />
                         </SelectTrigger>
                         <SelectContent>

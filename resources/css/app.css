@@ -175,3 +175,66 @@
         @apply bg-background text-foreground;
     }
 }
+
+/*
+ * ---------------------------------------------------------------------------
+ * Uniform control height
+ * ---------------------------------------------------------------------------
+ *
+ * Everything a guest or a staff member types into, picks from or clicks sits at
+ * one height, so a row of controls lines up instead of stepping between 32, 36
+ * and 40 pixels.
+ *
+ * Matching is on semantics rather than on a component's data-slot. That matters:
+ * Radix overwrites data-slot on the triggers it wraps, so the date picker ended
+ * up as `popover-trigger` and slipped past a `[data-slot='button']` rule while
+ * every native select obeyed it. `[role='combobox']` catches the select trigger
+ * and `button[aria-haspopup='dialog']` catches the popover trigger, whatever
+ * their data-slot happens to be.
+ *
+ * 2.75rem is h-11 - above the 36px default, and a full 44px touch target.
+ *
+ * Only sizing is declared here. Colours, radii and shadows stay with the
+ * components, so the theme is untouched.
+ */
+
+input:not([type='checkbox']):not([type='radio']),
+[role='combobox'],
+[data-slot='input-group'],
+button[aria-haspopup='dialog'] {
+    @apply !h-11;
+}
+
+/* Action buttons match, except the icon-only ones, which grow on BOTH axes so
+   they stay square rather than becoming 44 by 36 rectangles. */
+[data-slot='button']:not([data-size^='icon']) {
+    @apply !h-11;
+}
+
+[data-slot='button'][data-size^='icon'] {
+    @apply !h-11 !w-11;
+}
+
+/* A select fills its column like every other control, rather than
+   shrink-wrapping whichever option happens to be longest. */
+[role='combobox'] {
+    @apply !w-full;
+}
+
+/* A tab strip reads as a control, so it sits at the control height too. */
+[data-slot='tabs-list'] {
+    @apply !min-h-12;
+}
+
+/*
+ * The calendar lays its day buttons out on its own --cell-size grid, so they opt
+ * back out of everything above.
+ *
+ * Declared last on purpose: these selectors carry equal specificity to the ones
+ * above, so source order is what decides. Matched on the day button's own class
+ * as well as the day picker root, so it survives either anchor being renamed.
+ */
+.rdp-root [data-slot='button'],
+[data-slot='button'][class*='aspect-square'] {
+    @apply !h-auto !w-full;
+}
