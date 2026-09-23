@@ -125,4 +125,15 @@ class ConferencePackage extends Model implements HasMedia
     {
         $query->where('type', $type);
     }
+
+    /**
+     * Limit the query to the packages highlighted on the website.
+     *
+     * @param  Builder<ConferencePackage>  $query
+     */
+    #[Scope]
+    protected function featured(Builder $query): void
+    {
+        $query->where('is_featured', true);
+    }
 }

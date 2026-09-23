@@ -37,7 +37,7 @@ class SiteContentSeeder extends Seeder
     {
         $settings = [
             // [key, value, section, type]
-            ['hotel.name', 'Lakeside Hotel', 'general', 'string'],
+            ['hotel.name', 'Lakeside Hotel and Conference Centre', 'general', 'string'],
             ['hotel.tagline', 'Your Lakeside Escape in Senga Bay', 'general', 'string'],
             ['hotel.address', 'Senga Bay, Salima District, Malawi', 'contact', 'string'],
             ['hotel.phone', '+265 1 252 148', 'contact', 'string'],
@@ -61,8 +61,8 @@ class SiteContentSeeder extends Seeder
             ['social.facebook', 'https://www.facebook.com/lakesidehotelsengabay', 'social', 'string'],
             ['social.instagram', 'https://www.instagram.com/lakesidehotelsengabay', 'social', 'string'],
             ['social.tripadvisor', 'https://www.tripadvisor.com/', 'social', 'string'],
-            ['seo.default_title', 'Lakeside Hotel | Lakeside accommodation in Senga Bay, Salima', 'seo', 'string'],
-            ['seo.default_description', 'Book a lakeside room, chalet or suite at Lakeside Hotel in Senga Bay, Salima. Lake Malawi views, restaurant, pool, conference facilities and lake activities.', 'seo', 'text'],
+            ['seo.default_title', 'Lakeside Hotel and Conference Centre | Senga Bay, Salima', 'seo', 'string'],
+            ['seo.default_description', 'Book a lakeside room, chalet or suite at Lakeside Hotel and Conference Centre in Senga Bay, Salima. Lake Malawi views, restaurant, pool, conference facilities and lake activities.', 'seo', 'text'],
             ['analytics.google_id', '', 'seo', 'string'],
         ];
 

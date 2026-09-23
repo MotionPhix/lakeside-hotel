@@ -41,6 +41,11 @@
         <x-inertia::head>
             <title>{{ config('app.name', 'Laravel') }}</title>
         </x-inertia::head>
+
+        {{-- Structured data for search engines, on the public site only. --}}
+        @if (str_starts_with($page['component'] ?? '', 'public/'))
+            @include('partials.hotel-schema')
+        @endif
     </head>
     <body class="font-sans antialiased">
         <x-inertia::app />
