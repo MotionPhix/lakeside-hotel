@@ -9,6 +9,7 @@ use App\Enums\PaymentStatus;
 use Carbon\CarbonInterface;
 use Database\Factories\BookingFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -261,7 +262,8 @@ class Booking extends Model
      *
      * @param  Builder<Booking>  $query
      */
-    public function scopeHoldingInventory(Builder $query): void
+    #[Scope]
+    protected function holdingInventory(Builder $query): void
     {
         $query->whereIn('status', [
             BookingStatus::Pending->value,
@@ -275,7 +277,8 @@ class Booking extends Model
      *
      * @param  Builder<Booking>  $query
      */
-    public function scopeArrivingOn(Builder $query, CarbonInterface $date): void
+    #[Scope]
+    protected function arrivingOn(Builder $query, CarbonInterface $date): void
     {
         $query->whereDate('check_in', $date)
             ->whereIn('status', [BookingStatus::Pending->value, BookingStatus::Confirmed->value]);
@@ -286,7 +289,8 @@ class Booking extends Model
      *
      * @param  Builder<Booking>  $query
      */
-    public function scopeDepartingOn(Builder $query, CarbonInterface $date): void
+    #[Scope]
+    protected function departingOn(Builder $query, CarbonInterface $date): void
     {
         $query->whereDate('check_out', $date)
             ->where('status', BookingStatus::CheckedIn->value);
@@ -298,7 +302,8 @@ class Booking extends Model
      *
      * @param  Builder<Booking>  $query
      */
-    public function scopeCoveringDate(Builder $query, CarbonInterface $date): void
+    #[Scope]
+    protected function coveringDate(Builder $query, CarbonInterface $date): void
     {
         $query->holdingInventory()
             ->where('check_in', '<=', $date)

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Database\Factories\SettingFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -51,7 +52,8 @@ class Setting extends Model
      *
      * @param  Builder<Setting>  $query
      */
-    public function scopeSection(Builder $query, string $section): void
+    #[Scope]
+    protected function section(Builder $query, string $section): void
     {
         $query->where('section', $section);
     }

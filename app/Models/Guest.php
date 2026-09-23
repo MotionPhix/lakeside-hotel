@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Database\Factories\GuestFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -100,7 +101,8 @@ class Guest extends Model
      *
      * @param  Builder<Guest>  $query
      */
-    public function scopeSearch(Builder $query, string $term): void
+    #[Scope]
+    protected function search(Builder $query, string $term): void
     {
         $term = trim($term);
 

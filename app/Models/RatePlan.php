@@ -7,6 +7,7 @@ use App\Enums\RatePlanType;
 use Carbon\CarbonInterface;
 use Database\Factories\RatePlanFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -119,7 +120,8 @@ class RatePlan extends Model
      *
      * @param  Builder<RatePlan>  $query
      */
-    public function scopeActive(Builder $query): void
+    #[Scope]
+    protected function active(Builder $query): void
     {
         $query->where('is_active', true)->orderByDesc('priority');
     }
@@ -130,7 +132,8 @@ class RatePlan extends Model
      *
      * @param  Builder<RatePlan>  $query
      */
-    public function scopeForRoomType(Builder $query, ?int $roomTypeId): void
+    #[Scope]
+    protected function forRoomType(Builder $query, ?int $roomTypeId): void
     {
         $query->where(fn (Builder $query) => $query
             ->whereNull('room_type_id')

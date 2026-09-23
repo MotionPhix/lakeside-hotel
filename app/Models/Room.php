@@ -6,6 +6,7 @@ use App\Enums\RoomStatus;
 use Carbon\CarbonInterface;
 use Database\Factories\RoomFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -98,7 +99,8 @@ class Room extends Model
      *
      * @param  Builder<Room>  $query
      */
-    public function scopeBookable(Builder $query): void
+    #[Scope]
+    protected function bookable(Builder $query): void
     {
         $query->where('status', RoomStatus::Available);
     }
@@ -108,7 +110,8 @@ class Room extends Model
      *
      * @param  Builder<Room>  $query
      */
-    public function scopeOutOfService(Builder $query): void
+    #[Scope]
+    protected function outOfService(Builder $query): void
     {
         $query->whereIn('status', [RoomStatus::Maintenance, RoomStatus::OutOfService]);
     }

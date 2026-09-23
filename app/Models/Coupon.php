@@ -5,6 +5,7 @@ namespace App\Models;
 use Carbon\CarbonInterface;
 use Database\Factories\CouponFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -142,7 +143,8 @@ class Coupon extends Model
      *
      * @param  Builder<Coupon>  $query
      */
-    public function scopeAvailable(Builder $query): void
+    #[Scope]
+    protected function available(Builder $query): void
     {
         $query->where('is_active', true)
             ->where(fn (Builder $query) => $query

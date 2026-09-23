@@ -6,6 +6,7 @@ use App\Enums\PaymentMethod;
 use App\Enums\PaymentRecordStatus;
 use Database\Factories\PaymentFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -148,7 +149,8 @@ class Payment extends Model
      *
      * @param  Builder<Payment>  $query
      */
-    public function scopeSuccessful(Builder $query): void
+    #[Scope]
+    protected function successful(Builder $query): void
     {
         $query->where('status', PaymentRecordStatus::Successful);
     }

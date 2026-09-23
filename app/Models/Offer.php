@@ -6,6 +6,7 @@ use App\Models\Concerns\RegistersImageConversions;
 use Carbon\CarbonInterface;
 use Database\Factories\OfferFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -106,7 +107,8 @@ class Offer extends Model implements HasMedia
      *
      * @param  Builder<Offer>  $query
      */
-    public function scopeLive(Builder $query): void
+    #[Scope]
+    protected function live(Builder $query): void
     {
         $query->where('is_active', true)
             ->where(fn (Builder $query) => $query
@@ -123,7 +125,8 @@ class Offer extends Model implements HasMedia
      *
      * @param  Builder<Offer>  $query
      */
-    public function scopeFeatured(Builder $query): void
+    #[Scope]
+    protected function featured(Builder $query): void
     {
         $query->where('is_featured', true);
     }

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Database\Factories\NewsletterSubscriberFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -89,7 +90,8 @@ class NewsletterSubscriber extends Model
      *
      * @param  Builder<NewsletterSubscriber>  $query
      */
-    public function scopeSubscribed(Builder $query): void
+    #[Scope]
+    protected function subscribed(Builder $query): void
     {
         $query->where('status', self::STATUS_SUBSCRIBED);
     }

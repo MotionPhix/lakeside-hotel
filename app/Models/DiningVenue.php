@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Models\Concerns\RegistersImageConversions;
 use Database\Factories\DiningVenueFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -89,7 +90,8 @@ class DiningVenue extends Model implements HasMedia
      *
      * @param  Builder<DiningVenue>  $query
      */
-    public function scopeActive(Builder $query): void
+    #[Scope]
+    protected function active(Builder $query): void
     {
         $query->where('is_active', true)->orderBy('sort_order');
     }

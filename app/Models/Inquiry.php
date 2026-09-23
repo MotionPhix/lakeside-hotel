@@ -6,6 +6,7 @@ use App\Enums\InquiryStatus;
 use App\Enums\InquiryType;
 use Database\Factories\InquiryFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -95,7 +96,8 @@ class Inquiry extends Model
      *
      * @param  Builder<Inquiry>  $query
      */
-    public function scopeOpen(Builder $query): void
+    #[Scope]
+    protected function open(Builder $query): void
     {
         $query->whereIn('status', [InquiryStatus::New->value, InquiryStatus::InProgress->value]);
     }
@@ -105,7 +107,8 @@ class Inquiry extends Model
      *
      * @param  Builder<Inquiry>  $query
      */
-    public function scopeType(Builder $query, InquiryType $type): void
+    #[Scope]
+    protected function type(Builder $query, InquiryType $type): void
     {
         $query->where('type', $type);
     }
@@ -115,7 +118,8 @@ class Inquiry extends Model
      *
      * @param  Builder<Inquiry>  $query
      */
-    public function scopeSearch(Builder $query, string $term): void
+    #[Scope]
+    protected function search(Builder $query, string $term): void
     {
         $term = trim($term);
 

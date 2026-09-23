@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Database\Factories\MenuItemFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -73,7 +74,8 @@ class MenuItem extends Model
      *
      * @param  Builder<MenuItem>  $query
      */
-    public function scopeAvailable(Builder $query): void
+    #[Scope]
+    protected function available(Builder $query): void
     {
         $query->where('is_available', true)->orderBy('sort_order');
     }
@@ -83,7 +85,8 @@ class MenuItem extends Model
      *
      * @param  Builder<MenuItem>  $query
      */
-    public function scopeCategory(Builder $query, string $category): void
+    #[Scope]
+    protected function category(Builder $query, string $category): void
     {
         $query->where('category', $category);
     }
@@ -93,7 +96,8 @@ class MenuItem extends Model
      *
      * @param  Builder<MenuItem>  $query
      */
-    public function scopeSignature(Builder $query): void
+    #[Scope]
+    protected function signature(Builder $query): void
     {
         $query->where('is_signature', true);
     }

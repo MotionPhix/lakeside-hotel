@@ -6,6 +6,7 @@ use App\Enums\AvailabilityBlockReason;
 use Carbon\CarbonInterface;
 use Database\Factories\AvailabilityBlockFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -87,7 +88,8 @@ class AvailabilityBlock extends Model
      *
      * @param  Builder<AvailabilityBlock>  $query
      */
-    public function scopeOverlapping(Builder $query, CarbonInterface $startsOn, CarbonInterface $endsOn): void
+    #[Scope]
+    protected function overlapping(Builder $query, CarbonInterface $startsOn, CarbonInterface $endsOn): void
     {
         $query->where('starts_on', '<=', $endsOn)
             ->where('ends_on', '>=', $startsOn);

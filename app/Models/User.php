@@ -8,6 +8,7 @@ use Database\Factories\UserFactory;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
+use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -143,7 +144,8 @@ class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
      *
      * @param  Builder<User>  $query
      */
-    public function scopeActive(Builder $query): void
+    #[Scope]
+    protected function active(Builder $query): void
     {
         $query->where('is_active', true);
     }
@@ -153,7 +155,8 @@ class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
      *
      * @param  Builder<User>  $query
      */
-    public function scopeStaff(Builder $query): void
+    #[Scope]
+    protected function staff(Builder $query): void
     {
         $query->whereIn('role', array_map(fn (Role $role): string => $role->value, Role::staff()));
     }
@@ -163,7 +166,8 @@ class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
      *
      * @param  Builder<User>  $query
      */
-    public function scopeSearch(Builder $query, string $term): void
+    #[Scope]
+    protected function search(Builder $query, string $term): void
     {
         $term = trim($term);
 

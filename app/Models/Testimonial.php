@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Models\Concerns\RegistersImageConversions;
 use Database\Factories\TestimonialFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -120,7 +121,8 @@ class Testimonial extends Model implements HasMedia
      *
      * @param  Builder<Testimonial>  $query
      */
-    public function scopeApproved(Builder $query): void
+    #[Scope]
+    protected function approved(Builder $query): void
     {
         $query->where('is_approved', true);
     }
@@ -130,7 +132,8 @@ class Testimonial extends Model implements HasMedia
      *
      * @param  Builder<Testimonial>  $query
      */
-    public function scopeFeatured(Builder $query): void
+    #[Scope]
+    protected function featured(Builder $query): void
     {
         $query->where('is_featured', true);
     }
@@ -140,7 +143,8 @@ class Testimonial extends Model implements HasMedia
      *
      * @param  Builder<Testimonial>  $query
      */
-    public function scopeAwaitingModeration(Builder $query): void
+    #[Scope]
+    protected function awaitingModeration(Builder $query): void
     {
         $query->where('is_approved', false);
     }

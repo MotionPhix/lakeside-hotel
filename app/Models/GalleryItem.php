@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Models\Concerns\RegistersImageConversions;
 use Database\Factories\GalleryItemFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -81,7 +82,8 @@ class GalleryItem extends Model implements HasMedia
      *
      * @param  Builder<GalleryItem>  $query
      */
-    public function scopeActive(Builder $query): void
+    #[Scope]
+    protected function active(Builder $query): void
     {
         $query->where('is_active', true)->orderBy('sort_order');
     }
@@ -91,7 +93,8 @@ class GalleryItem extends Model implements HasMedia
      *
      * @param  Builder<GalleryItem>  $query
      */
-    public function scopeCategory(Builder $query, string $category): void
+    #[Scope]
+    protected function category(Builder $query, string $category): void
     {
         $query->where('category', $category);
     }
@@ -101,7 +104,8 @@ class GalleryItem extends Model implements HasMedia
      *
      * @param  Builder<GalleryItem>  $query
      */
-    public function scopeFeatured(Builder $query): void
+    #[Scope]
+    protected function featured(Builder $query): void
     {
         $query->where('is_featured', true);
     }
