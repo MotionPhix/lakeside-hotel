@@ -1,4 +1,4 @@
-import { Bell, ExternalLink, Moon, Sun } from 'lucide-react';
+import { Bell, Moon, Sun } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
     Popover,
@@ -14,18 +14,18 @@ import {
     TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { useAppearance } from '@/hooks/use-appearance';
-import { toUrl } from '@/lib/utils';
-import { home } from '@/routes';
 
 /**
  * The controls on the right of the page header.
  *
- * Everything here does something today: the link opens the public website in a
- * new tab, the appearance button flips the dashboard between light and dark, and
- * the bell opens a panel that says plainly that there is nothing to show yet.
- * It deliberately carries no unread count - a badge that never changes is a lie
- * dressed as a feature. Booking and enquiry alerts will fill that panel when the
- * reservation engine lands.
+ * Everything here does something today: the appearance button flips the
+ * dashboard between light and dark, and the bell opens a panel that says plainly
+ * that there is nothing to show yet. It deliberately carries no unread count - a
+ * badge that never changes is a lie dressed as a feature. Booking and enquiry
+ * alerts will fill that panel when the reservation engine lands.
+ *
+ * The link out to the public website does not live here. It sits at the foot of
+ * the sidebar, directly above the account menu, where it has always been.
  */
 export function HeaderActions() {
     const { resolvedAppearance, updateAppearance } = useAppearance();
@@ -34,22 +34,6 @@ export function HeaderActions() {
 
     return (
         <div className="flex shrink-0 items-center gap-1">
-            <Tooltip>
-                <TooltipTrigger asChild>
-                    <Button variant="ghost" size="icon" asChild>
-                        <a
-                            href={toUrl(home())}
-                            target="_blank"
-                            rel="noreferrer"
-                        >
-                            <ExternalLink />
-                            <span className="sr-only">View website</span>
-                        </a>
-                    </Button>
-                </TooltipTrigger>
-                <TooltipContent>View website</TooltipContent>
-            </Tooltip>
-
             <Tooltip>
                 <TooltipTrigger asChild>
                     <Button
@@ -73,12 +57,24 @@ export function HeaderActions() {
             </Tooltip>
 
             <Popover>
-                <PopoverTrigger asChild>
-                    <Button variant="ghost" size="icon">
-                        <Bell />
-                        <span className="sr-only">Notifications</span>
-                    </Button>
-                </PopoverTrigger>
+                {/*
+                 * The tooltip wraps the popover trigger rather than sitting
+                 * beside it, so the bell carries a hover label like the theme
+                 * control next to it. Radix resolves both through context, so
+                 * the nesting is only about which element receives the props.
+                 */}
+                <Tooltip>
+                    <TooltipTrigger asChild>
+                        <PopoverTrigger asChild>
+                            <Button variant="ghost" size="icon">
+                                <Bell />
+                                <span className="sr-only">Notifications</span>
+                            </Button>
+                        </PopoverTrigger>
+                    </TooltipTrigger>
+                    <TooltipContent>Notifications</TooltipContent>
+                </Tooltip>
+
                 <PopoverContent align="end" className="w-80">
                     <PopoverHeader>
                         <PopoverTitle>Notifications</PopoverTitle>
