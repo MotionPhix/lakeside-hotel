@@ -10,7 +10,7 @@ export default function CreateStaff({ roles }: { roles: RoleOption[] }) {
         <>
             <Head title="Add staff member" />
 
-            <div className="flex h-full flex-1 flex-col gap-6 p-4">
+            <div className="flex flex-col gap-6">
                 <Heading
                     title="Add a staff member"
                     description="The role you choose decides which dashboard modules this person can open."

@@ -32,7 +32,7 @@ export default function EditStaff({
         <>
             <Head title={`Edit ${user.name}`} />
 
-            <div className="flex h-full flex-1 flex-col gap-6 p-4">
+            <div className="flex flex-col gap-6">
                 <div className="flex flex-wrap items-start justify-between gap-4">
                     <Heading
                         title={user.name}
