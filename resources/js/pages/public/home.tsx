@@ -16,8 +16,8 @@ import { MapEmbed, directionsLink } from '@/components/public/map-embed';
 import { Reveal } from '@/components/public/reveal';
 import { Section, SectionHeading } from '@/components/public/section';
 import { Button } from '@/components/ui/button';
-import { whatsappLink } from '@/lib/site-nav';
 import rooms from '@/routes/site/rooms';
+import bookingRoutes from '@/routes/site/booking';
 import type {
     ActivityData,
     AmenitySummary,
@@ -66,10 +66,7 @@ export default function Home({
     const { site } = usePage<SharedData>().props;
     const { contact } = site;
 
-    const bookingHref = whatsappLink(
-        site,
-        `Hello ${site.name}, I would like to check availability.`,
-    );
+    const bookingHref = bookingRoutes.index.url();
 
     return (
         <>

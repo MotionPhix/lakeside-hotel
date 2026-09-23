@@ -31,6 +31,13 @@ return Application::configure(basePath: dirname(__DIR__))
             'role' => EnsureUserHasRole::class,
             'permission' => EnsureUserHasPermission::class,
         ]);
+
+        /*
+         * The payment webhook is posted by PayChangu rather than by a browser, so
+         * it carries no session and no CSRF token. It verifies its own callers
+         * with a signature over the raw body instead - see the controller.
+         */
+        $middleware->validateCsrfTokens(except: ['webhooks/paychangu']);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(

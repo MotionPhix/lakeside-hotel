@@ -12,8 +12,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
-import { whatsappLink } from '@/lib/site-nav';
-import siteRoutes from '@/routes/site';
+import bookingRoutes from '@/routes/site/booking';
 import type { SharedData } from '@/types';
 
 type BookableRoom = {
@@ -36,10 +35,11 @@ const fieldClass =
 /**
  * The quick booking bar on the homepage: dates, party size and room preference.
  *
- * Until the online reservation flow ships, the request is handed to WhatsApp with
- * every detail already filled in, which is the channel the hotel actually answers
- * on. The dates use the shadcn date range picker and the party controls use the
- * shadcn select, so this matches the rest of the interface.
+ * It carries what has been chosen into the booking page, which is where the
+ * hotel's live availability and rates are, rather than answering the question
+ * here and risking a stale one. The dates use the shadcn date range picker and
+ * the party controls use the shadcn select, so this matches the rest of the
+ * interface.
  */
 export function BookingWidget({ roomTypes }: { roomTypes: BookableRoom[] }) {
     const { site } = usePage<SharedData>().props;
@@ -54,31 +54,13 @@ export function BookingWidget({ roomTypes }: { roomTypes: BookableRoom[] }) {
     const submit = (event: FormEvent) => {
         event.preventDefault();
 
-        const chosen = roomTypes.find((room) => room.slug === roomSlug);
-
-        const message = [
-            `Hello ${site.name}, I would like to check availability.`,
-            range.from && `Check in: ${range.from}`,
-            range.to && `Check out: ${range.to}`,
-            `Guests: ${adults} adult${adults === '1' ? '' : 's'}${
-                children !== '0'
-                    ? ` and ${children} child${children === '1' ? '' : 'ren'}`
-                    : ''
-            }`,
-            chosen && `Preferred room: ${chosen.name}`,
-        ]
-            .filter(Boolean)
-            .join('\n');
-
-        const link = whatsappLink(site, message);
-
-        if (link) {
-            window.open(link, '_blank', 'noopener');
-
-            return;
-        }
-
-        router.visit(siteRoutes.contact());
+        router.get(bookingRoutes.index.url(), {
+            check_in: range.from,
+            check_out: range.to,
+            adults,
+            children,
+            room_type: roomSlug === ANY_ROOM ? '' : roomSlug,
+        });
     };
 
     return (

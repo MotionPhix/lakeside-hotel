@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Site\ActivityController;
+use App\Http\Controllers\Site\BookingController;
 use App\Http\Controllers\Site\ContactController;
 use App\Http\Controllers\Site\DiningController;
 use App\Http\Controllers\Site\EventController;
@@ -22,8 +23,14 @@ use Illuminate\Support\Facades\Route;
 | in here is hard coded. The homepage keeps the plain `home` route name because
 | the dashboard links back to it.
 |
-| The two form submissions are throttled: they write rows from an endpoint that
-| has no account behind it.
+| The form submissions are throttled: they write rows from an endpoint that has
+| no account behind it.
+|
+| Booking is three steps - what is free, who is coming, and the copy they keep.
+| The reservation is written on the middle step, so the last two are reachable
+| again from an email without depending on anything held in the session.
+| `/booking/reserve` is declared before the reference route, otherwise "reserve"
+| would be read as a booking reference.
 |
 */
 
@@ -48,6 +55,23 @@ Route::post('/contact', [ContactController::class, 'store'])
 Route::post('/newsletter', [NewsletterController::class, 'store'])
     ->middleware('throttle:6,1')
     ->name('site.newsletter');
+
+Route::get('/booking', [BookingController::class, 'index'])->name('site.booking.index');
+
+Route::get('/booking/reserve', [BookingController::class, 'create'])->name('site.booking.create');
+
+Route::post('/booking', [BookingController::class, 'store'])
+    ->middleware('throttle:10,1')
+    ->name('site.booking.store');
+
+Route::get('/booking/{booking:reference}', [BookingController::class, 'show'])->name('site.booking.show');
+
+Route::post('/booking/{booking:reference}/pay', [BookingController::class, 'pay'])
+    ->middleware('throttle:10,1')
+    ->name('site.booking.pay');
+
+Route::get('/booking/{booking:reference}/callback', [BookingController::class, 'callback'])
+    ->name('site.booking.callback');
 
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('site.sitemap');
 Route::get('/robots.txt', [SitemapController::class, 'robots'])->name('site.robots');

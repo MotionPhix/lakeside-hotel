@@ -9,8 +9,9 @@ import {
     SheetTrigger,
 } from '@/components/ui/sheet';
 import { useCurrentUrl } from '@/hooks/use-current-url';
-import { siteNav, whatsappLink } from '@/lib/site-nav';
+import { siteNav } from '@/lib/site-nav';
 import { home } from '@/routes';
+import bookingRoutes from '@/routes/site/booking';
 import type { SharedData } from '@/types';
 
 /**
@@ -25,10 +26,7 @@ export function SiteHeader() {
     const [open, setOpen] = useState(false);
     const { isCurrentOrParentUrl } = useCurrentUrl();
 
-    const bookingLink = whatsappLink(
-        site,
-        'Hello Lakeside Hotel, I would like to check availability.',
-    );
+    const bookingLink = bookingRoutes.index.url();
 
     return (
         <header className="sticky top-0 z-50 border-b border-navy/10 bg-white">
@@ -77,10 +75,10 @@ export function SiteHeader() {
                         {site.contact.phone}
                     </a>
                     <Button asChild size="lg">
-                        <a href={bookingLink} target="_blank" rel="noreferrer">
+                        <Link href={bookingLink}>
                             <CalendarCheck />
                             Book Your Stay
-                        </a>
+                        </Link>
                     </Button>
                 </div>
 
@@ -125,14 +123,13 @@ export function SiteHeader() {
 
                         <div className="mt-auto flex flex-col gap-3 p-4">
                             <Button asChild size="lg" className="w-full">
-                                <a
+                                <Link
                                     href={bookingLink}
-                                    target="_blank"
-                                    rel="noreferrer"
+                                    onClick={() => setOpen(false)}
                                 >
                                     <CalendarCheck />
                                     Book Your Stay
-                                </a>
+                                </Link>
                             </Button>
                             <Button
                                 asChild

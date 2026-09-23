@@ -100,14 +100,10 @@ export function HomeHero({
                 <div className="mt-9 flex flex-wrap gap-3">
                     {bookingHref ? (
                         <Button asChild size="lg">
-                            <a
-                                href={bookingHref}
-                                target="_blank"
-                                rel="noreferrer"
-                            >
+                            <Link href={bookingHref}>
                                 <CalendarCheck />
                                 {slide.cta_label ?? 'Book Your Stay'}
-                            </a>
+                            </Link>
                         </Button>
                     ) : null}
 

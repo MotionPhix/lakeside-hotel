@@ -1,5 +1,5 @@
 import { Head, Link, usePage } from '@inertiajs/react';
-import { BedDouble, MessageCircle, Ruler, Users } from 'lucide-react';
+import { BedDouble, CalendarCheck, Ruler, Users } from 'lucide-react';
 import { RoomCard } from '@/components/public/cards';
 import { ContactCta } from '@/components/public/contact-cta';
 import { PageHero } from '@/components/public/page-hero';
@@ -7,8 +7,8 @@ import { Reveal } from '@/components/public/reveal';
 import { Section, SectionHeading } from '@/components/public/section';
 import { Button } from '@/components/ui/button';
 import { formatMoney } from '@/lib/format';
-import { whatsappLink } from '@/lib/site-nav';
 import rooms from '@/routes/site/rooms';
+import bookingRoutes from '@/routes/site/booking';
 import type { RoomTypeDetail, SharedData } from '@/types';
 
 type Props = {
@@ -19,10 +19,10 @@ type Props = {
 export default function RoomShow({ roomType, otherRoomTypes }: Props) {
     const { site } = usePage<SharedData>().props;
 
-    const bookingLink = whatsappLink(
-        site,
-        `Hello ${site.name}, I would like to book the ${roomType.name}.`,
-    );
+    // Straight into the booking flow with this category already chosen.
+    const bookingLink = bookingRoutes.index.url({
+        query: { room_type: roomType.slug },
+    });
 
     const facts = [
         {
@@ -183,14 +183,10 @@ export default function RoomShow({ roomType, otherRoomTypes }: Props) {
                             <div className="mt-6 flex flex-col gap-3">
                                 {bookingLink && (
                                     <Button asChild size="lg">
-                                        <a
-                                            href={bookingLink}
-                                            target="_blank"
-                                            rel="noreferrer"
-                                        >
-                                            <MessageCircle />
+                                        <Link href={bookingLink}>
+                                            <CalendarCheck />
                                             Check availability
-                                        </a>
+                                        </Link>
                                     </Button>
                                 )}
                                 <Button asChild variant="outline" size="lg">

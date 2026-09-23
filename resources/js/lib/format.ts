@@ -39,6 +39,96 @@ export function formatPriceBasis(basis: string): string {
     return labels[basis] ?? basis.replace(/_/g, ' ');
 }
 
+const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] as const;
+const WEEKDAYS_LONG = [
+    'Sunday',
+    'Monday',
+    'Tuesday',
+    'Wednesday',
+    'Thursday',
+    'Friday',
+    'Saturday',
+] as const;
+const MONTHS = [
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec',
+] as const;
+const MONTHS_LONG = [
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December',
+] as const;
+
+/**
+ * Read a `YYYY-MM-DD` string as a local date.
+ *
+ * The parts are fed to the constructor rather than the string, because parsing
+ * "2026-11-10" as a string treats it as UTC midnight and can land on the day
+ * before for anybody east of Greenwich.
+ */
+function parseIsoDate(iso: string): Date | null {
+    const parts = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso);
+
+    if (parts === null) {
+        return null;
+    }
+
+    return new Date(Number(parts[1]), Number(parts[2]) - 1, Number(parts[3]));
+}
+
+/**
+ * One night of a stay, e.g. "Tue 10 Nov".
+ *
+ * The names are spelled out here rather than asked of `toLocaleDateString`,
+ * because the server and the browser do not agree on what the default locale
+ * means: Node renders "Tue, 10 Nov" where a browser renders "Tue 10 Nov". React
+ * sees the two disagree and throws the server's markup away, which is a real
+ * error in the console and a wasted render on every booking.
+ */
+export function formatNight(iso: string): string {
+    const date = parseIsoDate(iso);
+
+    if (date === null) {
+        return iso;
+    }
+
+    return `${WEEKDAYS[date.getDay()]} ${date.getDate()} ${MONTHS[date.getMonth()]}`;
+}
+
+/**
+ * A whole date, e.g. "Tuesday 10 November 2026". Spelled out for the same
+ * reason, and because a booking confirmation should read the same on every
+ * machine that opens it.
+ */
+export function formatLongDate(iso: string): string {
+    const date = parseIsoDate(iso);
+
+    if (date === null) {
+        return iso;
+    }
+
+    return `${WEEKDAYS_LONG[date.getDay()]} ${date.getDate()} ${MONTHS_LONG[date.getMonth()]} ${date.getFullYear()}`;
+}
+
 /**
  * Turn a snake_case category into a readable label.
  */

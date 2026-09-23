@@ -79,6 +79,40 @@ class Booking extends Model
     public const TOURISM_LEVY_RATE = 1.0;
 
     /**
+     * The currency the hotel trades in, used when nothing has been configured
+     * yet. The live value is the `hotel.currency` setting, which the dashboard
+     * owns.
+     */
+    public const CURRENCY = 'MWK';
+
+    /**
+     * The currency bookings are denominated in.
+     */
+    public static function currency(): string
+    {
+        return (string) Setting::value('hotel.currency', self::CURRENCY);
+    }
+
+    /**
+     * The combined accommodation tax rate as a percentage. Both parts are
+     * editable in the dashboard, with the statutory figures above as the fallback.
+     */
+    public static function taxRate(): float
+    {
+        return (float) Setting::value('booking.vat_rate', (string) self::VAT_RATE)
+            + (float) Setting::value('booking.tourism_levy_rate', (string) self::TOURISM_LEVY_RATE);
+    }
+
+    /**
+     * Tax on an amount. Stated once so a quote shown to a guest and the folio they
+     * are finally billed on cannot disagree.
+     */
+    public static function taxFor(string $taxable): string
+    {
+        return number_format((float) $taxable * (self::taxRate() / 100), 2, '.', '');
+    }
+
+    /**
      * Get the attributes that should be cast.
      *
      * @return array<string, string>
@@ -205,7 +239,7 @@ class Booking extends Model
             : 0.0;
 
         $taxable = max($subtotal - $discount, 0);
-        $tax = $taxable * ((self::VAT_RATE + self::TOURISM_LEVY_RATE) / 100);
+        $tax = (float) self::taxFor(number_format($taxable, 2, '.', ''));
 
         $this->subtotal = number_format($subtotal, 2, '.', '');
         $this->discount_total = number_format($discount, 2, '.', '');
