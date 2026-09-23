@@ -84,7 +84,7 @@ export function BookingWidget({ roomTypes }: { roomTypes: BookableRoom[] }) {
     return (
         <form
             onSubmit={submit}
-            className="rounded-xl border border-navy/10 bg-white/95 p-4 shadow-xl backdrop-blur sm:p-5"
+            className="rounded-xl border border-navy/10 bg-white/95 p-4 shadow-md backdrop-blur sm:p-5"
         >
             <div className="grid gap-4 lg:grid-cols-12">
                 <div className="grid gap-1.5 lg:col-span-4">

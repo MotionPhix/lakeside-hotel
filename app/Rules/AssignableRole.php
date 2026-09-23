@@ -6,6 +6,7 @@ use App\Enums\Role;
 use App\Models\User;
 use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
+use Illuminate\Translation\PotentiallyTranslatedString;
 
 /**
  * A staff role may only be granted by somebody senior enough to grant it.
@@ -17,7 +18,7 @@ class AssignableRole implements ValidationRule
     /**
      * Run the validation rule.
      *
-     * @param  Closure(string, ?string=): \Illuminate\Translation\PotentiallyTranslatedString  $fail
+     * @param  Closure(string, ?string=): PotentiallyTranslatedString  $fail
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {

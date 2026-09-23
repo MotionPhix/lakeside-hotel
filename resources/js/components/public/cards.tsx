@@ -66,7 +66,7 @@ function CardImage({
 
 export function RoomCard({ roomType }: { roomType: RoomTypeSummary }) {
     return (
-        <article className="group flex h-full flex-col overflow-hidden rounded-xl border border-navy/10 bg-white transition-shadow duration-300 hover:shadow-xl">
+        <article className="group flex h-full flex-col overflow-hidden rounded-xl border border-navy/10 bg-white transition-shadow duration-300 hover:shadow-md">
             <Link
                 href={rooms.show(roomType.slug)}
                 className="relative block aspect-4/3 overflow-hidden bg-sand"
@@ -143,7 +143,7 @@ export function OfferCard({
 }) {
     return (
         <article
-            className={`group flex h-full flex-col overflow-hidden rounded-xl border transition-shadow duration-300 hover:shadow-xl ${
+            className={`group flex h-full flex-col overflow-hidden rounded-xl border transition-shadow duration-300 hover:shadow-md ${
                 tone === 'navy'
                     ? 'border-white/15 bg-navy-deep/60'
                     : 'border-navy/10 bg-white'
@@ -293,7 +293,7 @@ export function TestimonialCard({
 
 export function ActivityCard({ activity }: { activity: ActivityData }) {
     return (
-        <article className="group flex h-full flex-col overflow-hidden rounded-xl border border-navy/10 bg-white transition-shadow duration-300 hover:shadow-xl">
+        <article className="group flex h-full flex-col overflow-hidden rounded-xl border border-navy/10 bg-white transition-shadow duration-300 hover:shadow-md">
             <div className="relative aspect-16/10 overflow-hidden bg-sand">
                 <CardImage
                     src={activity.cover?.card ?? null}
