@@ -2,6 +2,7 @@ import { useForm } from '@inertiajs/react';
 import type { FormEvent } from 'react';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -189,12 +190,13 @@ export function StaffForm({
             </div>
 
             <div className="flex items-start gap-3 rounded-lg border p-4">
-                <input
+                <Checkbox
                     id="is_active"
-                    type="checkbox"
                     checked={data.is_active}
-                    onChange={(e) => setData('is_active', e.target.checked)}
-                    className="mt-0.5 size-4 rounded border-input accent-primary"
+                    onCheckedChange={(checked) =>
+                        setData('is_active', checked === true)
+                    }
+                    className="mt-0.5"
                 />
                 <div className="grid gap-1">
                     <Label htmlFor="is_active">Account is active</Label>

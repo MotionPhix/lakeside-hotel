@@ -36,6 +36,8 @@ import type {
 type Props = {
     heroSlides: HeroSlideData[];
     about: ContentBlockData | null;
+    /** Every category on sale, for the booking bar's room selector. */
+    bookableRoomTypes: { slug: string; name: string }[];
     roomTypes: RoomTypeSummary[];
     amenities: AmenitySummary[];
     diningVenues: DiningVenueData[];
@@ -50,6 +52,7 @@ type Props = {
 export default function Home({
     heroSlides,
     about,
+    bookableRoomTypes,
     roomTypes,
     amenities,
     diningVenues,
@@ -83,14 +86,9 @@ export default function Home({
                 eyebrow={`Senga Bay · Lake Malawi`}
             />
 
-            {roomTypes.length > 0 && (
+            {bookableRoomTypes.length > 0 && (
                 <div className="relative z-10 mx-auto -mt-12 max-w-7xl px-5 sm:px-8">
-                    <BookingWidget
-                        roomTypes={roomTypes.map((room) => ({
-                            slug: room.slug,
-                            name: room.name,
-                        }))}
-                    />
+                    <BookingWidget roomTypes={bookableRoomTypes} />
                 </div>
             )}
 

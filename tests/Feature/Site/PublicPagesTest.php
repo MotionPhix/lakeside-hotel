@@ -54,6 +54,18 @@ test('the homepage carries the content its sections need', function () {
         );
 });
 
+test('the booking bar offers every room category on sale, not just the featured ones', function () {
+    $this->seed();
+
+    $this->get(route('home'))
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->has('bookableRoomTypes', 7)
+            // Deluxe Single is not featured, but a guest must still be able to ask for it.
+            ->where('bookableRoomTypes.1.name', 'Deluxe Single')
+        );
+});
+
 test('a room category page resolves by its slug', function () {
     $this->seed();
 
@@ -213,6 +225,26 @@ test('the structured data keeps its schema.org context key', function () {
     $response->assertSee('"@context": "https://schema.org"', false);
     $response->assertDontSee('$__contextArgs', false);
     $response->assertDontSee('<?php', false);
+});
+
+test('the public website stays light even when the visitor prefers dark', function () {
+    $this->seed();
+
+    // The appearance cookie is what the dashboard reads to pick its theme.
+    $this->withUnencryptedCookie('appearance', 'dark');
+
+    $this->get(route('home'))
+        ->assertOk()
+        ->assertDontSee('class="dark"', false);
+
+    // The dashboard still honours the preference.
+    $manager = User::factory()->role(Role::HotelManager)->create();
+
+    $this->actingAs($manager)
+        ->withUnencryptedCookie('appearance', 'dark')
+        ->get(route('dashboard'))
+        ->assertOk()
+        ->assertSee('class="dark"', false);
 });
 
 test('the staff dashboard does not carry the public structured data', function () {

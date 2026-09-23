@@ -2,8 +2,16 @@ import { router, usePage } from '@inertiajs/react';
 import { CalendarDays, Search, Users } from 'lucide-react';
 import type { FormEvent } from 'react';
 import { useState } from 'react';
+import { DateRangePicker } from '@/components/date-picker';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
 import { whatsappLink } from '@/lib/site-nav';
 import siteRoutes from '@/routes/site';
 import type { SharedData } from '@/types';
@@ -13,24 +21,31 @@ type BookableRoom = {
     name: string;
 };
 
+/** shadcn's Select reserves the empty string, so "no preference" needs a value. */
+const ANY_ROOM = 'any';
+
+/**
+ * The field styling shared by every control in the booking bar, so the date
+ * picker and the selects sit level with each other.
+ */
 const fieldClass =
-    'border-navy/15 h-11 w-full rounded-md border bg-white px-3 text-sm text-navy outline-none transition-colors focus-visible:border-lake focus-visible:ring-2 focus-visible:ring-lake/30';
+    'border-navy/15 h-11 w-full rounded-md bg-white text-sm text-navy';
 
 /**
  * The quick booking bar on the homepage: dates, party size and room preference.
  *
  * Until the online reservation flow ships, the request is handed to WhatsApp with
  * every detail already filled in, which is the channel the hotel actually answers
- * on. `resources/js/pages/public/booking.tsx` replaces this later.
+ * on. The dates use the shadcn date range picker and the party controls use the
+ * shadcn select, so this matches the rest of the interface.
  */
 export function BookingWidget({ roomTypes }: { roomTypes: BookableRoom[] }) {
     const { site } = usePage<SharedData>().props;
 
-    const [checkIn, setCheckIn] = useState('');
-    const [checkOut, setCheckOut] = useState('');
+    const [range, setRange] = useState({ from: '', to: '' });
     const [adults, setAdults] = useState('2');
     const [children, setChildren] = useState('0');
-    const [roomSlug, setRoomSlug] = useState('');
+    const [roomSlug, setRoomSlug] = useState(ANY_ROOM);
 
     const today = new Date().toISOString().slice(0, 10);
 
@@ -41,8 +56,8 @@ export function BookingWidget({ roomTypes }: { roomTypes: BookableRoom[] }) {
 
         const message = [
             `Hello ${site.name}, I would like to check availability.`,
-            checkIn && `Check in: ${checkIn}`,
-            checkOut && `Check out: ${checkOut}`,
+            range.from && `Check in: ${range.from}`,
+            range.to && `Check out: ${range.to}`,
             `Guests: ${adults} adult${adults === '1' ? '' : 's'}${
                 children !== '0'
                     ? ` and ${children} child${children === '1' ? '' : 'ren'}`
@@ -70,86 +85,82 @@ export function BookingWidget({ roomTypes }: { roomTypes: BookableRoom[] }) {
             className="rounded-xl border border-navy/10 bg-white/95 p-4 shadow-xl backdrop-blur sm:p-5"
         >
             <div className="grid gap-4 lg:grid-cols-12">
-                <div className="grid gap-1.5 lg:col-span-3">
-                    <Label htmlFor="check_in" className="text-xs text-navy/60">
-                        Check in
+                <div className="grid gap-1.5 lg:col-span-4">
+                    <Label className="text-xs text-navy/60">
+                        Check in – check out
                     </Label>
-                    <input
-                        id="check_in"
-                        type="date"
+                    <DateRangePicker
+                        from={range.from}
+                        to={range.to}
+                        onChange={setRange}
                         min={today}
-                        value={checkIn}
-                        onChange={(event) => setCheckIn(event.target.value)}
+                        placeholder="Choose your dates"
                         className={fieldClass}
                     />
                 </div>
 
                 <div className="grid gap-1.5 lg:col-span-3">
-                    <Label htmlFor="check_out" className="text-xs text-navy/60">
-                        Check out
-                    </Label>
-                    <input
-                        id="check_out"
-                        type="date"
-                        min={checkIn || today}
-                        value={checkOut}
-                        onChange={(event) => setCheckOut(event.target.value)}
-                        className={fieldClass}
-                    />
-                </div>
+                    <Label className="text-xs text-navy/60">Guests</Label>
+                    <div className="grid grid-cols-2 gap-2">
+                        <Select value={adults} onValueChange={setAdults}>
+                            <SelectTrigger
+                                className={fieldClass}
+                                aria-label="Adults"
+                            >
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {[1, 2, 3, 4, 5, 6].map((count) => (
+                                    <SelectItem
+                                        key={count}
+                                        value={String(count)}
+                                    >
+                                        {count}{' '}
+                                        {count === 1 ? 'adult' : 'adults'}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
 
-                <div className="grid gap-1.5 lg:col-span-2">
-                    <Label htmlFor="adults" className="text-xs text-navy/60">
-                        Guests
-                    </Label>
-                    <div className="flex gap-2">
-                        <select
-                            id="adults"
-                            value={adults}
-                            onChange={(event) => setAdults(event.target.value)}
-                            className={fieldClass}
-                            aria-label="Adults"
-                        >
-                            {[1, 2, 3, 4, 5, 6].map((count) => (
-                                <option key={count} value={count}>
-                                    {count} adult{count === 1 ? '' : 's'}
-                                </option>
-                            ))}
-                        </select>
-                        <select
-                            value={children}
-                            onChange={(event) =>
-                                setChildren(event.target.value)
-                            }
-                            className={fieldClass}
-                            aria-label="Children"
-                        >
-                            {[0, 1, 2, 3, 4].map((count) => (
-                                <option key={count} value={count}>
-                                    {count} child{count === 1 ? '' : 'ren'}
-                                </option>
-                            ))}
-                        </select>
+                        <Select value={children} onValueChange={setChildren}>
+                            <SelectTrigger
+                                className={fieldClass}
+                                aria-label="Children"
+                            >
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {[0, 1, 2, 3, 4].map((count) => (
+                                    <SelectItem
+                                        key={count}
+                                        value={String(count)}
+                                    >
+                                        {count}{' '}
+                                        {count === 1 ? 'child' : 'children'}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
                     </div>
                 </div>
 
-                <div className="grid gap-1.5 lg:col-span-2">
+                <div className="grid gap-1.5 lg:col-span-3">
                     <Label htmlFor="room_slug" className="text-xs text-navy/60">
                         Room type
                     </Label>
-                    <select
-                        id="room_slug"
-                        value={roomSlug}
-                        onChange={(event) => setRoomSlug(event.target.value)}
-                        className={fieldClass}
-                    >
-                        <option value="">Any room</option>
-                        {roomTypes.map((room) => (
-                            <option key={room.slug} value={room.slug}>
-                                {room.name}
-                            </option>
-                        ))}
-                    </select>
+                    <Select value={roomSlug} onValueChange={setRoomSlug}>
+                        <SelectTrigger id="room_slug" className={fieldClass}>
+                            <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value={ANY_ROOM}>Any room</SelectItem>
+                            {roomTypes.map((room) => (
+                                <SelectItem key={room.slug} value={room.slug}>
+                                    {room.name}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
                 </div>
 
                 <div className="flex items-end lg:col-span-2">

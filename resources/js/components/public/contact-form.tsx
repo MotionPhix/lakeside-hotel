@@ -1,10 +1,12 @@
 import { useForm } from '@inertiajs/react';
 import { Send } from 'lucide-react';
 import type { FormEvent } from 'react';
+import { DatePicker } from '@/components/date-picker';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 
 const fieldClass =
     'border-navy/15 h-11 w-full rounded-md border bg-white px-3 text-sm text-navy outline-none transition-colors placeholder:text-navy/35 focus-visible:border-lake focus-visible:ring-2 focus-visible:ring-lake/30';
@@ -107,15 +109,14 @@ export function ContactForm() {
                     <Label htmlFor="preferred_date">
                         Preferred date (optional)
                     </Label>
-                    <Input
+                    <DatePicker
                         id="preferred_date"
-                        name="preferred_date"
-                        type="date"
                         value={data.preferred_date}
-                        onChange={(event) =>
-                            setData('preferred_date', event.target.value)
-                        }
-                        className={fieldClass}
+                        onChange={(value) => setData('preferred_date', value)}
+                        clearable
+                        placeholder="Not sure yet"
+                        min={new Date().toISOString().slice(0, 10)}
+                        className="h-11"
                     />
                     <InputError message={errors.preferred_date} />
                 </div>
@@ -137,13 +138,13 @@ export function ContactForm() {
 
             <div className="grid gap-2">
                 <Label htmlFor="message">How can we help?</Label>
-                <textarea
+                <Textarea
                     id="message"
                     name="message"
                     rows={5}
                     value={data.message}
                     onChange={(event) => setData('message', event.target.value)}
-                    className="w-full rounded-md border border-navy/15 bg-white px-3 py-2.5 text-sm text-navy transition-colors outline-none placeholder:text-navy/35 focus-visible:border-lake focus-visible:ring-2 focus-visible:ring-lake/30"
+                    className="min-h-28 border-navy/15 bg-white px-3 py-2.5 text-sm text-navy placeholder:text-navy/35"
                     placeholder="Dates, group size, anything else we should know."
                 />
                 <InputError message={errors.message} />

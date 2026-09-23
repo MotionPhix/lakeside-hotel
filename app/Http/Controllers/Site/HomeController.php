@@ -36,6 +36,10 @@ class HomeController extends Controller
                 'heroSlide',
             ),
             'about' => SitePresenter::contentBlock(ContentBlock::forKey('about')),
+            // Every bookable category, for the booking bar's room selector. The
+            // showcase below uses only the featured ones, but a guest must be
+            // able to ask for any room the hotel actually sells.
+            'bookableRoomTypes' => $this->bookableRoomTypes(),
             'roomTypes' => SitePresenter::roomTypes($this->featuredRoomTypes()),
             'amenities' => SitePresenter::amenities(
                 Amenity::query()->active()->category('general')->limit(9)->get(),
@@ -85,6 +89,24 @@ class HomeController extends Controller
         return $featured->isNotEmpty()
             ? $featured
             : RoomType::query()->active()->with('amenities')->limit(6)->get();
+    }
+
+    /**
+     * The slug and name of every room category currently on sale.
+     *
+     * @return list<array{slug: string, name: string}>
+     */
+    private function bookableRoomTypes(): array
+    {
+        return RoomType::query()
+            ->active()
+            ->get(['slug', 'name'])
+            ->map(fn (RoomType $roomType): array => [
+                'slug' => $roomType->slug,
+                'name' => $roomType->name,
+            ])
+            ->values()
+            ->all();
     }
 
     /**
