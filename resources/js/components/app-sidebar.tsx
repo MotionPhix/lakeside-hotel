@@ -1,8 +1,8 @@
 import { Link } from '@inertiajs/react';
-import { BookOpen, FolderGit2, LayoutGrid } from 'lucide-react';
+import { ExternalLink, LayoutGrid, Users } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { NavFooter } from '@/components/nav-footer';
-import { NavMain } from '@/components/nav-main';
+import { NavGroup, type NavGroupDefinition } from '@/components/nav-group';
 import { NavUser } from '@/components/nav-user';
 import {
     Sidebar,
@@ -13,31 +13,41 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
-import { dashboard } from '@/routes';
+import { usePermissions } from '@/lib/permissions';
+import { dashboard, home } from '@/routes';
+import users from '@/routes/admin/users';
 import type { NavItem } from '@/types';
 
-const mainNavItems: NavItem[] = [
-    {
-        title: 'Dashboard',
-        href: dashboard(),
-        icon: LayoutGrid,
-    },
-];
-
-const footerNavItems: NavItem[] = [
-    {
-        title: 'Repository',
-        href: 'https://github.com/laravel/react-starter-kit',
-        icon: FolderGit2,
-    },
-    {
-        title: 'Documentation',
-        href: 'https://laravel.com/docs/starter-kits#react',
-        icon: BookOpen,
-    },
-];
-
 export function AppSidebar() {
+    const { can } = usePermissions();
+
+    const groups: NavGroupDefinition[] = [
+        {
+            label: 'Overview',
+            items: [
+                { title: 'Dashboard', href: dashboard(), icon: LayoutGrid },
+            ],
+        },
+        {
+            label: 'Hotel',
+            items: [
+                can('users.view') && {
+                    title: 'Staff',
+                    href: users.index(),
+                    icon: Users,
+                },
+            ].filter(Boolean) as NavGroupDefinition['items'],
+        },
+    ];
+
+    const footerNavItems: NavItem[] = [
+        {
+            title: 'View website',
+            href: home(),
+            icon: ExternalLink,
+        },
+    ];
+
     return (
         <Sidebar collapsible="icon" variant="inset">
             <SidebarHeader>
@@ -53,7 +63,13 @@ export function AppSidebar() {
             </SidebarHeader>
 
             <SidebarContent>
-                <NavMain items={mainNavItems} />
+                {groups.map((group) => (
+                    <NavGroup
+                        key={group.label}
+                        label={group.label}
+                        items={group.items}
+                    />
+                ))}
             </SidebarContent>
 
             <SidebarFooter>

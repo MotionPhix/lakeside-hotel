@@ -2,10 +2,11 @@
 
 use App\Enums\Role;
 use App\Models\User;
+use Illuminate\Support\Facades\Hash;
 
 test('the staff list shows each account with its role', function () {
-    $admin = User::factory()->role(Role::Admin)->create();
-    $receptionist = User::factory()->role(Role::Reception)->create(['name' => 'Thandiwe Moyo']);
+    $admin = User::factory()->role(Role::Admin)->create(['name' => 'Grace Banda']);
+    User::factory()->role(Role::Reception)->create(['name' => 'Thandiwe Moyo']);
 
     $this->actingAs($admin)
         ->get(route('admin.users.index'))
@@ -15,6 +16,8 @@ test('the staff list shows each account with its role', function () {
             ->has('users.data', 2)
             ->where('users.data.1.name', 'Thandiwe Moyo')
             ->where('users.data.1.role_label', 'Reception Staff')
+            ->where('users.data.0.is_self', true)
+            ->where('users.data.1.can_manage', true)
         );
 });
 
@@ -106,19 +109,21 @@ test('an administrator cannot grant a role at or above their own level', functio
         ->assertSessionHasErrors('role');
 });
 
-test('a manager cannot promote somebody above their own level', function () {
+test('a hotel manager cannot create staff accounts at all', function () {
     $manager = User::factory()->role(Role::HotelManager)->create();
 
     $this->actingAs($manager)
         ->post(route('admin.users.store'), [
             'name' => 'Wants More Access',
             'email' => 'climber@lakesidehotel.mw',
-            'role' => Role::Admin->value,
+            'role' => Role::Reception->value,
             'is_active' => true,
             'password' => 'lakeside-lodge-2026',
             'password_confirmation' => 'lakeside-lodge-2026',
         ])
-        ->assertSessionHasErrors('role');
+        ->assertForbidden();
+
+    expect(User::query()->where('email', 'climber@lakesidehotel.mw')->exists())->toBeFalse();
 });
 
 test('an account cannot be left without a staff role', function () {
@@ -157,7 +162,7 @@ test('an administrator can update a staff account and reset its password', funct
     expect($receptionist->name)->toBe('Thandiwe Moyo')
         ->and($receptionist->role)->toBe(Role::HotelManager)
         ->and($receptionist->job_title)->toBe('Operations Manager')
-        ->and(Illuminate\Support\Facades\Hash::check('brand-new-secret-2026', $receptionist->password))->toBeTrue();
+        ->and(Hash::check('brand-new-secret-2026', $receptionist->password))->toBeTrue();
 });
 
 test('an administrator can deactivate and reactivate a staff account', function () {
@@ -219,6 +224,21 @@ test('the create form only offers roles the administrator may hand out', functio
         ->assertOk()
         ->assertInertia(fn ($page) => $page
             ->component('admin/users/create')
-            ->has('roles', 4)
+            ->has('roles', 3)
+            ->where('roles.0.value', Role::HotelManager->value)
+            ->where('roles.1.value', Role::Reception->value)
+            ->where('roles.2.value', Role::Marketing->value)
+        );
+});
+
+test('the system administrator may hand out every staff role', function () {
+    $systemAdmin = User::factory()->role(Role::SystemAdmin)->create();
+
+    $this->actingAs($systemAdmin)
+        ->get(route('admin.users.create'))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->component('admin/users/create')
+            ->has('roles', 5)
         );
 });

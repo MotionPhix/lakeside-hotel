@@ -76,12 +76,11 @@ class UserController extends Controller
      */
     public function store(StoreUserRequest $request): RedirectResponse
     {
-        $attributes = $request->validated();
-
-        $user = User::query()->create([
-            ...$attributes,
-            'email_verified_at' => now(),
-        ]);
+        // `email_verified_at` is deliberately not mass assignable, so it is set
+        // directly: an administrator creating the account vouches for the address.
+        $user = new User($request->validated());
+        $user->email_verified_at = now();
+        $user->save();
 
         Inertia::flash('toast', [
             'type' => 'success',
