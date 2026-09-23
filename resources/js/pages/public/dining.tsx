@@ -148,12 +148,32 @@ export default function Dining({ intro, venues }: Props) {
                                 <h3 className="font-display text-2xl font-semibold text-navy">
                                     Full menu
                                 </h3>
-                                <div className="mt-8 grid gap-10 md:grid-cols-2 lg:grid-cols-3">
+                                {venue.menu_note && (
+                                    <p className="mt-2 text-sm text-navy/60">
+                                        {venue.menu_note}
+                                    </p>
+                                )}
+
+                                {/*
+                                 * The sections are wildly uneven — one holds
+                                 * twenty-seven dishes, another a single pappad —
+                                 * so they flow down balanced newspaper columns
+                                 * instead of sitting in a ragged grid.
+                                 */}
+                                <div className="mt-8 columns-1 gap-10 md:columns-2 lg:columns-3">
                                     {venue.menu.map((section) => (
-                                        <div key={section.key}>
+                                        <div
+                                            key={section.key}
+                                            className="mb-10 break-inside-avoid"
+                                        >
                                             <p className="text-xs font-semibold tracking-[0.18em] text-gold-dark uppercase">
                                                 {section.label}
                                             </p>
+                                            {section.note && (
+                                                <p className="mt-1 text-[11px] tracking-wide text-navy/50 uppercase">
+                                                    {section.note}
+                                                </p>
+                                            )}
                                             <ul className="mt-4 space-y-3">
                                                 {section.items.map((dish) => (
                                                     <li key={dish.id}>

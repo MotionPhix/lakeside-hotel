@@ -125,6 +125,8 @@ export type DiningVenueData = {
     tagline: string | null;
     description: string | null;
     opening_hours: Record<string, string> | null;
+    /** A note for the whole menu, e.g. "Prices are tax inclusive". */
+    menu_note: string | null;
     dress_code: string | null;
     cover: MediaImage | null;
     gallery: MediaImage[];
@@ -230,5 +232,7 @@ export type NearbyAttractionData = {
 export type MenuCategory = {
     key: string;
     label: string;
+    /** A note printed under the section heading, e.g. "All served with chips". */
+    note: string | null;
     items: MenuItemData[];
 };

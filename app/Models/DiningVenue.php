@@ -25,6 +25,8 @@ use Spatie\MediaLibrary\InteractsWithMedia;
  * @property string|null $tagline
  * @property string|null $description
  * @property array<string, string>|null $opening_hours
+ * @property array<string, string>|null $section_notes
+ * @property string|null $menu_note
  * @property string|null $dress_code
  * @property int $sort_order
  * @property bool $is_active
@@ -33,7 +35,7 @@ use Spatie\MediaLibrary\InteractsWithMedia;
  */
 #[Fillable([
     'name', 'slug', 'type', 'tagline', 'description', 'opening_hours',
-    'dress_code', 'sort_order', 'is_active',
+    'section_notes', 'menu_note', 'dress_code', 'sort_order', 'is_active',
 ])]
 class DiningVenue extends Model implements HasMedia
 {
@@ -60,6 +62,7 @@ class DiningVenue extends Model implements HasMedia
     {
         return [
             'opening_hours' => 'array',
+            'section_notes' => 'array',
             'sort_order' => 'integer',
             'is_active' => 'boolean',
         ];

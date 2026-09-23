@@ -115,7 +115,15 @@ test('the dining page lists each venue with a menu grouped by section', function
             ->component('public/dining')
             ->has('venues', 3)
             ->where('venues.0.name', 'The Lakeview Restaurant')
-            ->has('venues.0.menu')
+            ->has('venues.0.menu', 20)
+            // Sections keep the order they are printed in, not the order the
+            // rows happen to come back from the database.
+            ->where('venues.0.menu.0.key', 'salads')
+            ->where('venues.0.menu.0.label', 'Salads')
+            ->where('venues.0.menu.0.note', null)
+            ->where('venues.0.menu.3.key', 'sandwiches')
+            ->where('venues.0.menu.3.note', 'All served with chips. Extra cheese MK 2,000.')
+            ->where('venues.0.menu_note', 'Prices are tax inclusive.')
             ->has('venues.0.signature_dishes')
             ->where('intro.key', 'dining.intro')
         );

@@ -82,7 +82,9 @@ test('the database seeder builds a complete, browsable hotel', function () {
         ->and(RatePlan::query()->active()->count())->toBe(7)
         ->and(AvailabilityBlock::query()->count())->toBe(2)
         ->and(DiningVenue::query()->active()->count())->toBe(3)
-        ->and(MenuItem::query()->count())->toBe(26)
+        // The restaurant's printed card, transcribed: 20 sections, 145 dishes.
+        ->and(MenuItem::query()->count())->toBe(145)
+        ->and(MenuItem::query()->distinct()->count('category'))->toBe(20)
         ->and(Activity::query()->active()->count())->toBe(15)
         ->and(ConferenceHall::query()->active()->count())->toBe(3)
         ->and(ConferencePackage::query()->active()->count())->toBe(5)
@@ -101,6 +103,39 @@ test('the database seeder builds a complete, browsable hotel', function () {
         ->and(Inquiry::query()->count())->toBe(14)
         ->and(Inquiry::query()->open()->count())->toBe(8)
         ->and(NewsletterSubscriber::query()->subscribed()->count())->toBe(24);
+});
+
+test('the Lakeside menu is transcribed with the prices the card prints', function () {
+    $this->seed();
+
+    $restaurant = DiningVenue::query()->where('slug', 'lakeview-restaurant')->sole();
+
+    $price = fn (string $name): string => (string) $restaurant->menuItems()->where('name', $name)->sole()->price;
+
+    expect($restaurant->menuItems()->count())->toBe(145)
+        // Priced under the section heading, the way the card prints them.
+        ->and($price('Greek Salad'))->toBe('10000.00')
+        ->and($price('Sweet Corn Soup (Veg/Chicken/Beef)'))->toBe('12000.00')
+        ->and($price('Beef Burger'))->toBe('18000.00')
+        ->and($price('Margherita'))->toBe('35000.00')
+        ->and($price('Paneer Kolapuri'))->toBe('20000.00')
+        ->and($price('Butter Naan'))->toBe('5000.00')
+        ->and($price('Masala Pappad'))->toBe('2500.00')
+        ->and($price('Coke'))->toBe('2000.00')
+        // Dishes the card breaks out on their own line.
+        ->and($price('Quarter Chicken Braai with Chips'))->toBe('18000.00')
+        ->and($price('Quarter Chicken'))->toBe('18000.00')
+        ->and($price('Triple Schezwan Rice'))->toBe('25000.00')
+        ->and($price('Biryani (Veg/Chicken/Beef)'))->toBe('30000.00')
+        ->and($price('Pulao (Veg/Chicken)'))->toBe('30000.00')
+        ->and($price('Ice Cream — Cone or Cup'))->toBe('5000.00')
+        ->and($price('Fried Ice Cream'))->toBe('15000.00')
+        // Notes are held once per section and once for the card.
+        ->and($restaurant->section_notes)->toHaveKeys(['sandwiches', 'burgers', 'pasta', 'pizzas', 'warm_heart_dishes'])
+        ->and($restaurant->section_notes['sandwiches'])->toBe('All served with chips. Extra cheese MK 2,000.')
+        ->and($restaurant->menu_note)->toBe('Prices are tax inclusive.')
+        // The bars have no invented prices sitting on them.
+        ->and(MenuItem::query()->where('dining_venue_id', '!=', $restaurant->getKey())->count())->toBe(0);
 });
 
 test('seeded room categories are priced, amenitied and stocked with rooms', function () {

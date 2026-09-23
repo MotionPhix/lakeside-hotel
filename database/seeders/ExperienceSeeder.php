@@ -9,6 +9,7 @@ use App\Models\DiningVenue;
 use App\Models\MenuItem;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
+use LogicException;
 
 /**
  * Everything the hotel sells that is not a bed: where guests eat and drink, the
@@ -45,6 +46,8 @@ class ExperienceSeeder extends Seeder
                     'lunch' => '12:00 - 15:00',
                     'dinner' => '18:30 - 22:00',
                 ],
+                'section_notes' => $this->sectionNotes(),
+                'menu_note' => 'Prices are tax inclusive.',
                 'dress_code' => 'Resort casual',
                 'sort_order' => 1,
             ],
@@ -76,55 +79,350 @@ class ExperienceSeeder extends Seeder
             ],
         );
 
-        $menu = [
-            // [venue, category, name, description, price, signature, vegetarian]
-            [$restaurant, 'starters', 'Chambo Fish Cakes', 'Lake chambo, cassava crumb, chilli lime mayonnaise', 14_000, true, false],
-            [$restaurant, 'starters', 'Seafood Cocktail', 'Prawns and lake fish, avocado, citrus dressing, served chilled', 18_000, true, false],
-            [$restaurant, 'starters', 'Mzuzu Mushroom Soup', 'Wild mushrooms from the northern highlands, cream, herb oil', 12_000, false, true],
-            [$restaurant, 'starters', 'Roast Maize and Peanut Salad', 'Charred maize, groundnut, tomato, coriander', 11_000, false, true],
+        /*
+         * Clear the boards before restocking. Dishes seeded from the placeholder
+         * menu carry prices the kitchen never agreed to, so they are removed
+         * rather than left behind on a re-seed.
+         */
+        MenuItem::query()
+            ->whereIn('dining_venue_id', [$restaurant->id, $bar->id, $poolBar->id])
+            ->delete();
 
-            [$restaurant, 'mains', 'Grilled Lake Malawi Chambo', 'Whole chambo off the grill, lemon butter, nsima or chips', 38_000, true, false],
-            [$restaurant, 'mains', 'Beef Ndiwo with Nsima', 'Slow cooked beef in a groundnut and tomato relish, with nsima', 32_000, true, false],
-            [$restaurant, 'mains', 'Vegetable Ndiwo with Nsima', 'Seasonal greens, groundnut, tomato, with nsima', 24_000, false, true],
-            [$restaurant, 'mains', 'Coconut Chicken Curry', 'Chicken thigh, coconut, ginger, steamed rice', 30_000, false, false],
-            [$restaurant, 'mains', 'Beef Fillet with Pepper Sauce', 'Local beef fillet, green peppercorn cream, roast potatoes', 45_000, false, false],
-            [$restaurant, 'mains', 'Grilled Tilapia Fillets', 'Tilapia fillets, garlic butter, rice and garden salad', 34_000, false, false],
+        $sortOrder = 0;
 
-            [$restaurant, 'grills', 'Slider Tower', 'A tower of mini burgers with our house relish, built to share', 42_000, true, false],
-            [$restaurant, 'grills', 'Lake Platter for Two', 'Chambo, tilapia and prawns, grilled with lemon and herbs', 78_000, true, false],
-            [$restaurant, 'grills', 'Barbecue Chicken Half', 'Half chicken marinated in peri-peri, with chips and slaw', 28_000, false, false],
+        foreach ($this->menuSections() as $category => $section) {
+            foreach ($section['items'] as $item) {
+                [$name, $vegetarian] = $item;
+                $options = $item[2] ?? [];
 
-            [$restaurant, 'desserts', 'Mango Sorbet', 'Mango from the lakeshore, lime, mint', 10_000, false, true],
-            [$restaurant, 'desserts', 'Coconut Rice Pudding', 'Coconut milk, cardamom, toasted coconut', 11_000, false, true],
-            [$restaurant, 'desserts', 'Malawian Coffee and Chocolate Tart', 'Dark chocolate, local coffee, cream', 13_000, false, true],
+                // Most sections are priced once at the heading, the way the card
+                // prints them; only the exceptions carry their own price.
+                $price = $options['price'] ?? $section['price'];
 
-            [$bar, 'cocktails', 'Sunset Over Senga Bay', 'Malawi gin, mango, lime, grenadine', 18_000, true, false],
-            [$bar, 'cocktails', 'Lake Breeze', 'White rum, baobab, soda, mint', 17_000, false, false],
-            [$bar, 'cocktails', 'Malawi Gin and Tonic', 'Local gin, tonic, lime, juniper', 15_000, false, false],
-            [$bar, 'drinks', 'Fresh Baobab Juice', 'Pressed to order', 8_000, false, true],
-            [$bar, 'drinks', 'Malawian Coffee', 'Grown in the north, roasted weekly', 7_000, false, true],
-            [$bar, 'drinks', 'Sobo Squash', 'Hibiscus, ginger, served over ice', 6_000, false, true],
+                if ($price === null) {
+                    throw new LogicException("The menu item [{$name}] has no price.");
+                }
 
-            [$poolBar, 'mains', 'Pool Burger', 'Beef patty, cheddar, tomato relish, chips', 26_000, false, false],
-            [$poolBar, 'mains', 'Grilled Chicken Salad', 'Grilled chicken, avocado, tomato, garden leaves', 24_000, false, false],
-            [$poolBar, 'mains', 'Fish and Chips', 'Battered chambo, chips, tartare', 28_000, false, false],
-            [$poolBar, 'drinks', 'Sun Deck Cooler', 'Pineapple, lime, ginger, soda', 9_000, true, true],
-        ];
-
-        foreach ($menu as $index => [$venue, $category, $name, $description, $price, $signature, $vegetarian]) {
-            MenuItem::query()->updateOrCreate(
-                ['dining_venue_id' => $venue->id, 'name' => $name],
-                [
-                    'description' => $description,
+                MenuItem::query()->create([
+                    'dining_venue_id' => $restaurant->id,
+                    'name' => $name,
+                    'description' => null,
                     'price' => $price,
                     'category' => $category,
-                    'is_signature' => $signature,
+                    'is_signature' => $options['signature'] ?? false,
                     'is_vegetarian' => $vegetarian,
                     'is_available' => true,
-                    'sort_order' => $index + 1,
-                ],
-            );
+                    'sort_order' => ++$sortOrder,
+                ]);
+            }
         }
+    }
+
+    /**
+     * The Lakeside menu, transcribed from the printed card.
+     *
+     * Sections are priced under their heading, as on the card, so `price` is the
+     * section price and an item only carries its own when the card breaks the
+     * rule — a quarter chicken, a biryani, the desserts. Each item is
+     * `[name, vegetarian]`, with an optional third element holding a price
+     * override or the signature flag.
+     *
+     * @return array<string, array{price: int|null, note?: string, items: list<array{0: string, 1: bool, 2?: array<string, int|bool>}>}>
+     */
+    private function menuSections(): array
+    {
+        return [
+            'salads' => [
+                'price' => 10_000,
+                'items' => [
+                    ['Greek Salad', true],
+                    ['Green Salad', true],
+                    ['Onion Salad', true],
+                ],
+            ],
+
+            'soups' => [
+                'price' => 12_000,
+                'items' => [
+                    ['Sweet Corn Soup (Veg/Chicken/Beef)', false],
+                    ['Hot-n-Sour Soup (Veg/Chicken/Beef)', false],
+                    ['Manchow Soup (Veg/Chicken/Beef)', false],
+                    ['Lakeside Special Soup (Veg/Chicken/Beef)', false, ['signature' => true]],
+                    ['Tomato Soup', true],
+                    ['Cream of Mushroom Soup', true],
+                ],
+            ],
+
+            'light_bites' => [
+                'price' => 12_000,
+                'items' => [
+                    ['Bruschetta (Italian) — Veg/Chicken', false],
+                    ['Garlic Bread (Italian) — Veg/Chicken', false],
+                    ['Cheese Garlic Bread (Italian) — Veg/Chicken', false],
+                    ['Spring Rolls (Chinese)', false],
+                    ['American Corn Chaat (Indian/Chinese)', true],
+                    ['Cheesy French Fries', true],
+                ],
+            ],
+
+            'sandwiches' => [
+                'price' => 18_000,
+                'note' => 'All served with chips. Extra cheese MK 2,000.',
+                'items' => [
+                    ['Veg Sandwich', true],
+                    ['Club Sandwich — Veg/Chicken/Cheese', false],
+                    ['Grilled Sandwich — Veg/Chicken/Cheese', false],
+                ],
+            ],
+
+            'burgers' => [
+                'price' => 18_000,
+                'note' => 'All served with chips. Extra cheese MK 2,000.',
+                'items' => [
+                    ['Veg Burger', true],
+                    ['Chicken Burger', false],
+                    ['Zinger Burger', false],
+                    ['Fish Burger', false],
+                    ['Beef Burger', false],
+                ],
+            ],
+
+            'appetizers' => [
+                'price' => 18_000,
+                'items' => [
+                    ['Veg Manchurian (Dry or Semi Gravy)', true],
+                    ['Kung Pao Potato', true],
+                    ['Crispy Chilli Corn', true],
+                    ['Honey Chilli Potato', true],
+                    ['Crispy Chilli Chicken', false],
+                    ['Chicken Lollipop', false],
+                    ['Honey Lemon Chicken', false],
+                    ['Honey Garlic Chicken', false],
+                    ['Chicken Tit Bits', false],
+                    ['Beef Tit Bits', false],
+                    ['Crispy Chilli Fish', false],
+                    ['Crispy Lemonfish', false],
+                    ['Fish Fingers', false],
+                    ['Vada Pav', true],
+                    ['Cheese Balls', true],
+                    ['Quesadillas', false],
+                    ['Paneer Chilli (Dry or Semi Gravy)', true],
+                    ['Paneer Tikka', true],
+                ],
+            ],
+
+            'pasta' => [
+                'price' => 24_000,
+                'note' => 'Extra cheese MK 2,000.',
+                'items' => [
+                    ['Arabiata Pasta (Red Sauce) — Veg/Chicken', false],
+                    ['Alfredo Pasta (White Sauce) — Veg/Chicken', false],
+                    ['Pesto Pasta (Green Sauce) — Veg/Chicken', false],
+                    ['Mix Sauce Pasta — Veg/Chicken', false],
+                ],
+            ],
+
+            'pizzas' => [
+                'price' => 35_000,
+                'note' => 'Extra cheese MK 4,000.',
+                'items' => [
+                    ['Margherita', true],
+                    ['Chicken Pizza', false],
+                    ['Beef Pizza', false],
+                    ['Chicken with Corn Pizza', false],
+                    ['4 Season Pizza', false],
+                ],
+            ],
+
+            'braai' => [
+                'price' => 25_000,
+                'items' => [
+                    ['Half Chicken Braai with Chips and Salad', false],
+                    ['T-Bone with Chips and Salad', false],
+                    ['Chambo with Chips and Salad', false, ['signature' => true]],
+                    ['Quarter Chicken Braai with Chips', false, ['price' => 18_000]],
+                ],
+            ],
+
+            'warm_heart_dishes' => [
+                'price' => 25_000,
+                'note' => 'Served with chips, nsima or rice, and salad.',
+                'items' => [
+                    ['Chambo Stew', false],
+                    ['Open Fried Chambo', false],
+                    ['Whole Fried Chambo', false, ['signature' => true]],
+                    ['Fillet Chambo in Bread Crumbs', false],
+                    ['Fillet Chambo in Batter', false],
+                    ['Fillet Chambo in Lemon Butter Sauce', false, ['signature' => true]],
+                    ['Half Chicken in Bread Crumbs', false],
+                    ['Half Chicken Peri-Peri', false],
+                    ['Half Chicken Grilled', false],
+                    ['Quarter Chicken', false, ['price' => 18_000]],
+                ],
+            ],
+
+            'main_course' => [
+                'price' => 25_000,
+                'items' => [
+                    ['Chicken in Garlic Sauce', false],
+                    ['Sweet-n-Sour Chicken', false],
+                    ['Chicken with Green Pepper', false],
+                    ['Chilli Chicken', false],
+                    ['Chicken Schezwan', false],
+                    ['Mongolian Chicken', false],
+                    ['Beef Garlic Sauce', false],
+                    ['Beef Schezwan', false],
+                    ['Beef Chilli', false],
+                    ['Beef with Green Pepper', false],
+                    ['Lemon Beef', false],
+                    ['Mongolian Beef', false],
+                ],
+            ],
+
+            'rice' => [
+                'price' => 18_000,
+                'items' => [
+                    ['Fried Rice (Veg/Chicken/Beef)', false],
+                    ['Schezwan Rice (Veg/Chicken/Beef)', false],
+                    ['Jeera Rice', true],
+                    ['Egg Fried Rice', false],
+                    ['Plain Rice', true],
+                    ['Triple Schezwan Rice', false, ['price' => 25_000]],
+                    ['Biryani (Veg/Chicken/Beef)', false, ['price' => 30_000]],
+                    ['Pulao (Veg/Chicken)', false, ['price' => 30_000]],
+                ],
+            ],
+
+            'noodles' => [
+                'price' => 18_000,
+                'items' => [
+                    ['Schezwan Noodles (Veg/Chicken/Beef)', false],
+                    ['Fried Noodles (Veg/Chicken/Beef)', false],
+                    ['Crispy Noodles (Veg/Chicken/Beef)', false],
+                    ['Crispy Schezwan Noodles (Veg/Chicken/Beef)', false],
+                    ['Hakka Noodles (Veg/Chicken/Beef)', false],
+                ],
+            ],
+
+            'indian_gravy' => [
+                'price' => 20_000,
+                'items' => [
+                    ['Butter Chicken', false],
+                    ['Chicken Kadai', false],
+                    ['Chicken Tikka Masala', false],
+                    ['Chicken Bharta', false],
+                    ['Chicken Lajaawab', false],
+                    ['Chicken Kolapuri', false],
+                    ['Egg Curry', false],
+                    ['Egg Masala', false],
+                    ['Beef Kadai', false],
+                    ['Beef Masala', false],
+                    ['Fish Curry', false],
+                    ['Dal Tadka', true],
+                    ['Dal Fry', true],
+                    ['Veg Manchurian', true],
+                    ['Mix Veg', true],
+                    ['Veg Jhalfarezi', true],
+                    ['Veg Makhani', true],
+                    ['Veg Kolapuri', true],
+                    ['Veg Kadai', true],
+                    ['Veg Handi', true],
+                    ['Green Peas Masala', true],
+                    ['Aloo Dum Masala', true],
+                    ['Paneer Manchurian', true],
+                    ['Paneer Kadai', true],
+                    ['Paneer Butter Masala', true],
+                    ['Paneer Tikka Masala', true],
+                    ['Paneer Kolapuri', true],
+                ],
+            ],
+
+            'tandoor' => [
+                'price' => 25_000,
+                'items' => [
+                    ['Chicken Tikka Kebab', false],
+                    ['Chicken Tandoori (Half)', false],
+                    ['Chicken Tangdi Kebab', false],
+                    ['Chicken Seekh Kebab', false],
+                    ['Chicken Cheese Kebab', false],
+                    ['Fish Tandoori', false],
+                    ['Potato Tikka Kebab', true],
+                ],
+            ],
+
+            'breads' => [
+                'price' => 5_000,
+                'items' => [
+                    ['Tandoori Roti', true],
+                    ['Butter Tandoori Roti', true],
+                    ['Plain Naan', true],
+                    ['Butter Naan', true],
+                    ['Garlic Naan', true],
+                    ['Butter Paratha', true],
+                ],
+            ],
+
+            'sizzlers' => [
+                'price' => 35_000,
+                'items' => [
+                    ['Veg Sizzler', true],
+                    ['Indian Sizzler', false],
+                    ['Fish Sizzler', false],
+                    ['Chicken Sizzler', false],
+                    ['Beef Sizzler', false],
+                ],
+            ],
+
+            'pappad' => [
+                'price' => 2_500,
+                'items' => [
+                    ['Masala Pappad', true],
+                ],
+            ],
+
+            'beverages' => [
+                'price' => 2_000,
+                'items' => [
+                    ['Coke', true],
+                    ['Sprite', true],
+                    ['Fanta', true],
+                    ['Cherry Plum', true],
+                    ['Cocopina', true],
+                    ['Mineral Water', true],
+                ],
+            ],
+
+            // Sweet tooth. The card prices these individually, so there is no
+            // section price to fall back on.
+            'desserts' => [
+                'price' => null,
+                'items' => [
+                    ['Ice Cream — Cone or Cup', true, ['price' => 5_000]],
+                    ['Fried Banana with Vanilla Ice Cream', true, ['price' => 15_000]],
+                    ['Sizzling Brownie', true, ['price' => 15_000]],
+                    ['Fried Ice Cream', true, ['price' => 15_000]],
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * The notes the card prints under a section heading, keyed by section. Stated
+     * once per section rather than repeated against every dish.
+     *
+     * @return array<string, string>
+     */
+    private function sectionNotes(): array
+    {
+        $notes = [];
+
+        foreach ($this->menuSections() as $category => $section) {
+            if (isset($section['note'])) {
+                $notes[$category] = $section['note'];
+            }
+        }
+
+        return $notes;
     }
 
     /**

@@ -326,6 +326,7 @@ class SitePresenter
             'tagline' => $venue->tagline,
             'description' => $venue->description,
             'opening_hours' => $venue->opening_hours,
+            'menu_note' => $venue->menu_note,
             'dress_code' => $venue->dress_code,
             'cover' => self::cover($venue),
             'gallery' => self::gallery($venue, 'gallery'),
@@ -342,19 +343,50 @@ class SitePresenter
                     ->all(),
             );
 
-            // Grouped by menu section, in the order the sections are declared.
-            $payload['menu'] = array_values(
-                $items->groupBy('category')
-                    ->map(fn (Collection $group, string $category): array => [
-                        'key' => $category,
-                        'label' => ucfirst($category),
-                        'items' => array_values($group->map(fn (MenuItem $item): array => self::menuItem($item))->all()),
-                    ])
-                    ->all(),
-            );
+            $payload['menu'] = self::menuSections($venue, $items);
         }
 
         return $payload;
+    }
+
+    /**
+     * The menu, grouped into the sections the card is printed in rather than the
+     * order the rows happen to come back in. Sections the venue does not serve are
+     * dropped, and a section whose dishes are not in the registered list is
+     * appended afterwards so nothing a manager adds goes missing from the site.
+     *
+     * @param  Collection<int, MenuItem>  $items
+     * @return list<array<string, mixed>>
+     */
+    private static function menuSections(DiningVenue $venue, Collection $items): array
+    {
+        $grouped = $items->groupBy('category');
+        $notes = $venue->section_notes ?? [];
+
+        $ordered = [];
+
+        foreach (MenuItem::CATEGORIES as $category) {
+            if ($grouped->has($category)) {
+                $ordered[] = $category;
+            }
+        }
+
+        foreach ($grouped->keys() as $category) {
+            if (! in_array($category, $ordered, true)) {
+                $ordered[] = $category;
+            }
+        }
+
+        return array_values(array_map(fn (string $category): array => [
+            'key' => $category,
+            'label' => MenuItem::labelFor($category),
+            'note' => $notes[$category] ?? null,
+            'items' => array_values(
+                $grouped->get($category)
+                    ->map(fn (MenuItem $item): array => self::menuItem($item))
+                    ->all(),
+            ),
+        ], $ordered));
     }
 
     /**

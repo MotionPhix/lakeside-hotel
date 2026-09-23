@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Str;
 
 /**
  * A dish or a drink on a venue's menu, priced in the hotel's trading currency.
@@ -37,11 +38,56 @@ class MenuItem extends Model
     use HasFactory;
 
     /**
+     * The menu sections printed on the Lakeside menu, in the order they appear
+     * on the card. The key is what is stored on the row, the value is what the
+     * guest reads, so a section can be renamed without rewriting every dish.
+     *
+     * @var array<string, string>
+     */
+    public const CATEGORY_LABELS = [
+        'salads' => 'Salads',
+        'soups' => 'Soups',
+        'light_bites' => 'Light Bites',
+        'sandwiches' => 'Sandwiches',
+        'burgers' => 'Burgers',
+        'appetizers' => 'Appetizers',
+        'pasta' => 'Pasta',
+        'pizzas' => 'Pizzas',
+        'braai' => 'Braai',
+        'warm_heart_dishes' => 'Warm Heart Dishes',
+        'main_course' => 'Main Course',
+        'rice' => 'Rice',
+        'noodles' => 'Noodles',
+        'indian_gravy' => 'Indian Gravy',
+        'tandoor' => 'Tandoor',
+        'breads' => 'Breads and Naans',
+        'sizzlers' => 'Sizzlers',
+        'pappad' => 'Pappad',
+        'beverages' => 'Beverages',
+        'desserts' => 'Desserts',
+    ];
+
+    /**
      * The menu sections shown on the website.
      *
      * @var list<string>
      */
-    public const CATEGORIES = ['starters', 'mains', 'grills', 'desserts', 'cocktails', 'drinks'];
+    public const CATEGORIES = [
+        'salads', 'soups', 'light_bites', 'sandwiches', 'burgers', 'appetizers',
+        'pasta', 'pizzas', 'braai', 'warm_heart_dishes', 'main_course', 'rice',
+        'noodles', 'indian_gravy', 'tandoor', 'breads', 'sizzlers', 'pappad',
+        'beverages', 'desserts',
+    ];
+
+    /**
+     * The heading a menu section is shown under. Falls back to a headline-cased
+     * version of the stored key so a section added straight to the database
+     * still reads properly before its label is registered here.
+     */
+    public static function labelFor(string $category): string
+    {
+        return self::CATEGORY_LABELS[$category] ?? Str::headline($category);
+    }
 
     /**
      * Get the attributes that should be cast.
