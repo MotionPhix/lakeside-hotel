@@ -1,6 +1,6 @@
 import { Link } from '@inertiajs/react';
 import type { PropsWithChildren } from 'react';
-import AppLogoIcon from '@/components/app-logo-icon';
+import { LakesideLogo } from '@/components/lakeside-logo';
 import {
     Card,
     CardContent,
@@ -10,6 +10,10 @@ import {
 } from '@/components/ui/card';
 import { home } from '@/routes';
 
+/**
+ * The sign-in panel inside a card, with the wordmark above it. Left aligned, so
+ * the mark and the card share one edge rather than each centring in the column.
+ */
 export default function AuthCardLayout({
     children,
     title,
@@ -22,18 +26,14 @@ export default function AuthCardLayout({
     return (
         <div className="flex min-h-svh flex-col items-center justify-center gap-6 bg-muted p-6 md:p-10">
             <div className="flex w-full max-w-md flex-col gap-6">
-                <Link
-                    href={home()}
-                    className="flex items-center gap-2 self-center font-medium"
-                >
-                    <div className="flex h-9 w-9 items-center justify-center">
-                        <AppLogoIcon className="size-9 fill-current text-black dark:text-white" />
-                    </div>
+                <Link href={home()} className="flex flex-col gap-2 self-start">
+                    <LakesideLogo className="h-9" />
+                    <span className="sr-only">{title}</span>
                 </Link>
 
                 <div className="flex flex-col gap-6">
                     <Card className="rounded-xl">
-                        <CardHeader className="px-10 pt-8 pb-0 text-center">
+                        <CardHeader className="px-10 pt-8 pb-0 text-left">
                             <CardTitle className="text-xl">{title}</CardTitle>
                             <CardDescription>{description}</CardDescription>
                         </CardHeader>
