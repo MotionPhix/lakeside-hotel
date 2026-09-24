@@ -1,3 +1,4 @@
+import AppLogo from '@/components/app-logo';
 import { NavFooter } from '@/components/nav-footer';
 import type { NavHref, NavSection } from '@/components/nav-main';
 import { NavMain } from '@/components/nav-main';
@@ -112,13 +113,16 @@ export function AppSidebar() {
             <SidebarHeader>
                 <SidebarMenu>
                     <SidebarMenuItem>
+                        {/*
+                         * The wordmark, not the application name: the name is a
+                         * deployment setting that happens to read "Lakeside
+                         * Hotel" here, while the mark is the hotel's. The mark
+                         * also carries the accessible name, so this link reads as
+                         * the hotel rather than as an unlabelled image.
+                         */}
                         <SidebarMenuButton size="lg" asChild>
-                            <Link
-                                href={dashboard()}
-                                prefetch
-                                className="text-3xl! font-black"
-                            >
-                                Lakeside Hotel
+                            <Link href={dashboard()} prefetch>
+                                <AppLogo />
                             </Link>
                         </SidebarMenuButton>
                     </SidebarMenuItem>
