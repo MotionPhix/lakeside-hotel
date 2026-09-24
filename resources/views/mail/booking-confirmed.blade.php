@@ -31,17 +31,14 @@
         <td style="padding:30px 32px 0;">
             <p style="{{ $lead }}">Dear {{ $booking->guest->fullName() }},</p>
 
-            <p style="margin:14px 0 0;font-size:17px;font-weight:600;color:#17324d;">
-                @if ($settled)
-                    Your stay is booked and paid in full.
-                @else
-                    Your stay is booked.
-                @endif
-            </p>
+            {{-- The news, said the way somebody would say it on the phone: what it
+                 is, then that. The reference and the detail follow underneath. --}}
+            <p style="margin:18px 0 0;{{ $eyebrow }}">Your stay</p>
+            <p style="margin:0;font-size:26px;font-weight:600;letter-spacing:-.01em;color:#17324d;">Confirmed</p>
 
-            <p style="margin:8px 0 0;font-size:15px;color:#5b6b7c;">
+            <p style="margin:10px 0 0;font-size:15px;color:#5b6b7c;">
                 @if ($settled)
-                    We look forward to welcoming you to the lake. Everything you need is below.
+                    Everything is paid in full, and we look forward to welcoming you to the lake.
                 @else
                     Your room is held for the dates below. Quote the reference if you get in touch.
                 @endif
@@ -53,6 +50,7 @@
                     <td style="background:#faf7f2;border-left:3px solid #d9a441;border-radius:6px;padding:16px 18px;">
                         <p style="{{ $eyebrow }}">Your reference</p>
                         <p style="margin:0;font-size:24px;font-weight:600;letter-spacing:.01em;color:#17324d;">{{ $booking->reference }}</p>
+                        <p style="margin:6px 0 0;font-size:13px;color:#5b6b7c;">Keep this handy — we will ask for it when you arrive.</p>
                     </td>
                 </tr>
             </table>

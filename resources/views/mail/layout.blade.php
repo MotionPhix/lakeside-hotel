@@ -4,12 +4,14 @@
      *
      * Two things shape it. Mail clients strip stylesheets often enough that a
      * stylesheet is not worth relying on, so everything is inline and the layout
-     * is nested tables rather than divs and flex. And an email is read in a
-     * window the width of a phone as often as not, so the card is a single column
-     * that cannot overflow: no fixed widths, no side-by-side columns.
+     * is nested tables rather than divs and flex. And an email is read in a window
+     * the width of a phone as often as not, so the card is a single column that
+     * cannot overflow: no fixed widths, no side-by-side columns.
      *
-     * The colours are the hotel's own - navy, lake blue, sand and one line of gold
-     * - so a confirmation looks like the website it came from.
+     * The mark is embedded in the message rather than linked from a URL. A mail
+     * client that blocks remote images then still shows it - and the letter still
+     * looks like the hotel's - and a locally hosted site has no public address to
+     * serve it from in the first place.
      */
     $ink = '#17324d';
     $muted = '#5b6b7c';
@@ -19,6 +21,15 @@
     $gold = '#d9a441';
 
     $font = "-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif";
+
+    /*
+     * The wordmark is a raster of dark and mid blue on its own white plate, so it
+     * belongs on white and nowhere else: over the navy band its plate would show as
+     * a white rectangle. Embedded at twice the size it is displayed at, because
+     * most people read mail on a screen that will thank us for the extra pixels.
+     */
+    $markPath = public_path('bucket/lakeside-wordmark.png');
+    $mark = isset($message) && file_exists($markPath) ? $message->embed($markPath) : null;
 @endphp
 <!DOCTYPE html>
 <html lang="en">
@@ -40,14 +51,36 @@
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:{{ $sand }};padding:28px 12px;">
     <tr>
         <td align="center">
-            <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:600px;background:#ffffff;border:1px solid {{ $rule }};border-radius:14px;overflow:hidden;">
+            {{--
+                Square corners on purpose: the letterhead starts with a white band,
+                and a rounded top would clip it into a floating plate. There is no
+                border on the card either - the navy band and the white band above
+                it carry the edge better than a hairline does.
+            --}}
+            <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:600px;background:#ffffff;">
 
-                {{-- The hotel, said the way the sign says it. --}}
+                {{-- The mark, on the only background it can sit on. --}}
                 <tr>
-                    <td style="background:{{ $ink }};padding:26px 32px 22px;">
-                        <p style="margin:0;font-size:20px;font-weight:600;letter-spacing:-.01em;color:#ffffff;">{{ $hotel['name'] }}</p>
+                    <td align="center" style="background:#ffffff;padding:26px 32px 20px;">
+                        @if ($mark)
+                            <img src="{{ $mark }}" width="168" height="48" alt="{{ $hotel['name'] }}" style="display:block;width:168px;height:auto;border:0;outline:none;text-decoration:none;">
+                        @else
+                            {{--
+                                Reachable when the message is rendered without being
+                                sent, and on the day nobody can find the asset. The
+                                name does the mark's job rather than leaving a gap,
+                                and it is what a blocked image shows anyway.
+                            --}}
+                            <span style="font-size:20px;font-weight:600;letter-spacing:-.01em;color:{{ $ink }};">{{ $hotel['name'] }}</span>
+                        @endif
+                    </td>
+                </tr>
+
+                {{-- Where the hotel is, under the mark rather than in it. --}}
+                <tr>
+                    <td align="center" style="background:{{ $ink }};padding:16px 32px 15px;">
                         @if ($hotel['address'])
-                            <p style="margin:7px 0 0;font-size:13px;color:#e8dcc8;">{{ $hotel['address'] }}</p>
+                            <p style="margin:0;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:#e8dcc8;">{{ $hotel['address'] }}</p>
                         @endif
                     </td>
                 </tr>
@@ -60,6 +93,7 @@
                 {{-- How to reach the hotel, and why this arrived. --}}
                 <tr>
                     <td style="padding:22px 32px;background:#faf7f2;border-top:1px solid {{ $rule }};">
+                        <p style="margin:0 0 8px;font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:{{ $accent }};font-weight:700;">Need help?</p>
                         <p style="margin:0 0 4px;font-size:14px;font-weight:600;color:{{ $ink }};">{{ $hotel['name'] }}</p>
                         @if ($hotel['address'])
                             <p style="margin:0 0 8px;font-size:13px;color:{{ $muted }};">{{ $hotel['address'] }}</p>
@@ -81,10 +115,6 @@
                     </td>
                 </tr>
             </table>
-
-            <p style="margin:14px auto 0;max-width:600px;font-size:12px;color:{{ $muted }};">
-                {{ $hotel['name'] }}@if ($hotel['address']), {{ $hotel['address'] }}@endif
-            </p>
         </td>
     </tr>
 </table>

@@ -60,9 +60,12 @@ test('both letters are recognisably from the same hotel', function () {
     $desk = (new BookingReceived($this->booking))->render();
 
     $chrome = [
-        // The navy band, the line of gold under it, the footer's contact line.
+        // The white band the mark sits on, the navy band under it, the line of
+        // gold under that, and the footer's own heading and contact line.
+        'background:#ffffff;padding:26px 32px 20px',
         'background:#17324d',
         'background:#d9a441',
+        'Need help?',
         'reservations@lakesidehotelmw.net',
         'Senga Bay, Salima District, Malawi',
         'Lakeside Hotel and Conference Centre',
@@ -72,6 +75,22 @@ test('both letters are recognisably from the same hotel', function () {
         expect($guest)->toContain($marker)
             ->and($desk)->toContain($marker);
     }
+});
+
+test('the letterhead carries the mark, or the hotel\'s name when it cannot', function () {
+    /*
+     * Rendered without being sent there is no message to embed the mark into, so
+     * what this holds is the fallback - which is also what a reader whose client
+     * blocks images sees: the hotel's name rather than a gap where its mark used
+     * to be. The embedded mark itself can only be checked by sending one.
+     */
+    $html = (new BookingConfirmed($this->booking))->render();
+
+    expect($html)
+        ->toContain('Lakeside Hotel and Conference Centre')
+        // The card is square now: a rounded top would clip the white band the mark
+        // sits on into a floating plate.
+        ->not->toContain('border-radius:14px');
 });
 
 test('the name a guest sees is the hotel\'s, not the application\'s', function () {

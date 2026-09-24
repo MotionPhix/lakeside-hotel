@@ -27,7 +27,7 @@
     <tr>
         <td style="padding:30px 32px 0;">
             <p style="{{ $eyebrow }}">New booking</p>
-            <p style="margin:0;font-size:24px;font-weight:600;letter-spacing:.01em;color:#17324d;">{{ $booking->reference }}</p>
+            <p style="margin:0;font-size:26px;font-weight:600;letter-spacing:-.01em;color:#17324d;">{{ $booking->reference }}</p>
             <p style="margin:8px 0 0;font-size:14px;color:#5b6b7c;">
                 {{ $booking->status->label() }} · {{ $booking->source->label() }} · {{ $booking->payment_status->label() }}
             </p>
