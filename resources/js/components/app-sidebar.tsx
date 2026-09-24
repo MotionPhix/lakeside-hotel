@@ -21,6 +21,7 @@ import { hotelModules, moduleSections } from '@/lib/modules';
 import type { HotelModule } from '@/lib/modules';
 import { dashboard, home } from '@/routes';
 import adminBookings from '@/routes/admin/bookings';
+import adminContent from '@/routes/admin/content';
 import users from '@/routes/admin/users';
 import type { NavItem } from '@/types';
 
@@ -32,6 +33,9 @@ import type { NavItem } from '@/types';
 const moduleRoutes: Partial<Record<string, NavHref>> = {
     dashboard: dashboard(),
     bookings: adminBookings.index(),
+    // The one entry point for every content type: seventeen list screens would
+    // be seventeen sidebar rows nobody could scan.
+    content: adminContent.hub(),
     users: users.index(),
 };
 

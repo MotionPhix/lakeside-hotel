@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\BookingController;
+use App\Http\Controllers\Admin\ResourceController;
 use App\Http\Controllers\Admin\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -55,6 +56,33 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
     Route::post('bookings/{booking:reference}/payments', [BookingController::class, 'storePayment'])
         ->middleware('permission:bookings.manage')
         ->name('bookings.payments.store');
+
+    /*
+    | Content
+    |
+    | One route set serves every content type: `{resource}` is a key in
+    | App\Cms\ResourceRegistry, and which permission is needed travels with the
+    | definition rather than the route, because one route serves seventeen types
+    | with four different owners. The controller enforces it.
+    |
+    | `{id}` is declared last within the prefix so `create` is not read as one.
+    |
+    */
+    Route::get('content', [ResourceController::class, 'hub'])->name('content.hub');
+
+    Route::prefix('content/{resource}')->name('content.')->group(function (): void {
+        Route::get('/', [ResourceController::class, 'index'])->name('index');
+        Route::get('create', [ResourceController::class, 'create'])->name('create');
+        Route::post('/', [ResourceController::class, 'store'])->name('store');
+
+        Route::get('{id}/edit', [ResourceController::class, 'edit'])->name('edit');
+        Route::put('{id}', [ResourceController::class, 'update'])->name('update');
+        Route::delete('{id}', [ResourceController::class, 'destroy'])->name('destroy');
+        Route::patch('{id}/move/{direction}', [ResourceController::class, 'move'])->name('move');
+        Route::patch('{id}/publish', [ResourceController::class, 'toggle'])->name('publish');
+        Route::post('{id}/media', [ResourceController::class, 'storeMedia'])->name('media.store');
+        Route::delete('{id}/media/{mediaId}', [ResourceController::class, 'destroyMedia'])->name('media.destroy');
+    });
 
     Route::get('users', [UserController::class, 'index'])
         ->middleware('permission:users.view')

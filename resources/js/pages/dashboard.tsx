@@ -259,7 +259,7 @@ export default function Dashboard({
 
 /** Which modules have a screen behind them today. */
 function isBuilt(key: string): boolean {
-    return key === 'dashboard' || key === 'users' || key === 'bookings';
+    return ['dashboard', 'users', 'bookings', 'content'].includes(key);
 }
 
 function Metric({
