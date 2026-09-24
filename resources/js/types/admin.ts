@@ -167,6 +167,47 @@ export type SelectOption = {
     label: string;
 };
 
+/** An enquiry as the queue lists it. */
+export type AdminInquiryRow = {
+    id: number;
+    name: string;
+    email: string;
+    subject: string;
+    excerpt: string;
+    type_label: string;
+    status: string;
+    status_label: string;
+    status_variant: 'default' | 'secondary' | 'destructive' | 'outline';
+    received_at: string | null;
+    assigned_name: string | null;
+    responded_at: string | null;
+};
+
+/** One enquiry in full, with what the hotel said back. */
+export type AdminInquiryDetail = {
+    id: number;
+    name: string;
+    email: string;
+    phone: string | null;
+    subject: string;
+    message: string;
+    type: string;
+    type_label: string;
+    status: string;
+    status_label: string;
+    status_variant: 'default' | 'secondary' | 'destructive' | 'outline';
+    preferred_date: string | null;
+    guests_count: number | null;
+    source_page: string | null;
+    received_at: string | null;
+    assigned_to: number | null;
+    assigned_name: string | null;
+    response: string | null;
+    responded_at: string | null;
+    /** False once the enquiry is closed or filed as spam. */
+    actionable: boolean;
+};
+
 /** A guest as the list shows them. */
 export type AdminGuestRow = {
     id: number;

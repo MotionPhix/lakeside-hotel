@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\AvailabilityController;
 use App\Http\Controllers\Admin\BookingController;
 use App\Http\Controllers\Admin\GuestController;
+use App\Http\Controllers\Admin\InquiryController;
 use App\Http\Controllers\Admin\ResourceController;
 use App\Http\Controllers\Admin\UserController;
 use Illuminate\Support\Facades\Route;
@@ -90,6 +91,33 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
     Route::patch('guests/{guest}', [GuestController::class, 'update'])
         ->middleware('permission:guests.manage')
         ->name('guests.update');
+
+    /*
+    | Enquiries
+    |
+    | A queue rather than a mailbox: somebody claims an enquiry, records the reply
+    | they sent, and files it. Reading is `inquiries.view`; doing any of the three
+    | is `inquiries.manage`.
+    */
+    Route::get('inquiries', [InquiryController::class, 'index'])
+        ->middleware('permission:inquiries.view')
+        ->name('inquiries.index');
+
+    Route::get('inquiries/{inquiry}', [InquiryController::class, 'show'])
+        ->middleware('permission:inquiries.view')
+        ->name('inquiries.show');
+
+    Route::post('inquiries/{inquiry}/claim', [InquiryController::class, 'claim'])
+        ->middleware('permission:inquiries.manage')
+        ->name('inquiries.claim');
+
+    Route::post('inquiries/{inquiry}/response', [InquiryController::class, 'respond'])
+        ->middleware('permission:inquiries.manage')
+        ->name('inquiries.respond');
+
+    Route::patch('inquiries/{inquiry}/status', [InquiryController::class, 'updateStatus'])
+        ->middleware('permission:inquiries.manage')
+        ->name('inquiries.status');
 
     /*
     | Availability

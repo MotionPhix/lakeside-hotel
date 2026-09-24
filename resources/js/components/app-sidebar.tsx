@@ -20,6 +20,7 @@ import adminAvailability from '@/routes/admin/availability';
 import adminBookings from '@/routes/admin/bookings';
 import adminContent from '@/routes/admin/content';
 import adminGuests from '@/routes/admin/guests';
+import adminInquiries from '@/routes/admin/inquiries';
 import users from '@/routes/admin/users';
 import type { NavItem, SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
@@ -35,6 +36,7 @@ const moduleRoutes: Partial<Record<string, NavHref>> = {
     dashboard: dashboard(),
     bookings: adminBookings.index(),
     guests: adminGuests.index(),
+    inquiries: adminInquiries.index(),
     availability: adminAvailability.index(),
     // The one entry point for every content type: seventeen list screens would
     // be seventeen sidebar rows nobody could scan.
