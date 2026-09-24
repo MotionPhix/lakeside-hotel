@@ -20,6 +20,7 @@ import { usePermissions } from '@/lib/permissions';
 import { hotelModules, moduleSections } from '@/lib/modules';
 import type { HotelModule } from '@/lib/modules';
 import { dashboard, home } from '@/routes';
+import adminBookings from '@/routes/admin/bookings';
 import users from '@/routes/admin/users';
 import type { NavItem } from '@/types';
 
@@ -30,6 +31,7 @@ import type { NavItem } from '@/types';
  */
 const moduleRoutes: Partial<Record<string, NavHref>> = {
     dashboard: dashboard(),
+    bookings: adminBookings.index(),
     users: users.index(),
 };
 

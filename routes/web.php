@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Webhooks\PayChanguWebhookController;
 use Illuminate\Support\Facades\Route;
 
@@ -15,7 +16,7 @@ Route::post('webhooks/paychangu', PayChanguWebhookController::class)
     ->name('webhooks.paychangu');
 
 Route::middleware(['auth', 'verified'])->group(function (): void {
-    Route::inertia('dashboard', 'dashboard')
+    Route::get('dashboard', DashboardController::class)
         ->middleware('permission:dashboard.view')
         ->name('dashboard');
 });

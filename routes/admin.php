@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\BookingController;
 use App\Http\Controllers\Admin\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -15,6 +16,46 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(function (): void {
+    /*
+    | Reservations
+    |
+    | Reading the list and one reservation are separate permissions, but moving a
+    | booking along and taking money are both `bookings.manage`: they are the same
+    | job, and a desk that can do one almost always needs the other.
+    |
+    */
+    Route::get('bookings', [BookingController::class, 'index'])
+        ->middleware('permission:bookings.view')
+        ->name('bookings.index');
+
+    Route::get('bookings/{booking:reference}', [BookingController::class, 'show'])
+        ->middleware('permission:bookings.view')
+        ->name('bookings.show');
+
+    Route::patch('bookings/{booking:reference}/confirm', [BookingController::class, 'confirm'])
+        ->middleware('permission:bookings.manage')
+        ->name('bookings.confirm');
+
+    Route::patch('bookings/{booking:reference}/cancel', [BookingController::class, 'cancel'])
+        ->middleware('permission:bookings.manage')
+        ->name('bookings.cancel');
+
+    Route::patch('bookings/{booking:reference}/check-in', [BookingController::class, 'checkIn'])
+        ->middleware('permission:bookings.manage')
+        ->name('bookings.check-in');
+
+    Route::patch('bookings/{booking:reference}/check-out', [BookingController::class, 'checkOut'])
+        ->middleware('permission:bookings.manage')
+        ->name('bookings.check-out');
+
+    Route::patch('bookings/{booking:reference}/no-show', [BookingController::class, 'noShow'])
+        ->middleware('permission:bookings.manage')
+        ->name('bookings.no-show');
+
+    Route::post('bookings/{booking:reference}/payments', [BookingController::class, 'storePayment'])
+        ->middleware('permission:bookings.manage')
+        ->name('bookings.payments.store');
+
     Route::get('users', [UserController::class, 'index'])
         ->middleware('permission:users.view')
         ->name('users.index');

@@ -30,12 +30,14 @@ use Illuminate\Support\Carbon;
  * @property array<string, mixed>|null $payload
  * @property string $refunded_amount
  * @property Carbon|null $refunded_at
+ * @property int|null $recorded_by
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
 #[Fillable([
     'booking_id', 'provider', 'provider_reference', 'provider_transaction_id', 'method',
     'amount', 'currency', 'status', 'paid_at', 'payload', 'refunded_amount', 'refunded_at',
+    'recorded_by',
 ])]
 class Payment extends Model
 {
@@ -78,6 +80,17 @@ class Payment extends Model
     public function booking(): BelongsTo
     {
         return $this->belongsTo(Booking::class);
+    }
+
+    /**
+     * The member of staff who took the payment at the desk. Null for anything the
+     * gateway settled on its own.
+     *
+     * @return BelongsTo<User, $this>
+     */
+    public function recorder(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'recorded_by');
     }
 
     /**

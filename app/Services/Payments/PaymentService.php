@@ -11,6 +11,7 @@ use App\Mail\BookingReceived;
 use App\Models\Booking;
 use App\Models\Payment;
 use App\Models\Setting;
+use App\Models\User;
 use Illuminate\Support\Facades\Mail;
 
 /**
@@ -53,6 +54,43 @@ final class PaymentService
             'currency' => $booking->currency,
             'status' => PaymentRecordStatus::Pending,
         ]);
+    }
+
+    /**
+     * Record money taken at the desk: cash, a card machine, or a bank transfer
+     * confirmed by the bank.
+     *
+     * Settled immediately, because the person entering it is holding the money or
+     * has seen it land. It confirms a pending booking for the same reason a
+     * gateway payment does - the guest has paid, so the room is theirs.
+     */
+    public function recordManual(
+        Booking $booking,
+        string $amount,
+        PaymentMethod $method,
+        ?User $takenBy = null,
+    ): Payment {
+        $payment = $booking->payments()->create([
+            'provider' => Payment::PROVIDER_MANUAL,
+            'provider_reference' => sprintf('%s-M%d', $booking->reference, $booking->payments()->count() + 1),
+            'method' => $method,
+            'amount' => $amount,
+            'currency' => $booking->currency,
+            'status' => PaymentRecordStatus::Successful,
+            'paid_at' => now(),
+            'recorded_by' => $takenBy?->getKey(),
+        ]);
+
+        $booking->syncPaymentStatus();
+
+        if ($booking->status === BookingStatus::Pending) {
+            $booking->status = BookingStatus::Confirmed;
+            $booking->confirmed_at = now();
+        }
+
+        $booking->save();
+
+        return $payment;
     }
 
     /**
