@@ -1,46 +1,50 @@
+@extends('mail.layout')
+
+@use('App\Support\Money')
+
 @php
     /*
-     * A desk copy, not a brochure: everything the front desk needs to act on the
-     * booking, in the order they would ask for it.
+     * The desk's copy.
+     *
+     * Not a brochure: everything the front desk needs to act on the booking, in
+     * the order they would ask for it, and nothing they would have to scroll past.
+     * It wears the same chrome as the guest's confirmation because it is the same
+     * hotel writing, and a desk that recognises the letter at a glance answers it
+     * faster.
      */
-    $money = fn (string|float|null $amount): string => $booking->currency.' '.number_format((float) $amount, 0, '.', ',');
-    $row = 'padding:9px 0;font-size:14px;border-bottom:1px solid #eef1f5;vertical-align:top;';
-    $label = $row.'color:#5b6b7c;width:34%;';
+    $adminUrl = route('admin.bookings.show', $booking->reference);
+    $row = 'padding:10px 0;font-size:14px;border-bottom:1px solid #f0e9de;vertical-align:top;';
+    $label = $row.'color:#5b6b7c;width:36%;';
+    $value = $row.'color:#17324d;font-weight:600;';
+    $eyebrow = 'margin:0 0 6px;font-size:12px;letter-spacing:.09em;text-transform:uppercase;color:#0f5e9c;font-weight:700;';
 @endphp
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>New booking {{ $booking->reference }}</title>
-</head>
-<body style="margin:0;padding:24px 12px;background:#f7f8fa;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#17324d;line-height:1.5;">
 
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;margin:0 auto;background:#ffffff;border-radius:12px;overflow:hidden;">
+@section('preheader')
+    {{ $booking->reference }} — {{ $booking->guest->fullName() }} — {{ $booking->check_in->format('j M') }} to {{ $booking->check_out->format('j M Y') }}, {{ $booking->total }} {{ $booking->currency }}.
+@endsection
+
+@section('body')
     <tr>
-        <td style="background:#0f5e9c;padding:20px 28px;">
-            <p style="margin:0;font-size:17px;font-weight:600;color:#ffffff;">New booking — {{ $booking->reference }}</p>
-            <p style="margin:5px 0 0;font-size:13px;color:#e8f1f8;">
+        <td style="padding:30px 32px 0;">
+            <p style="{{ $eyebrow }}">New booking</p>
+            <p style="margin:0;font-size:24px;font-weight:600;letter-spacing:.01em;color:#17324d;">{{ $booking->reference }}</p>
+            <p style="margin:8px 0 0;font-size:14px;color:#5b6b7c;">
                 {{ $booking->status->label() }} · {{ $booking->source->label() }} · {{ $booking->payment_status->label() }}
             </p>
-        </td>
-    </tr>
 
-    <tr>
-        <td style="padding:24px 28px;">
-            <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:22px 0 0;border-top:1px solid #e7dfd3;">
                 <tr>
                     <td style="{{ $label }}">Guest</td>
-                    <td style="{{ $row }}">{{ $booking->guest->fullName() }}</td>
+                    <td style="{{ $value }}">{{ $booking->guest->fullName() }}</td>
                 </tr>
                 <tr>
                     <td style="{{ $label }}">Email</td>
-                    <td style="{{ $row }}">{{ $booking->guest->email }}</td>
+                    <td style="{{ $row }}"><a href="mailto:{{ $booking->guest->email }}" style="color:#0f5e9c;text-decoration:none;">{{ $booking->guest->email }}</a></td>
                 </tr>
                 @if ($booking->guest->phone)
                     <tr>
                         <td style="{{ $label }}">Phone</td>
-                        <td style="{{ $row }}">{{ $booking->guest->phone }}</td>
+                        <td style="{{ $row }}"><a href="tel:{{ $booking->guest->phone }}" style="color:#0f5e9c;text-decoration:none;">{{ $booking->guest->phone }}</a></td>
                     </tr>
                 @endif
                 @if ($booking->guest->country)
@@ -51,31 +55,31 @@
                 @endif
                 <tr>
                     <td style="{{ $label }}">Arrives</td>
-                    <td style="{{ $row }}">{{ $booking->check_in->format('D j F Y') }}</td>
+                    <td style="{{ $value }}">{{ $booking->check_in->format('D j F Y') }}@if ($hotel['check_in']) from {{ $hotel['check_in'] }}@endif</td>
                 </tr>
                 <tr>
                     <td style="{{ $label }}">Departs</td>
-                    <td style="{{ $row }}">{{ $booking->check_out->format('D j F Y') }} ({{ $booking->nights }} {{ Str::plural('night', $booking->nights) }})</td>
+                    <td style="{{ $value }}">{{ $booking->check_out->format('D j F Y') }}@if ($hotel['check_out']) by {{ $hotel['check_out'] }}@endif ({{ $booking->nights }} {{ Str::plural('night', $booking->nights) }})</td>
                 </tr>
                 <tr>
                     <td style="{{ $label }}">Party</td>
-                    <td style="{{ $row }}">
-                        {{ $booking->adults }} {{ Str::plural('adult', $booking->adults) }}@if ($booking->children), {{ $booking->children }} {{ Str::plural('child', $booking->children) }}@endif
-                    </td>
+                    <td style="{{ $value }}">{{ $booking->adults }} {{ Str::plural('adult', $booking->adults) }}@if ($booking->children), {{ $booking->children }} {{ Str::plural('child', $booking->children) }}@endif</td>
                 </tr>
                 @foreach ($booking->items as $item)
                     <tr>
                         <td style="{{ $label }}">{{ $loop->first ? 'Room' : 'Also' }}</td>
-                        <td style="{{ $row }}">{{ $item->roomType?->name }} — {{ $money($item->subtotal) }}</td>
+                        <td style="{{ $value }}">{{ $item->roomType?->name ?? 'Room' }} — {{ Money::format($booking->currency, $item->subtotal) }}</td>
                     </tr>
                 @endforeach
                 <tr>
                     <td style="{{ $label }}">Total</td>
-                    <td style="{{ $row }}"><strong>{{ $money($booking->total) }}</strong></td>
+                    <td style="{{ $value }}">{{ Money::format($booking->currency, $booking->total) }}</td>
                 </tr>
                 <tr>
                     <td style="{{ $label }}">Paid</td>
-                    <td style="{{ $row }}">{{ $money($booking->amount_paid) }}@if ((float) $booking->balance() > 0) — balance {{ $money($booking->balance()) }} @endif</td>
+                    <td style="{{ $row }}">
+                        {{ Money::format($booking->currency, $booking->amount_paid) }}@if ((float) $booking->balance() > 0), balance <strong style="color:#17324d;">{{ Money::format($booking->currency, $booking->balance()) }}</strong>@endif
+                    </td>
                 </tr>
                 @if ($booking->payment_method)
                     <tr>
@@ -90,25 +94,35 @@
             </table>
 
             @if ($booking->special_requests)
-                <p style="margin:20px 0 4px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:#0f5e9c;font-weight:600;">Special requests</p>
-                <p style="margin:0;padding:14px 16px;background:#f4efe8;border-radius:8px;font-size:14px;">{{ $booking->special_requests }}</p>
+                <p style="margin:22px 0 0;{{ $eyebrow }}">Special requests</p>
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:8px 0 0;">
+                    <tr>
+                        <td style="background:#faf7f2;border-left:3px solid #d9a441;border-radius:6px;padding:14px 18px;font-size:14px;color:#17324d;">{{ $booking->special_requests }}</td>
+                    </tr>
+                </table>
             @endif
 
             @if ($booking->airport_transfer && $booking->transfer_details)
-                <p style="margin:20px 0 4px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:#0f5e9c;font-weight:600;">Transfer details</p>
-                <p style="margin:0;font-size:14px;">{{ collect($booking->transfer_details)->filter()->map(fn ($v, $k) => Str::headline($k).': '.$v)->implode(' · ') }}</p>
+                <p style="margin:22px 0 0;{{ $eyebrow }}">Transfer details</p>
+                <p style="margin:8px 0 0;font-size:14px;color:#17324d;">
+                    {{ collect($booking->transfer_details)->filter()->map(fn ($value, $key) => Str::headline($key).': '.$value)->implode(' · ') }}
+                </p>
             @endif
+
+            <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:26px 0 0;">
+                <tr>
+                    <td style="background:#0f5e9c;border-radius:8px;">
+                        <a href="{{ $adminUrl }}" style="display:inline-block;padding:13px 24px;font-size:15px;font-weight:600;color:#ffffff;text-decoration:none;">Open in the dashboard</a>
+                    </td>
+                </tr>
+            </table>
         </td>
     </tr>
-
     <tr>
-        <td style="padding:18px 28px;background:#f7f8fa;border-top:1px solid #e3e8ee;">
-            <p style="margin:0;font-size:13px;color:#5b6b7c;">
-                Open the booking in the dashboard to confirm it, take payment or allocate a room.
-            </p>
-        </td>
+        <td style="height:30px;font-size:0;line-height:0;">&nbsp;</td>
     </tr>
-</table>
+@endsection
 
-</body>
-</html>
+@section('footer-note')
+    Confirm it, take payment or allocate a room from the reservation page.
+@endsection

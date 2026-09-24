@@ -22,7 +22,7 @@ import {
     TableRow,
 } from '@/components/ui/table';
 import { useFilters } from '@/hooks/use-filters';
-import { formatLongDate } from '@/lib/format';
+import { formatShortDate } from '@/lib/format';
 import { dashboard } from '@/routes';
 import inquiries from '@/routes/admin/inquiries';
 import type { AdminInquiryRow, Paginated, SelectOption } from '@/types';
@@ -225,7 +225,7 @@ export default function InquiriesIndex({
                                                 </TableCell>
                                                 <TableCell className="text-sm">
                                                     {inquiry.received_at
-                                                        ? formatLongDate(
+                                                        ? formatShortDate(
                                                               inquiry.received_at,
                                                           )
                                                         : '—'}

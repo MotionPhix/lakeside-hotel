@@ -63,6 +63,31 @@ const MONTHS = [
     'Nov',
     'Dec',
 ] as const;
+/** The weekday abbreviations the hotel writes, with the full stop it uses. */
+const WEEKDAYS_SHORT = [
+    'Sun.',
+    'Mon.',
+    'Tues.',
+    'Wed.',
+    'Thurs.',
+    'Fri.',
+    'Sat.',
+] as const;
+/** Four letters where the word is long enough to earn one, as the hotel writes it. */
+const MONTHS_SHORT = [
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sept',
+    'Oct',
+    'Nov',
+    'Dec',
+] as const;
 const MONTHS_LONG = [
     'January',
     'February',
@@ -127,6 +152,27 @@ export function formatLongDate(iso: string): string {
     }
 
     return `${WEEKDAYS_LONG[date.getDay()]} ${date.getDate()} ${MONTHS_LONG[date.getMonth()]} ${date.getFullYear()}`;
+}
+
+/**
+ * A date written short, e.g. "Thurs. 24 Sept, 26".
+ *
+ * For columns, where the long form costs a line's worth of width to say the same
+ * thing: a desk reading a list of dates wants the day it happened rather than the
+ * whole of the word. Spelling the names out is not only house style here - it is
+ * also what keeps the server and the browser rendering the same string, which the
+ * long form needs just as much.
+ */
+export function formatShortDate(iso: string): string {
+    const date = parseIsoDate(iso);
+
+    if (date === null) {
+        return iso;
+    }
+
+    const year = String(date.getFullYear()).slice(-2);
+
+    return `${WEEKDAYS_SHORT[date.getDay()]} ${date.getDate()} ${MONTHS_SHORT[date.getMonth()]}, ${year}`;
 }
 
 /**
