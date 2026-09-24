@@ -5,6 +5,12 @@ import { Toaster as Sonner, type ToasterProps } from 'sonner';
 function Toaster({ ...props }: ToasterProps) {
     const { appearance } = useAppearance();
 
+    /*
+     * The one place the back end's messages are shown. This component is mounted
+     * once, in `app.tsx`, and wraps every page - so the listener lives here
+     * rather than in a layout, which would only be reached on some of them, or in
+     * more than one of them, which would show every message twice.
+     */
     useFlashToast();
 
     return (
