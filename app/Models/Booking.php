@@ -274,6 +274,14 @@ class Booking extends Model
 
     /**
      * Build the next human-friendly booking reference, e.g. `LH-2026-0007`.
+     *
+     * The number follows the highest one already on file, which reads well and
+     * keeps references in the order they were taken. That alone is not safe,
+     * though: two bookings taken at the same moment both read the same highest
+     * number and settle on the same next one, and the guest is handed a reference
+     * that already belongs to somebody else. So anything already taken is stepped
+     * over here, and the unique index on the column remains the final guard for
+     * the case where two processes pass this check at once.
      */
     public static function generateReference(): string
     {
@@ -288,7 +296,12 @@ class Booking extends Model
             ? 1
             : ((int) substr((string) $latest, strlen($prefix))) + 1;
 
-        return $prefix.str_pad((string) $next, 4, '0', STR_PAD_LEFT);
+        do {
+            $reference = $prefix.str_pad((string) $next, 4, '0', STR_PAD_LEFT);
+            $next++;
+        } while (static::query()->where('reference', $reference)->exists());
+
+        return $reference;
     }
 
     /**
