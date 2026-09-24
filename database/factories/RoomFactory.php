@@ -21,8 +21,15 @@ class RoomFactory extends Factory
     {
         return [
             'room_type_id' => RoomType::factory(),
-            'name' => 'Room '.fake()->unique()->numberBetween(1, 400),
-            'number' => (string) fake()->unique()->numberBetween(100, 499),
+            /*
+             * Four digits, because a room is unique within its category and the
+             * hotel's own rooms are named "Room 101" upwards. Faker only keeps
+             * its own values apart, so a room invented in the same three digits
+             * as a room that is already standing would eventually be named after
+             * it and fail on the unique index.
+             */
+            'name' => 'Room '.fake()->unique()->numberBetween(1000, 9999),
+            'number' => (string) fake()->numberBetween(1000, 9999),
             'floor' => fake()->randomElement(['Ground', 'First', 'Second']),
             'status' => RoomStatus::Available,
             'notes' => null,

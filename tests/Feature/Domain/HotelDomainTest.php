@@ -217,6 +217,39 @@ test('booking references follow the hotel sequence', function () {
     expect(Booking::generateReference())->toBe('LH-2026-0002');
 });
 
+test('bookings made by a test take the next references, in order', function () {
+    /*
+     * Two ways test bookings have collided on the unique index, and this is the
+     * pair of assertions that catches each.
+     *
+     * A factory that invents its own number can land on one the seeder has
+     * already taken, because faker knows nothing about numbers it did not
+     * generate itself. And a reference read from the table while a batch is being
+     * built is the same for every booking in the batch, because a batch resolves
+     * all of its attributes before writing any of them.
+     */
+    $this->seed();
+
+    $prefix = 'LH-'.now()->format('Y').'-';
+
+    $highest = (int) substr(
+        (string) Booking::query()
+            ->where('reference', 'like', $prefix.'%')
+            ->orderByDesc('reference')
+            ->value('reference'),
+        strlen($prefix),
+    );
+
+    $references = Booking::factory()->count(3)->create()->pluck('reference');
+
+    expect($references->unique())->toHaveCount(3)
+        ->and($references->sort()->values()->all())->toBe([
+            $prefix.str_pad((string) ($highest + 1), 4, '0', STR_PAD_LEFT),
+            $prefix.str_pad((string) ($highest + 2), 4, '0', STR_PAD_LEFT),
+            $prefix.str_pad((string) ($highest + 3), 4, '0', STR_PAD_LEFT),
+        ]);
+});
+
 test('a successful payment settles the booking', function () {
     $booking = Booking::factory()->pending()->create();
     $booking->recalculateTotals()->save();

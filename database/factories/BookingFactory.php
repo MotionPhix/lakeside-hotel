@@ -26,7 +26,13 @@ class BookingFactory extends Factory
         $nights = fake()->numberBetween(1, 7);
 
         return [
-            'reference' => 'LH-'.now()->format('Y').'-'.fake()->unique()->numerify('####'),
+            /*
+             * No reference here on purpose: the model issues one as the booking
+             * is written, which is the only moment it can be sure of stepping
+             * over what is already on file. A number invented by the factory can
+             * collide with a seeded booking, and a number read from the table
+             * here would be the same for every booking in a batch.
+             */
             'guest_id' => Guest::factory(),
             'status' => fake()->randomElement(BookingStatus::cases()),
             'source' => fake()->randomElement(BookingSource::cases()),

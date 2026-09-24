@@ -273,6 +273,29 @@ class Booking extends Model
     }
 
     /**
+     * A booking that arrives without a reference is given the next one.
+     *
+     * The reference is issued here rather than only wherever bookings happen to
+     * be taken, so that no path into the table - a seeder, a test factory, an
+     * import written later - can insert a booking without one or invent a number
+     * that is already on file. A caller that has already decided the reference,
+     * as the booking flow does, keeps it.
+     *
+     * It has to be issued one booking at a time, at the moment of the insert:
+     * a batch of bookings has all of its attributes resolved before any of them
+     * is written, so anything that reads the table while the batch is being built
+     * hands the same reference to every row in it.
+     */
+    protected static function booted(): void
+    {
+        static::creating(function (Booking $booking): void {
+            if (blank($booking->reference)) {
+                $booking->reference = self::generateReference();
+            }
+        });
+    }
+
+    /**
      * Build the next human-friendly booking reference, e.g. `LH-2026-0007`.
      *
      * The number follows the highest one already on file, which reads well and
