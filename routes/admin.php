@@ -58,6 +58,20 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
         ->name('bookings.payments.store');
 
     /*
+    | Handing over a key and keeping a note are the desk's own business: the same
+    | `bookings.manage` that lets somebody move a booking along and take money.
+    | The room a guest gets is decided against the rest of the building, so the
+    | controller asks RoomAllocation rather than trusting the request.
+    */
+    Route::patch('bookings/{booking:reference}/items/{item}/room', [BookingController::class, 'assignRoom'])
+        ->middleware('permission:bookings.manage')
+        ->name('bookings.items.room');
+
+    Route::patch('bookings/{booking:reference}/notes', [BookingController::class, 'updateNotes'])
+        ->middleware('permission:bookings.manage')
+        ->name('bookings.notes');
+
+    /*
     | Content
     |
     | One route set serves every content type: `{resource}` is a key in

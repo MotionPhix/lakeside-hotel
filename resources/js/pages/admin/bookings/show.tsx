@@ -13,6 +13,7 @@ import {
 import type { FormEvent } from 'react';
 import { useState } from 'react';
 import Heading from '@/components/heading';
+import InputError from '@/components/input-error';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -47,12 +48,38 @@ import { formatLongDate, formatMoney, formatNight } from '@/lib/format';
 import { usePermissions } from '@/lib/permissions';
 import { dashboard } from '@/routes';
 import bookings from '@/routes/admin/bookings';
-import type { AdminBookingDetail, SelectOption } from '@/types';
+import type {
+    AdminBookingDetail,
+    AdminBookingItem,
+    SelectOption,
+} from '@/types';
 
 type Props = {
     booking: AdminBookingDetail;
     methods: SelectOption[];
 };
+
+/**
+ * Radix refuses an empty value on a select item, so "no room yet" needs a name of
+ * its own. It is turned back into nothing on the way to the server.
+ */
+const UNASSIGNED = 'unassigned';
+
+/**
+ * The rooms offered for one line: the ones that could take these nights, with the
+ * room the guest is already in kept in the list. That one stays even if it has
+ * since been blocked or taken out of service, because the desk still has to be
+ * able to see where the guest actually is.
+ */
+function roomOptions(item: AdminBookingItem): { id: number; name: string }[] {
+    if (item.room_id === null || item.room_name === null) {
+        return item.available_rooms;
+    }
+
+    return item.available_rooms.some((room) => room.id === item.room_id)
+        ? item.available_rooms
+        : [{ id: item.room_id, name: item.room_name }, ...item.available_rooms];
+}
 
 /**
  * One reservation, as the desk sees it: who is coming, what they owe, what has
@@ -74,7 +101,10 @@ export default function BookingShow({ booking, methods }: Props) {
 
     const money = (amount: string) => formatMoney(amount, booking.currency);
 
-    const act = (url: string, data: Record<string, string> = {}) => {
+    const act = (
+        url: string,
+        data: Record<string, string | number | null> = {},
+    ) => {
         router.patch(url, data, { preserveScroll: true });
     };
 
@@ -286,10 +316,80 @@ export default function BookingShow({ booking, methods }: Props) {
                                             <TableRow key={item.id}>
                                                 <TableCell className="font-medium">
                                                     {item.room_type ?? '—'}
-                                                    {item.room && (
-                                                        <p className="text-xs text-muted-foreground">
-                                                            Room {item.room}
-                                                        </p>
+                                                    {canManage &&
+                                                    booking.can.assign_rooms ? (
+                                                        <Select
+                                                            value={
+                                                                item.room_id ===
+                                                                null
+                                                                    ? UNASSIGNED
+                                                                    : String(
+                                                                          item.room_id,
+                                                                      )
+                                                            }
+                                                            onValueChange={(
+                                                                value,
+                                                            ) =>
+                                                                act(
+                                                                    bookings.items.room.url(
+                                                                        {
+                                                                            booking:
+                                                                                booking.reference,
+                                                                            item: item.id,
+                                                                        },
+                                                                    ),
+                                                                    {
+                                                                        room_id:
+                                                                            value ===
+                                                                            UNASSIGNED
+                                                                                ? null
+                                                                                : Number(
+                                                                                      value,
+                                                                                  ),
+                                                                    },
+                                                                )
+                                                            }
+                                                        >
+                                                            <SelectTrigger
+                                                                className="mt-1 w-full"
+                                                                aria-label={`Room for ${item.room_type ?? 'this line'}`}
+                                                            >
+                                                                <SelectValue placeholder="No room yet" />
+                                                            </SelectTrigger>
+                                                            <SelectContent>
+                                                                <SelectItem
+                                                                    value={
+                                                                        UNASSIGNED
+                                                                    }
+                                                                >
+                                                                    No room yet
+                                                                </SelectItem>
+                                                                {roomOptions(
+                                                                    item,
+                                                                ).map(
+                                                                    (room) => (
+                                                                        <SelectItem
+                                                                            key={
+                                                                                room.id
+                                                                            }
+                                                                            value={String(
+                                                                                room.id,
+                                                                            )}
+                                                                        >
+                                                                            {
+                                                                                room.name
+                                                                            }
+                                                                        </SelectItem>
+                                                                    ),
+                                                                )}
+                                                            </SelectContent>
+                                                        </Select>
+                                                    ) : (
+                                                        item.room && (
+                                                            <p className="text-xs text-muted-foreground">
+                                                                Room {item.room}
+                                                            </p>
+                                                        )
                                                     )}
                                                 </TableCell>
                                                 <TableCell className="text-muted-foreground">
@@ -476,6 +576,12 @@ export default function BookingShow({ booking, methods }: Props) {
                                 </p>
                             </CardContent>
                         </Card>
+
+                        <NotesCard
+                            reference={booking.reference}
+                            notes={booking.internal_notes}
+                            editable={canManage}
+                        />
 
                         {(booking.special_requests ||
                             booking.transfer_details ||
@@ -720,6 +826,77 @@ function Line({
             <span className="text-muted-foreground">{label}</span>
             <span>{value}</span>
         </div>
+    );
+}
+
+/**
+ * The desk's own note about a reservation: a late arrival, who is paying, a
+ * birthday. Kept apart from the guest's special requests, and never sent to them.
+ */
+function NotesCard({
+    reference,
+    notes,
+    editable,
+}: {
+    reference: string;
+    notes: string | null;
+    editable: boolean;
+}) {
+    const { data, setData, patch, processing, errors } = useForm({
+        internal_notes: notes ?? '',
+    });
+
+    const submit = (event: FormEvent) => {
+        event.preventDefault();
+
+        patch(bookings.notes.url(reference), { preserveScroll: true });
+    };
+
+    return (
+        <Card>
+            <CardHeader>
+                <CardTitle>Internal notes</CardTitle>
+            </CardHeader>
+            <CardContent>
+                {editable ? (
+                    <form onSubmit={submit} className="grid gap-3">
+                        <Textarea
+                            id="internal_notes"
+                            rows={4}
+                            value={data.internal_notes}
+                            onChange={(event) =>
+                                setData('internal_notes', event.target.value)
+                            }
+                            placeholder="Late arrival, cash on the day, the name of whoever is paying…"
+                            aria-label="Internal note"
+                            aria-invalid={Boolean(errors.internal_notes)}
+                        />
+                        <InputError message={errors.internal_notes} />
+                        {/*
+                         * The toast is what confirms this, exactly as it does for
+                         * every other move on this page. A second "saved" line
+                         * beside the button said the same thing twice, and said it
+                         * at a different moment.
+                         */}
+                        <div>
+                            <Button
+                                type="submit"
+                                size="sm"
+                                disabled={processing}
+                            >
+                                Save note
+                            </Button>
+                        </div>
+                    </form>
+                ) : notes ? (
+                    <p className="text-sm">{notes}</p>
+                ) : (
+                    <p className="text-sm text-muted-foreground">
+                        No note on this reservation.
+                    </p>
+                )}
+            </CardContent>
+        </Card>
     );
 }
 

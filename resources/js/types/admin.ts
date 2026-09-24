@@ -97,18 +97,29 @@ export type BookingActions = {
     check_in: boolean;
     check_out: boolean;
     no_show: boolean;
+    /** Only true while the booking still holds rooms for its dates. */
+    assign_rooms: boolean;
 };
 
 export type AdminBookingItem = {
     id: number;
     room_type: string | null;
+    /** The room's number, as shown in the table. */
     room: string | null;
+    /** The physical room this line is in, once the desk has given one out. */
+    room_id: number | null;
+    room_name: string | null;
     adults: number;
     children: number;
     rate_plan: string | null;
     price_per_night: string;
     subtotal: string;
     nightly_rates: Record<string, string> | null;
+    /**
+     * Only the rooms that could actually take these nights. A room that is
+     * blocked, out of service or already occupied is not offered at all.
+     */
+    available_rooms: { id: number; name: string }[];
 };
 
 export type AdminBookingPayment = {

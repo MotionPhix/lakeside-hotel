@@ -5,12 +5,18 @@ namespace App\Http\Controllers\Admin;
 use App\Enums\BookingStatus;
 use App\Enums\PaymentMethod;
 use App\Exceptions\BookingNotActionable;
+use App\Exceptions\RoomNotAvailable;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\AssignRoomRequest;
 use App\Http\Requests\Admin\BookingIndexRequest;
 use App\Http\Requests\Admin\CancelBookingRequest;
 use App\Http\Requests\Admin\RecordPaymentRequest;
+use App\Http\Requests\Admin\UpdateBookingNotesRequest;
 use App\Models\Booking;
+use App\Models\BookingItem;
+use App\Models\Room;
 use App\Services\Booking\BookingLifecycle;
+use App\Services\Booking\RoomAllocation;
 use App\Services\Payments\PaymentService;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
@@ -19,17 +25,19 @@ use Inertia\Response;
 
 /**
  * Reservations, from the desk's side: find one, look at it, move it along, take
- * the money.
+ * the money, hand over a key, keep a note.
  *
  * Every transition goes through {@see BookingLifecycle}, so a move that is not
  * legal from the booking's current state is refused with a reason rather than
- * written. The detail page is told which moves are available, so it only offers
- * buttons that would do something.
+ * written. Which physical room a guest gets is decided by {@see RoomAllocation},
+ * for the same reason. The detail page is told which moves are available and
+ * which rooms could be given out, so it only offers choices that would work.
  */
 class BookingController extends Controller
 {
     public function __construct(
         private readonly BookingLifecycle $lifecycle,
+        private readonly RoomAllocation $allocation,
         private readonly PaymentService $payments,
     ) {}
 
@@ -153,15 +161,54 @@ class BookingController extends Controller
     }
 
     /**
-     * Run a transition, turning a refusal into a message rather than an error
-     * page. These are ordinary outcomes - the desk clicking a button twice, or on
-     * a booking somebody else has already moved.
+     * Give a guest a room, move them to another one, or take the room back.
+     *
+     * Sent with no room at all to release it, which is what happens when a
+     * booking turns out not to need a door after all.
+     */
+    public function assignRoom(AssignRoomRequest $request, Booking $booking, BookingItem $item): RedirectResponse
+    {
+        abort_unless((int) $item->booking_id === (int) $booking->getKey(), 404);
+
+        $roomId = $request->input('room_id');
+
+        $room = $roomId === null || $roomId === ''
+            ? null
+            : Room::query()->findOrFail((int) $roomId);
+
+        return $this->apply(
+            fn () => $this->allocation->assign($item, $room),
+            $room === null ? 'Room released.' : 'Room assigned.',
+        );
+    }
+
+    /**
+     * Keep a note against a reservation. Internal, so it never reaches the guest.
+     */
+    public function updateNotes(UpdateBookingNotesRequest $request, Booking $booking): RedirectResponse
+    {
+        $booking->internal_notes = $request->notes();
+        $booking->save();
+
+        Inertia::flash('toast', [
+            'type' => 'success',
+            'message' => __('Note saved.'),
+        ]);
+
+        return back();
+    }
+
+    /**
+     * Run a move, turning a refusal into a message rather than an error page.
+     * These are ordinary outcomes - the desk clicking a button twice, on a booking
+     * somebody else has already moved, or on a room another guest has just been
+     * given.
      */
     private function apply(callable $transition, string $success): RedirectResponse
     {
         try {
             $transition();
-        } catch (BookingNotActionable $exception) {
+        } catch (BookingNotActionable|RoomNotAvailable $exception) {
             Inertia::flash('toast', [
                 'type' => 'error',
                 'message' => $exception->getMessage(),
@@ -251,16 +298,28 @@ class BookingController extends Controller
                 'marketing_opt_in' => $booking->guest->marketing_opt_in,
             ],
             'items' => $booking->items
-                ->map(fn ($item): array => [
+                ->map(fn (BookingItem $item): array => [
                     'id' => $item->id,
                     'room_type' => $item->roomType?->name,
                     'room' => $item->room?->number,
+                    'room_id' => $item->room_id,
+                    'room_name' => $item->room?->name,
                     'adults' => $item->adults,
                     'children' => $item->children,
                     'rate_plan' => $item->ratePlan?->name,
                     'price_per_night' => $item->price_per_night,
                     'subtotal' => $item->subtotal,
                     'nightly_rates' => $item->nightly_rates,
+                    // Only the rooms that could take these nights: a door that is
+                    // blocked, out of service or already occupied is not a choice
+                    // the desk should be offered.
+                    'available_rooms' => $this->allocation
+                        ->candidates($item)
+                        ->map(fn (Room $room): array => [
+                            'id' => $room->getKey(),
+                            'name' => $room->name,
+                        ])
+                        ->all(),
                 ])
                 ->all(),
             'payments' => $booking->payments
@@ -275,7 +334,10 @@ class BookingController extends Controller
                     'recorded_by' => $payment->recorder?->name,
                 ])
                 ->all(),
-            'can' => $this->lifecycle->availableActions($booking),
+            // Handing over a room only means anything while the booking still
+            // holds one, so the page is told that alongside the lifecycle moves.
+            'can' => $this->lifecycle->availableActions($booking)
+                + ['assign_rooms' => $booking->status->holdsInventory()],
         ];
     }
 
