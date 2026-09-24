@@ -70,6 +70,21 @@ final class RoomAllocation
     }
 
     /**
+     * Whether a guest has already been given this room for these nights.
+     *
+     * Asked before a room is taken off sale. Closing a room for maintenance over
+     * nights somebody is asleep in helps nobody, and the desk needs to hear that
+     * while they are still on the phone rather than on the morning of the arrival.
+     *
+     * Read in booking terms, so `$checkOut` is the morning after the last night in
+     * question rather than that night itself.
+     */
+    public function isGivenToAGuest(Room $room, CarbonInterface $checkIn, CarbonInterface $checkOut): bool
+    {
+        return $this->isTaken($room, $checkIn, $checkOut);
+    }
+
+    /**
      * Put a line in a room, or take it out of one when given nothing.
      *
      * Refusals are checked here rather than left to the caller, because a room is

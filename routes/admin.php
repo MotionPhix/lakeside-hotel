@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\AvailabilityController;
 use App\Http\Controllers\Admin\BookingController;
 use App\Http\Controllers\Admin\ResourceController;
 use App\Http\Controllers\Admin\UserController;
@@ -70,6 +71,24 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
     Route::patch('bookings/{booking:reference}/notes', [BookingController::class, 'updateNotes'])
         ->middleware('permission:bookings.manage')
         ->name('bookings.notes');
+
+    /*
+    | Availability
+    |
+    | Taking a room off sale. One permission covers the lot: the person who may
+    | close a room is the person who may reopen it.
+    */
+    Route::get('availability', [AvailabilityController::class, 'index'])
+        ->middleware('permission:availability.manage')
+        ->name('availability.index');
+
+    Route::post('availability', [AvailabilityController::class, 'store'])
+        ->middleware('permission:availability.manage')
+        ->name('availability.store');
+
+    Route::delete('availability/{block}', [AvailabilityController::class, 'destroy'])
+        ->middleware('permission:availability.manage')
+        ->name('availability.destroy');
 
     /*
     | Content

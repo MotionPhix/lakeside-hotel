@@ -166,3 +166,26 @@ export type SelectOption = {
     value: string;
     label: string;
 };
+
+/** Where a closure sits relative to today. */
+export type AvailabilityClosureState = 'running' | 'upcoming' | 'past';
+
+/**
+ * A room taken off sale for a range of nights. Both dates are inclusive, so a
+ * closure from the 10th to the 12th is two nights.
+ */
+export type AvailabilityClosure = {
+    id: number;
+    room: string | null;
+    room_type: string | null;
+    starts_on: string;
+    ends_on: string;
+    starts_label: string;
+    ends_label: string;
+    nights: number;
+    reason: string;
+    reason_label: string;
+    notes: string | null;
+    created_by: string | null;
+    state: AvailabilityClosureState;
+};

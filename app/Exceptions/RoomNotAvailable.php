@@ -70,6 +70,20 @@ final class RoomNotAvailable extends RuntimeException
     }
 
     /**
+     * The room is not going to a guest - it is being taken away from one. Raised
+     * when a room is closed for maintenance over nights somebody is already
+     * sleeping in, which has to be sorted out before the room comes off sale.
+     */
+    public static function givenToAGuest(Room $room, CarbonInterface $from, CarbonInterface $to): self
+    {
+        return new self(sprintf(
+            'Room %s has a guest in it for %s. Move them to another room first, or pick different dates.',
+            $room->name,
+            self::window($from, $to),
+        ));
+    }
+
+    /**
      * The nights in question, said the way the desk would say them.
      */
     private static function window(CarbonInterface $from, CarbonInterface $to): string

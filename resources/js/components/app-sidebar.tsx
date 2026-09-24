@@ -1,10 +1,6 @@
-import { Link } from '@inertiajs/react';
-import { ExternalLink } from 'lucide-react';
-import { useMemo } from 'react';
-import AppLogo from '@/components/app-logo';
 import { NavFooter } from '@/components/nav-footer';
-import { NavMain } from '@/components/nav-main';
 import type { NavHref, NavSection } from '@/components/nav-main';
+import { NavMain } from '@/components/nav-main';
 import { NavUser } from '@/components/nav-user';
 import {
     Sidebar,
@@ -16,14 +12,18 @@ import {
     SidebarMenuItem,
     SidebarRail,
 } from '@/components/ui/sidebar';
-import { usePermissions } from '@/lib/permissions';
-import { hotelModules, moduleSections } from '@/lib/modules';
 import type { HotelModule } from '@/lib/modules';
+import { hotelModules, moduleSections } from '@/lib/modules';
+import { usePermissions } from '@/lib/permissions';
 import { dashboard, home } from '@/routes';
+import adminAvailability from '@/routes/admin/availability';
 import adminBookings from '@/routes/admin/bookings';
 import adminContent from '@/routes/admin/content';
 import users from '@/routes/admin/users';
 import type { NavItem } from '@/types';
+import { Link } from '@inertiajs/react';
+import { ExternalLink } from 'lucide-react';
+import { useMemo } from 'react';
 
 /**
  * The modules that have a page behind them today. Everything else in the
@@ -33,6 +33,7 @@ import type { NavItem } from '@/types';
 const moduleRoutes: Partial<Record<string, NavHref>> = {
     dashboard: dashboard(),
     bookings: adminBookings.index(),
+    availability: adminAvailability.index(),
     // The one entry point for every content type: seventeen list screens would
     // be seventeen sidebar rows nobody could scan.
     content: adminContent.hub(),
@@ -112,8 +113,12 @@ export function AppSidebar() {
                 <SidebarMenu>
                     <SidebarMenuItem>
                         <SidebarMenuButton size="lg" asChild>
-                            <Link href={dashboard()} prefetch>
-                                <AppLogo />
+                            <Link
+                                href={dashboard()}
+                                prefetch
+                                className="text-3xl! font-black"
+                            >
+                                Lakeside Hotel
                             </Link>
                         </SidebarMenuButton>
                     </SidebarMenuItem>
