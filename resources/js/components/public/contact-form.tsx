@@ -84,6 +84,10 @@ export function ContactForm() {
                         onChange={(event) =>
                             setData('phone', event.target.value)
                         }
+                        // Shows both shapes that are accepted, because the site
+                        // takes messages from Senga Bay and from overseas.
+                        inputMode="tel"
+                        placeholder="0999 123 456 or +44 …"
                         className={fieldClass}
                     />
                     <InputError message={errors.phone} />

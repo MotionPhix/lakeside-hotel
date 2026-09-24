@@ -57,13 +57,15 @@ export function StaffForm({
     const submit = (event: FormEvent) => {
         event.preventDefault();
 
+        const options = { preserveScroll: true };
+
         if (method === 'post') {
-            post(action);
+            post(action, options);
 
             return;
         }
 
-        patch(action);
+        patch(action, options);
     };
 
     return (
@@ -111,6 +113,7 @@ export function StaffForm({
                     <Input
                         id="phone"
                         value={data.phone}
+                        inputMode="tel"
                         placeholder="+265 99 123 4567"
                         onChange={(e) => setData('phone', e.target.value)}
                         aria-invalid={errors.phone ? true : undefined}

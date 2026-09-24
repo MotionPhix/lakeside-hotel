@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Casts\E164Phone;
 use Database\Factories\GuestFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Scope;
@@ -48,6 +49,7 @@ class Guest extends Model
     protected function casts(): array
     {
         return [
+            'phone' => E164Phone::class,
             'marketing_opt_in' => 'boolean',
         ];
     }

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Casts\E164Phone;
 use App\Enums\InquiryStatus;
 use App\Enums\InquiryType;
 use Database\Factories\InquiryFactory;
@@ -52,6 +53,7 @@ class Inquiry extends Model
     protected function casts(): array
     {
         return [
+            'phone' => E164Phone::class,
             'type' => InquiryType::class,
             'status' => InquiryStatus::class,
             'preferred_date' => 'date',

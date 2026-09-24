@@ -66,12 +66,13 @@ export default function ContentForm({
                     resource: resource.key,
                     id: record.id,
                 }),
+                { preserveScroll: true },
             );
 
             return;
         }
 
-        post(contentRoutes.store.url(resource.key));
+        post(contentRoutes.store.url(resource.key), { preserveScroll: true });
     };
 
     const attached = editing

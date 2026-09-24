@@ -5,6 +5,7 @@ namespace App\Http\Requests\Admin;
 use App\Enums\Permission;
 use App\Models\User;
 use App\Rules\AssignableRole;
+use App\Support\Phone;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -35,7 +36,7 @@ class UpdateUserRequest extends FormRequest
                 Rule::unique('users', 'email')->ignore($target instanceof User ? $target->getKey() : null),
             ],
             'role' => ['required', new AssignableRole($this->user())],
-            'phone' => ['nullable', 'string', 'max:40'],
+            'phone' => Phone::rules(),
             'job_title' => ['nullable', 'string', 'max:120'],
             'is_active' => ['boolean'],
             'password' => ['nullable', 'string', 'confirmed', 'min:8'],

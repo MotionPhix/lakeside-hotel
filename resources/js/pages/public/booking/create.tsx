@@ -57,7 +57,9 @@ export default function BookingCreate({ search, offer, booking }: Props) {
     const submit = (event: FormEvent) => {
         event.preventDefault();
 
-        post(bookingRoutes.store.url());
+        // The summary panel sits alongside a long form, so the guest keeps their
+        // place rather than being thrown back to the top to find the error.
+        post(bookingRoutes.store.url(), { preserveScroll: true });
     };
 
     const nights = Object.entries(offer.nightly);
@@ -157,7 +159,8 @@ export default function BookingCreate({ search, offer, booking }: Props) {
                                             setData('phone', e.target.value)
                                         }
                                         autoComplete="tel"
-                                        placeholder="+265 …"
+                                        inputMode="tel"
+                                        placeholder="0999 123 456 or +44 …"
                                         aria-invalid={Boolean(errors.phone)}
                                     />
                                 </Field>

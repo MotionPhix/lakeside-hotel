@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Site;
 
+use App\Support\Phone;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -25,7 +26,7 @@ class StoreInquiryRequest extends FormRequest
         return [
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255'],
-            'phone' => ['nullable', 'string', 'max:40'],
+            'phone' => Phone::rules(),
             'subject' => ['required', 'string', 'max:255'],
             'message' => ['required', 'string', 'min:10', 'max:5000'],
             'preferred_date' => ['nullable', 'date', 'after_or_equal:today'],

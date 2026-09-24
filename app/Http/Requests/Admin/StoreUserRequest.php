@@ -4,6 +4,7 @@ namespace App\Http\Requests\Admin;
 
 use App\Enums\Permission;
 use App\Rules\AssignableRole;
+use App\Support\Phone;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -28,7 +29,7 @@ class StoreUserRequest extends FormRequest
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:users,email'],
             'role' => ['required', new AssignableRole($this->user())],
-            'phone' => ['nullable', 'string', 'max:40'],
+            'phone' => Phone::rules(),
             'job_title' => ['nullable', 'string', 'max:120'],
             'is_active' => ['boolean'],
             'password' => ['required', 'string', 'confirmed', 'min:8'],

@@ -4,6 +4,7 @@ namespace App\Http\Requests\Site;
 
 use App\Enums\PaymentOption;
 use App\Services\Booking\StayRequest;
+use App\Support\Phone;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Carbon;
 use Illuminate\Validation\Rule;
@@ -29,7 +30,7 @@ final class BookingStoreRequest extends FormRequest
             'first_name' => ['required', 'string', 'max:80'],
             'last_name' => ['required', 'string', 'max:80'],
             'email' => ['required', 'email', 'max:180'],
-            'phone' => ['required', 'string', 'max:40'],
+            'phone' => Phone::rules(required: true),
             'country' => ['nullable', 'string', 'max:80'],
             'city' => ['nullable', 'string', 'max:80'],
 

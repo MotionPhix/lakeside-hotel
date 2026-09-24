@@ -35,7 +35,9 @@ export default function BookingShow({ reservation, booking }: Props) {
         router.post(
             bookingRoutes.pay.url(reservation.reference),
             {},
-            { onFinish: () => setPaying(false) },
+            // The guest is part-way down a long folio; leaving them where they
+            // were matters more here than anywhere.
+            { preserveScroll: true, onFinish: () => setPaying(false) },
         );
     };
 
