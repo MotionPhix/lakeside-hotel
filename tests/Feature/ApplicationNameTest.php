@@ -5,10 +5,11 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 uses(RefreshDatabase::class);
 
 /*
- * The dashboard's top bar prints the application's name, which it reads from
- * `config('app.name')` - `APP_NAME` in the environment. These are the two halves
- * of keeping that the only place the name lives: the back end has to send it, and
- * the front end has to have nothing of its own to say.
+ * The dashboard shows the application's name twice - at the top of the sidebar and
+ * again in the top bar - and both read it from `config('app.name')`, which is
+ * `APP_NAME` in the environment. These are the two halves of keeping that the only
+ * place the name lives: the back end has to send it, and the front end has to have
+ * nothing of its own to say.
  */
 
 test('the application name reaches the front end from configuration', function () {
@@ -19,17 +20,24 @@ test('the application name reaches the front end from configuration', function (
         ->assertInertia(fn ($page) => $page->where('name', 'Somewhere Else Hotel'));
 });
 
-test('the top bar carries no name of its own', function () {
+test('neither the sidebar nor the top bar carries a name of its own', function () {
     /*
-     * A literal in the component would be a second source of truth, and would win
-     * silently the day APP_NAME changed. So the header is checked for the two
-     * halves of the arrangement: it reads the shared prop, and it does not name
-     * anything itself.
+     * A literal in either component would be a second source of truth, and would
+     * win silently the day APP_NAME changed - which is the whole point of reading
+     * it from the back end. So both are held to the same two halves: each reads
+     * the shared prop, and neither names anything itself.
      */
-    $header = file_get_contents(resource_path('js/components/app-sidebar-header.tsx'));
+    $chrome = [
+        'js/components/app-sidebar.tsx',
+        'js/components/app-sidebar-header.tsx',
+    ];
 
-    expect($header)
-        ->toContain('usePage<SharedData>()')
-        ->not->toContain('Lakeside')
-        ->not->toContain('Laravel');
+    foreach ($chrome as $component) {
+        $source = file_get_contents(resource_path($component));
+
+        expect($source)
+            ->toContain('usePage<SharedData>()')
+            ->not->toContain('Lakeside')
+            ->not->toContain('Laravel');
+    }
 });

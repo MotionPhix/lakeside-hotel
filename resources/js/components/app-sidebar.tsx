@@ -1,4 +1,3 @@
-import AppLogo from '@/components/app-logo';
 import { NavFooter } from '@/components/nav-footer';
 import type { NavHref, NavSection } from '@/components/nav-main';
 import { NavMain } from '@/components/nav-main';
@@ -21,8 +20,8 @@ import adminAvailability from '@/routes/admin/availability';
 import adminBookings from '@/routes/admin/bookings';
 import adminContent from '@/routes/admin/content';
 import users from '@/routes/admin/users';
-import type { NavItem } from '@/types';
-import { Link } from '@inertiajs/react';
+import type { NavItem, SharedData } from '@/types';
+import { Link, usePage } from '@inertiajs/react';
 import { ExternalLink } from 'lucide-react';
 import { useMemo } from 'react';
 
@@ -42,15 +41,16 @@ const moduleRoutes: Partial<Record<string, NavHref>> = {
 };
 
 /**
- * The dashboard sidebar, laid out like the shadcn sidebar block: the brand in the
- * header, one flat list of sections with their pages nested on the submenu rail,
- * and the rail on the edge for dragging it open and closed.
+ * The dashboard sidebar, laid out like the shadcn sidebar block: the application's
+ * name in the header, one flat list of sections with their pages nested on the
+ * submenu rail, and the rail on the edge for dragging it open and closed.
  *
  * It keeps a footer, which the block omits. The account menu lives there, and a
  * dashboard with no way to sign out is not a dashboard.
  */
 export function AppSidebar() {
     const { can } = usePermissions();
+    const { name } = usePage<SharedData>().props;
 
     const sections = useMemo<NavSection[]>(() => {
         const byKey = new Map<string, HotelModule>(
@@ -114,15 +114,20 @@ export function AppSidebar() {
                 <SidebarMenu>
                     <SidebarMenuItem>
                         {/*
-                         * The wordmark, not the application name: the name is a
-                         * deployment setting that happens to read "Lakeside
-                         * Hotel" here, while the mark is the hotel's. The mark
-                         * also carries the accessible name, so this link reads as
-                         * the hotel rather than as an unlabelled image.
+                         * The application's own name, read from config('app.name')
+                         * - APP_NAME in the environment - rather than the wordmark
+                         * and rather than a literal. Nothing in the front end
+                         * spells the name out, here or in the top bar, so renaming
+                         * the application is a change to .env and nothing else.
+                         *
+                         * It is set a size up from the menu items below it so it
+                         * reads as the brand rather than as one more place to go.
                          */}
                         <SidebarMenuButton size="lg" asChild>
                             <Link href={dashboard()} prefetch>
-                                <AppLogo />
+                                <span className="truncate text-lg font-semibold tracking-tight">
+                                    {name}
+                                </span>
                             </Link>
                         </SidebarMenuButton>
                     </SidebarMenuItem>
