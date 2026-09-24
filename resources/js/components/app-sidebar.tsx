@@ -19,6 +19,7 @@ import { dashboard, home } from '@/routes';
 import adminAvailability from '@/routes/admin/availability';
 import adminBookings from '@/routes/admin/bookings';
 import adminContent from '@/routes/admin/content';
+import adminGuests from '@/routes/admin/guests';
 import users from '@/routes/admin/users';
 import type { NavItem, SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
@@ -33,6 +34,7 @@ import { useMemo } from 'react';
 const moduleRoutes: Partial<Record<string, NavHref>> = {
     dashboard: dashboard(),
     bookings: adminBookings.index(),
+    guests: adminGuests.index(),
     availability: adminAvailability.index(),
     // The one entry point for every content type: seventeen list screens would
     // be seventeen sidebar rows nobody could scan.
@@ -125,7 +127,7 @@ export function AppSidebar() {
                          */}
                         <SidebarMenuButton size="lg" asChild>
                             <Link href={dashboard()} prefetch>
-                                <span className="truncate text-lg font-semibold tracking-tight">
+                                <span className="truncate text-[2.05rem]! font-semibold tracking-tight">
                                     {name}
                                 </span>
                             </Link>

@@ -167,6 +167,61 @@ export type SelectOption = {
     label: string;
 };
 
+/** A guest as the list shows them. */
+export type AdminGuestRow = {
+    id: number;
+    name: string;
+    email: string;
+    phone: string | null;
+    location: string | null;
+    stays: number;
+    returning: boolean;
+    last_stay: string | null;
+    spend: string;
+    marketing_opt_in: boolean;
+};
+
+/** One visit, as a guest's history lists it. */
+export type AdminGuestStay = {
+    reference: string;
+    status: string;
+    status_label: string;
+    check_in: string;
+    check_out: string;
+    nights: number;
+    rooms: string[];
+    total: string;
+    payment_status: string;
+};
+
+/** A guest's record, with their history. */
+export type AdminGuestDetail = {
+    id: number;
+    name: string;
+    first_name: string;
+    last_name: string;
+    email: string;
+    phone: string | null;
+    country: string | null;
+    city: string | null;
+    address: string | null;
+    id_number: string | null;
+    notes: string | null;
+    marketing_opt_in: boolean;
+    since: string | null;
+    stays: AdminGuestStay[];
+};
+
+/** What a guest's history adds up to. */
+export type AdminGuestStats = {
+    stays: number;
+    nights: number;
+    spend: string;
+    cancelled: number;
+    first_stay: string | null;
+    last_stay: string | null;
+};
+
 /** Where a closure sits relative to today. */
 export type AvailabilityClosureState = 'running' | 'upcoming' | 'past';
 

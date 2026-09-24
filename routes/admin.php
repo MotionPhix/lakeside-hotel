@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\AvailabilityController;
 use App\Http\Controllers\Admin\BookingController;
+use App\Http\Controllers\Admin\GuestController;
 use App\Http\Controllers\Admin\ResourceController;
 use App\Http\Controllers\Admin\UserController;
 use Illuminate\Support\Facades\Route;
@@ -71,6 +72,24 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
     Route::patch('bookings/{booking:reference}/notes', [BookingController::class, 'updateNotes'])
         ->middleware('permission:bookings.manage')
         ->name('bookings.notes');
+
+    /*
+    | Guests
+    |
+    | The record behind the reservations: who has stayed, how often, and how to
+    | reach them. Reading it is `guests.view`; correcting it is `guests.manage`.
+    */
+    Route::get('guests', [GuestController::class, 'index'])
+        ->middleware('permission:guests.view')
+        ->name('guests.index');
+
+    Route::get('guests/{guest}', [GuestController::class, 'show'])
+        ->middleware('permission:guests.view')
+        ->name('guests.show');
+
+    Route::patch('guests/{guest}', [GuestController::class, 'update'])
+        ->middleware('permission:guests.manage')
+        ->name('guests.update');
 
     /*
     | Availability
