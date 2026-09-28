@@ -56,9 +56,9 @@ export default function Events({
                 eyebrow="Conferences & events"
                 title={intro?.title ?? 'Meetings with a view'}
                 description={intro?.subtitle}
-                imageUrl={
-                    conferencePackages[0]?.cover?.hero ??
-                    weddingPackages[0]?.cover?.hero ??
+                image={
+                    conferencePackages[0]?.cover ??
+                    weddingPackages[0]?.cover ??
                     null
                 }
                 breadcrumb="Conferences & events"

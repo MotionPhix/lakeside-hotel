@@ -25,7 +25,7 @@ export default function Activities({ activities }: Props) {
                 eyebrow="Experiences"
                 title="Days on Lake Malawi"
                 description="Everything is arranged from the jetty by our activities team. Book the day before at reception, or ask us when you arrive."
-                imageUrl={activities[0]?.cover?.hero ?? null}
+                image={activities[0]?.cover}
                 breadcrumb="Activities"
             />
 

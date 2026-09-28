@@ -2,6 +2,14 @@
 /bootstrap/ssr
 /node_modules
 /public/build
+# Media the application has uploaded or the media library has generated from the
+# photographs the site seeds itself with. Both are rebuildable - the originals
+# live in database/seeders/photography - so carrying a second copy of every
+# photograph and every conversion here would only be weight. The two brand marks
+# are exceptions: they are source files, not output.
+/public/bucket/*
+!/public/bucket/lakeside-wordmark.png
+!/public/bucket/lakeside_hotel_logo.png
 /public/fonts-manifest.dev.json
 /public/hot
 /public/storage

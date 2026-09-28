@@ -39,6 +39,14 @@ export function SiteHeader() {
                     <img
                         src={site.logo}
                         alt={site.name}
+                        /* The size of the file itself. The stylesheet sets the
+                           height and lets the width follow, and the browser needs
+                           to know the ratio before the image arrives or the whole
+                           header moves down the moment it does. */
+                        width={2888}
+                        height={1375}
+                        loading="eager"
+                        decoding="async"
                         className="h-11 w-auto sm:h-12"
                     />
                 </Link>

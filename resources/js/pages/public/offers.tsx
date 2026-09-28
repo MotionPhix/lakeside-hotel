@@ -24,7 +24,7 @@ export default function Offers({ offers }: Props) {
                 eyebrow="Special offers"
                 title="Reasons to book direct"
                 description="Better rates than any booking site, and the flexibility to change your dates."
-                imageUrl={offers[0]?.image?.hero ?? null}
+                image={offers[0]?.image}
                 breadcrumb="Offers"
             />
 

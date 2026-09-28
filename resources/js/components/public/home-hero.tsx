@@ -1,6 +1,7 @@
 import { Link } from '@inertiajs/react';
 import { CalendarCheck } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { imageBoxes, ResponsiveImage } from '@/components/public/responsive-image';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import type { HeroSlideData } from '@/types';
@@ -64,11 +65,15 @@ export function HomeHero({
                     )}
                 >
                     {item.image ? (
-                        <img
-                            src={item.image.hero}
+                        <ResponsiveImage
+                            image={item.image}
+                            from="hero"
+                            sizes={imageBoxes.full}
                             alt=""
-                            loading={position === 0 ? 'eager' : 'lazy'}
-                            decoding="async"
+                            /* Only the first slide. The others are rotated in after
+                               load, and marking all three urgent would have the
+                               browser fetch three full-bleed photographs at once. */
+                            priority={position === 0}
                             className="size-full object-cover"
                         />
                     ) : (

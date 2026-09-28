@@ -13,6 +13,7 @@ import {
 } from '@/components/public/cards';
 import { HomeHero } from '@/components/public/home-hero';
 import { MapEmbed, directionsLink } from '@/components/public/map-embed';
+import { imageBoxes, ResponsiveImage } from '@/components/public/responsive-image';
 import { Reveal } from '@/components/public/reveal';
 import { Section, SectionHeading } from '@/components/public/section';
 import { Button } from '@/components/ui/button';
@@ -208,13 +209,14 @@ export default function Home({
                                 <div className="flex h-full flex-col">
                                     <div className="aspect-16/10 overflow-hidden rounded-xl bg-navy-deep">
                                         {venue.cover ? (
-                                            <img
-                                                src={venue.cover.card}
+                                            <ResponsiveImage
+                                                image={venue.cover}
+                                                from="card"
+                                                sizes={imageBoxes.third}
                                                 alt={
                                                     venue.cover.alt ||
                                                     venue.name
                                                 }
-                                                loading="lazy"
                                                 className="size-full object-cover"
                                             />
                                         ) : (

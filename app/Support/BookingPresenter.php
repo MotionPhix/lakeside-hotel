@@ -39,7 +39,9 @@ final class BookingPresenter
             'size_sqm' => $roomType->size_sqm,
             'capacity_adults' => $roomType->capacity_adults,
             'capacity_children' => $roomType->capacity_children,
-            'image' => $roomType->heroUrl(),
+            // The whole media set rather than one URL, so the results list can let
+            // the browser choose a size instead of always taking the large one.
+            'image' => SitePresenter::media($roomType->getFirstMedia('cover')),
             'available' => $offer->available,
             'nights' => count($quote->nightly),
             'nightly' => $quote->nightly,

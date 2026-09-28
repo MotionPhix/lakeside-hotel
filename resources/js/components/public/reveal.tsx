@@ -5,8 +5,17 @@ import { cn } from '@/lib/utils';
 /**
  * Fades and lifts its children into view the first time they are scrolled to.
  *
- * Honours `prefers-reduced-motion`, and reveals immediately when
- * IntersectionObserver is unavailable so content is never trapped invisible.
+ * Content starts visible, and is only hidden once the browser has confirmed it
+ * is below the fold and has something to animate. The obvious version of this
+ * component does the opposite - starts hidden and waits for an observer to reveal
+ * it - which quietly makes the whole page invisible whenever that observer never
+ * runs: in a background tab, in a screenshot or preview service, and to anything
+ * reading the page without rendering it. Since every image below the fold is also
+ * `loading="lazy"`, and lazy images do not load in a page nobody is looking at,
+ * the two together turn the page into a blank rectangle.
+ *
+ * Honours `prefers-reduced-motion`, and does nothing at all if
+ * IntersectionObserver is unavailable.
  */
 export function Reveal({
     children,
@@ -18,25 +27,28 @@ export function Reveal({
     delay?: number;
 }) {
     const ref = useRef<HTMLDivElement>(null);
-    const [visible, setVisible] = useState(false);
+    const [hidden, setHidden] = useState(false);
 
     useEffect(() => {
         const node = ref.current;
 
-        if (!node) {
+        if (!node || typeof IntersectionObserver === 'undefined') {
             return;
         }
 
-        if (typeof IntersectionObserver === 'undefined') {
-            setVisible(true);
-
+        // Only content that is off-screen can animate in later. Anything already
+        // in view is left alone, so nothing on the first screen can be hidden and
+        // then fail to come back.
+        if (node.getBoundingClientRect().top < window.innerHeight) {
             return;
         }
+
+        setHidden(true);
 
         const observer = new IntersectionObserver(
             (entries) => {
                 if (entries.some((entry) => entry.isIntersecting)) {
-                    setVisible(true);
+                    setHidden(false);
                     observer.disconnect();
                 }
             },
@@ -53,10 +65,14 @@ export function Reveal({
             ref={ref}
             style={delay > 0 ? { transitionDelay: `${delay}ms` } : undefined}
             className={cn(
-                'transition-[opacity,transform] duration-700 ease-out motion-reduce:transition-none',
-                visible
-                    ? 'translate-y-0 opacity-100'
-                    : 'translate-y-6 opacity-0 motion-reduce:translate-y-0 motion-reduce:opacity-100',
+                /* `translate`, not `transform`: Tailwind 4 compiles translate-y-*
+                   to the CSS `translate` property, so a transition naming only
+                   `transform` left the lift snapping into place while the fade
+                   eased. The lift is half of what this component is for. */
+                'transition-[opacity,translate,transform] duration-700 ease-out motion-reduce:transition-none',
+                hidden
+                    ? 'translate-y-6 opacity-0 motion-reduce:translate-y-0 motion-reduce:opacity-100'
+                    : 'translate-y-0 opacity-100',
                 className,
             )}
         >

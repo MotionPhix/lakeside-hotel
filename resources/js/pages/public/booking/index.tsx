@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { DateRangePicker } from '@/components/date-picker';
 import { ContactCta } from '@/components/public/contact-cta';
 import { PageHero } from '@/components/public/page-hero';
+import { imageBoxes, ResponsiveImage } from '@/components/public/responsive-image';
 import { Reveal } from '@/components/public/reveal';
 import { Section, SectionHeading } from '@/components/public/section';
 import { Button } from '@/components/ui/button';
@@ -327,11 +328,11 @@ function OfferResult({
     return (
         <article className="flex h-full flex-col overflow-hidden rounded-xl border border-navy/10 bg-white">
             {offer.image && (
-                <img
-                    src={offer.image}
+                <ResponsiveImage
+                    image={offer.image}
+                    from="hero"
+                    sizes={imageBoxes.half}
                     alt={offer.name}
-                    loading="lazy"
-                    decoding="async"
                     className="aspect-[16/9] w-full object-cover"
                 />
             )}

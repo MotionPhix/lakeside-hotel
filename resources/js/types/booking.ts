@@ -1,3 +1,5 @@
+import type { MediaImage } from './hotel';
+
 /** The dates and party a guest is searching with. */
 export type BookingSearch = {
     check_in: string;
@@ -28,7 +30,7 @@ export type BookingOffer = {
     size_sqm: number | null;
     capacity_adults: number;
     capacity_children: number;
-    image: string | null;
+    image: MediaImage | null;
     available: number;
     nights: number;
     nightly: Record<string, string>;

@@ -3,6 +3,7 @@ import { BedDouble, CalendarCheck, Ruler, Users } from 'lucide-react';
 import { RoomCard } from '@/components/public/cards';
 import { ContactCta } from '@/components/public/contact-cta';
 import { PageHero } from '@/components/public/page-hero';
+import { imageBoxes, ResponsiveImage } from '@/components/public/responsive-image';
 import { Reveal } from '@/components/public/reveal';
 import { Section, SectionHeading } from '@/components/public/section';
 import { Button } from '@/components/ui/button';
@@ -63,7 +64,7 @@ export default function RoomShow({ roomType, otherRoomTypes }: Props) {
                 eyebrow="Accommodation"
                 title={roomType.name}
                 description={roomType.tagline}
-                imageUrl={roomType.cover?.hero ?? null}
+                image={roomType.cover}
                 breadcrumb={roomType.name}
             />
 
@@ -125,11 +126,12 @@ export default function RoomShow({ roomType, otherRoomTypes }: Props) {
                                 </h2>
                                 <div className="mt-5 grid gap-3 sm:grid-cols-2">
                                     {roomType.images.map((image) => (
-                                        <img
+                                        <ResponsiveImage
                                             key={image.id}
-                                            src={image.card}
+                                            image={image}
+                                            from="card"
+                                            sizes={imageBoxes.half}
                                             alt={image.alt}
-                                            loading="lazy"
                                             className="aspect-4/3 w-full rounded-lg object-cover"
                                         />
                                     ))}

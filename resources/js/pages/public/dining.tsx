@@ -2,6 +2,7 @@ import { Head } from '@inertiajs/react';
 import { Clock, Shirt, Star } from 'lucide-react';
 import { ContactCta } from '@/components/public/contact-cta';
 import { PageHero } from '@/components/public/page-hero';
+import { imageBoxes, ResponsiveImage } from '@/components/public/responsive-image';
 import { Reveal } from '@/components/public/reveal';
 import { Section, SectionHeading } from '@/components/public/section';
 import { formatMoney } from '@/lib/format';
@@ -26,7 +27,7 @@ export default function Dining({ intro, venues }: Props) {
                 eyebrow="Dining"
                 title={intro?.title ?? 'Food from the lake and the farm'}
                 description={intro?.subtitle}
-                imageUrl={venues[0]?.cover?.hero ?? null}
+                image={venues[0]?.cover}
                 breadcrumb="Dining"
             />
 
@@ -47,10 +48,11 @@ export default function Dining({ intro, venues }: Props) {
                         <Reveal className={index % 2 === 1 ? 'lg:order-2' : ''}>
                             <div className="overflow-hidden rounded-xl bg-sand">
                                 {venue.cover ? (
-                                    <img
-                                        src={venue.cover.card}
+                                    <ResponsiveImage
+                                        image={venue.cover}
+                                        from="card"
+                                        sizes={imageBoxes.half}
                                         alt={venue.cover.alt || venue.name}
-                                        loading="lazy"
                                         className="aspect-4/3 w-full object-cover"
                                     />
                                 ) : (

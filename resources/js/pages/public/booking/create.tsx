@@ -3,6 +3,7 @@ import { CalendarDays, Check, Users } from 'lucide-react';
 import type { FormEvent } from 'react';
 import InputError from '@/components/input-error';
 import { PageHero } from '@/components/public/page-hero';
+import { imageBoxes, ResponsiveImage } from '@/components/public/responsive-image';
 import { Section } from '@/components/public/section';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -397,11 +398,11 @@ export default function BookingCreate({ search, offer, booking }: Props) {
                         <div className="lg:sticky lg:top-24">
                             <div className="overflow-hidden rounded-xl border border-navy/10 bg-white">
                                 {offer.image && (
-                                    <img
-                                        src={offer.image}
+                                    <ResponsiveImage
+                                        image={offer.image}
+                                        from="hero"
+                                        sizes={imageBoxes.half}
                                         alt={offer.name}
-                                        loading="lazy"
-                                        decoding="async"
                                         className="aspect-[16/9] w-full object-cover"
                                     />
                                 )}

@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { AmenityIcon } from '@/components/public/amenity-icon';
+import { imageBoxes, ResponsiveImage } from '@/components/public/responsive-image';
 import { formatLabel, formatMoney, formatPriceBasis } from '@/lib/format';
 import rooms from '@/routes/site/rooms';
 import type {
@@ -19,6 +20,7 @@ import type {
     AmenitySummary,
     ConferencePackageData,
     GalleryItemData,
+    MediaImage,
     NearbyAttractionData,
     OfferData,
     RoomTypeSummary,
@@ -39,26 +41,32 @@ function ImagePlaceholder({ label }: { label?: string }) {
 }
 
 function CardImage({
-    src,
+    image,
     alt,
     className,
     label,
+    sizes = imageBoxes.third,
+    priority = false,
 }: {
-    src: string | null;
-    alt: string;
+    /** The whole media set, not one URL: the card offers the browser all three. */
+    image: MediaImage | null | undefined;
+    alt?: string;
     className?: string;
     label?: string;
+    sizes?: string;
+    priority?: boolean;
 }) {
-    if (!src) {
+    if (!image) {
         return <ImagePlaceholder label={label} />;
     }
 
     return (
-        <img
-            src={src}
+        <ResponsiveImage
+            image={image}
+            from="card"
+            sizes={sizes}
+            priority={priority}
             alt={alt}
-            loading="lazy"
-            decoding="async"
             className={`size-full object-cover transition-transform duration-700 group-hover:scale-105 ${className ?? ''}`}
         />
     );
@@ -72,7 +80,7 @@ export function RoomCard({ roomType }: { roomType: RoomTypeSummary }) {
                 className="relative block aspect-4/3 overflow-hidden bg-sand"
             >
                 <CardImage
-                    src={roomType.cover?.card ?? null}
+                    image={roomType.cover}
                     alt={roomType.cover?.alt || roomType.name}
                     label={roomType.name}
                 />
@@ -151,7 +159,7 @@ export function OfferCard({
         >
             <div className="relative aspect-16/9 overflow-hidden bg-sand">
                 <CardImage
-                    src={offer.image?.card ?? null}
+                    image={offer.image}
                     alt={offer.image?.alt || offer.title}
                     label={offer.title}
                 />
@@ -296,7 +304,7 @@ export function ActivityCard({ activity }: { activity: ActivityData }) {
         <article className="group flex h-full flex-col overflow-hidden rounded-xl border border-navy/10 bg-white transition-shadow duration-300 hover:shadow-md">
             <div className="relative aspect-16/10 overflow-hidden bg-sand">
                 <CardImage
-                    src={activity.cover?.card ?? null}
+                    image={activity.cover}
                     alt={activity.cover?.alt || activity.name}
                     label={activity.name}
                 />
@@ -443,7 +451,7 @@ export function GalleryTile({ item }: { item: GalleryItemData }) {
     return (
         <figure className="group relative overflow-hidden rounded-lg bg-sand">
             <CardImage
-                src={item.image?.card ?? null}
+                image={item.image}
                 alt={item.image?.alt || item.title || 'Lakeside Hotel'}
                 label={item.title ?? undefined}
                 className="aspect-4/3"

@@ -1,8 +1,10 @@
 import { Link } from '@inertiajs/react';
 import { ChevronRight } from 'lucide-react';
 import type { ReactNode } from 'react';
+import { imageBoxes, ResponsiveImage } from '@/components/public/responsive-image';
 import { cn } from '@/lib/utils';
 import { home } from '@/routes';
+import type { MediaImage } from '@/types';
 
 /**
  * The banner that opens every inner page: a breadcrumb, a Fraunces title and a
@@ -13,7 +15,7 @@ export function PageHero({
     title,
     description,
     tone = 'sand',
-    imageUrl,
+    image,
     actions,
     breadcrumb,
 }: {
@@ -22,11 +24,11 @@ export function PageHero({
     description?: string | null;
     tone?: 'sand' | 'navy';
     /** When supplied the banner becomes photographic with a navy scrim. */
-    imageUrl?: string | null;
+    image?: MediaImage | null;
     actions?: ReactNode;
     breadcrumb?: string;
 }) {
-    const photographic = Boolean(imageUrl);
+    const photographic = Boolean(image);
 
     return (
         <section
@@ -37,12 +39,16 @@ export function PageHero({
                 photographic && 'bg-navy',
             )}
         >
-            {photographic && (
+            {image && (
                 <>
-                    <img
-                        src={imageUrl ?? ''}
+                    <ResponsiveImage
+                        image={image}
+                        from="hero"
+                        sizes={imageBoxes.full}
                         alt=""
                         aria-hidden
+                        /* The banner is what a visitor sees first on an inner page. */
+                        priority
                         className="absolute inset-0 size-full object-cover"
                     />
                     <div
