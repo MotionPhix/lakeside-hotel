@@ -42,8 +42,24 @@ test('the homepage shows the hero photographs rather than its fallback', functio
         ->assertOk()
         ->assertInertia(fn ($page) => $page
             ->has('heroSlides', 3)
-            ->where('heroSlides.0.image.hero', fn (?string $url): bool => $url !== null && str_contains($url, 'hero-lakeside-escape'))
-            ->where('heroSlides.1.image.hero', fn (?string $url): bool => $url !== null && str_contains($url, 'hero-sunsets-over-the-water')));
+            ->where('heroSlides.0.image.hero', fn (?string $url): bool => $url !== null && str_contains($url, 'real-hero-pool-garden'))
+            ->where('heroSlides.1.image.hero', fn (?string $url): bool => $url !== null && str_contains($url, 'real-hero-terrace-dusk')));
+});
+
+test('the hero slides lead with the hotel\'s own photography', function () {
+    /*
+     * The three heroes were AI stand-ins until the hotel supplied real
+     * photographs. A stand-in is a picture of a place the guest is not going to,
+     * so this holds the slides on the real ones and fails if a placeholder
+     * quietly comes back.
+     */
+    $this->seed();
+
+    foreach (HeroSlide::query()->get() as $slide) {
+        $file = $slide->getFirstMedia('image')?->file_name;
+
+        expect($file)->toStartWith('real-', "the slide '{$slide->headline}' is not using the hotel's own photograph");
+    }
 });
 
 test('every gallery tile has its photograph', function () {

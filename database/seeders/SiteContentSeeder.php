@@ -225,10 +225,15 @@ We can collect you from Kamuzu International Airport. Please request your transf
          * because a slide whose photograph is not here yet should still be seeded
          * rather than blocking the rest.
          */
+        /*
+         * All three are the hotel's own photographs. The AI stand-ins that used to
+         * be here are still in the repository if a slide ever needs one, but a
+         * guest should see the place they are booking.
+         */
         $photographs = [
-            'Your Lakeside Escape in Senga Bay' => 'hero-lakeside-escape.jpg',
-            'Sunsets over the water' => 'hero-sunsets-over-the-water.jpg',
-            'Days on Lake Malawi' => 'hero-days-on-lake-malawi.jpg',
+            'Your Lakeside Escape in Senga Bay' => 'real-hero-pool-garden.jpg',
+            'Sunsets over the water' => 'real-hero-terrace-dusk.jpg',
+            'Days on Lake Malawi' => 'real-hero-speedboat.jpg',
         ];
 
         foreach ($slides as $slide) {
@@ -266,27 +271,44 @@ We can collect you from Kamuzu International Airport. Please request your transf
             ['Conference break-out room', 'Mikute Hall set for a workshop', 'events', false],
             ['Poolside at midday', 'Loungers, shade and cold drinks', 'pool', false],
             ['Bonfire on the beach', 'Evenings on the sand', 'beach', false],
+            // Real photographs of the hotel's own spaces, added rather than
+            // substituted: there was no tile here to put a real one on.
+            ['The reception', 'The Lakeside wall in the lobby', 'hotel', true],
+            ['Arrivals', 'Checking in at the front desk', 'hotel', false],
+            ['The conference hall', 'Set for a full plenary', 'events', true],
+            ['Fishermen on the lake', 'Boats working the bay in the morning', 'lake', false],
         ];
 
+        /*
+         * The hotel's own photographs wherever they exist, and the AI stand-ins
+         * only where they do not. Anything still pointing at a `gallery-` file is
+         * a placeholder: there is no photograph of the restaurant, the bar, a
+         * wedding, the gazebo, the birdlife, the chambo or the bonfire yet, and
+         * those frames should be re-shot and swapped in the same way.
+         */
         $photographs = [
-            'The swimming pool' => 'gallery-swimming-pool.jpg',
+            'The swimming pool' => 'real-pool-night.jpg',
             'Beachfront at Senga Bay' => 'gallery-beachfront.jpg',
-            'Sunset over the bay' => 'gallery-sunset-over-the-bay.jpg',
-            'Namalenje Hall' => 'gallery-namalenje-hall.jpg',
+            'Sunset over the bay' => 'real-hero-terrace-dusk.jpg',
+            'Namalenje Hall' => 'real-conference-hall.jpg',
             'The Lakeview Restaurant' => 'gallery-lakeview-restaurant.jpg',
-            'Deluxe Double' => 'room-deluxe-double.jpg',
+            'Deluxe Double' => 'real-room-double-curtains.jpg',
             'The bar and lounge' => 'gallery-bar-and-lounge.jpg',
-            'Island tour by speed boat' => 'gallery-island-tour.jpg',
+            'Island tour by speed boat' => 'real-speedboat-moored.jpg',
             'Gazebo and gardens' => 'gallery-gazebo-and-gardens.jpg',
             'Wedding on the beach' => 'gallery-wedding-on-the-beach.jpg',
-            'Deluxe Family' => 'room-deluxe-family.jpg',
-            'Standard Double' => 'room-standard-double.jpg',
+            'Deluxe Family' => 'real-room-family.jpg',
+            'Standard Double' => 'real-room-double-head-on.jpg',
             'Grilled chambo' => 'gallery-grilled-chambo.jpg',
             'Water skiing' => 'gallery-water-skiing.jpg',
             'Birdlife on the shore' => 'gallery-birdlife.jpg',
-            'Conference break-out room' => 'gallery-breakout-room.jpg',
-            'Poolside at midday' => 'gallery-poolside.jpg',
+            'Conference break-out room' => 'real-conference-workshop.jpg',
+            'Poolside at midday' => 'real-pool-loungers.jpg',
             'Bonfire on the beach' => 'gallery-bonfire.jpg',
+            'The reception' => 'real-reception.jpg',
+            'Arrivals' => 'real-reception-desk.jpg',
+            'The conference hall' => 'real-conference-plenary.jpg',
+            'Fishermen on the lake' => 'real-fishing-boat.jpg',
         ];
 
         foreach ($tiles as $index => [$title, $caption, $category, $featured]) {

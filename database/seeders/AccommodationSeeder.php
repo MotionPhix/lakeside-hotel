@@ -242,12 +242,18 @@ class AccommodationSeeder extends Seeder
          * category name, because the slug is what the rest of the application and
          * the file names agree on.
          */
+        /*
+         * The hotel has photographs of three of its seven categories. The other
+         * four keep an AI stand-in, which is the honest position only for as long
+         * as it takes to shoot them - a photograph of a different room is not a
+         * photograph of this one.
+         */
         $photographs = [
-            'standard-double' => 'room-standard-double.jpg',
+            'standard-double' => 'real-room-double-head-on.jpg',
             'deluxe-single' => 'room-deluxe-single.jpg',
             'twin-room' => 'room-twin.jpg',
-            'deluxe-double' => 'room-deluxe-double.jpg',
-            'deluxe-family' => 'room-deluxe-family.jpg',
+            'deluxe-double' => 'real-room-double-angled.jpg',
+            'deluxe-family' => 'real-room-family.jpg',
             'honeymoon-suite' => 'room-honeymoon-suite.jpg',
             'executive-suite' => 'room-executive-suite.jpg',
         ];
