@@ -50,7 +50,15 @@ export default function RoomsIndex({ roomTypes, amenities }: Props) {
                     </Reveal>
                     <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                         {amenities.map((amenity, index) => (
-                            <Reveal key={amenity.id} delay={index * 35}>
+                            /* h-full on the wrapper as well: the wrapper is the
+                               grid child, so it is the element stretched to the
+                               row height, and the card inside can only match it
+                               if the wrapper passes that height down. */
+                            <Reveal
+                                key={amenity.id}
+                                delay={index * 35}
+                                className="h-full"
+                            >
                                 <AmenityTile amenity={amenity} />
                             </Reveal>
                         ))}

@@ -404,16 +404,42 @@ export function PackageCard({ pkg }: { pkg: ConferencePackageData }) {
     );
 }
 
+/**
+ * One facility: an icon, a name and a line about it.
+ *
+ * `h-full` is what keeps a row of these level. Each tile sits inside a grid, and
+ * a grid stretches its children to the tallest in the row - but only the
+ * children, and the child here is the wrapper the row is built from, not the
+ * bordered box. Without `h-full` on the box, the box stayed as tall as its own
+ * text while the wrapper around it stretched, so three tiles side by side drew
+ * three different heights of card inside three equal boxes.
+ */
 export function AmenityTile({ amenity }: { amenity: AmenitySummary }) {
     return (
-        <div className="flex items-start gap-4 rounded-xl border border-navy/10 bg-white p-5 transition-colors duration-300 hover:border-lake/30">
+        <div className="flex h-full items-start gap-4 rounded-xl border border-navy/10 bg-white p-5 transition-colors duration-300 hover:border-lake/30">
             <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-lake-light text-lake">
                 <AmenityIcon name={amenity.icon} className="size-5" />
             </span>
-            <div>
-                <h3 className="font-medium text-navy">{amenity.name}</h3>
+            <div className="min-w-0 flex-1">
+                {/* Two lines reserved for the name, for the same reason as the
+                    description below. "Mineral Water and Candy on Table" and
+                    "Printer, Scanner and Photocopier" wrap at the widths where
+                    the columns are narrow - which is exactly the tablet width
+                    this was reported from - and a wrapped name pushed those tiles
+                    a line taller than their neighbours. */}
+                <h3 className="min-h-[2lh] font-medium text-navy">
+                    {amenity.name}
+                </h3>
+                {/* Three lines of room reserved whether or not they are used.
+                    Descriptions run from one line to three, and without the
+                    reserve the three longest - Gardens, Laundry Service, Water
+                    Sports - drew a card one line taller than every other card on
+                    the page. Reserving costs a little white space under the short
+                    ones and buys a grid where every tile is the same height.
+                    `lh` units so the reserve follows the line height rather than
+                    a pixel value that drifts the next time the type is adjusted. */}
                 {amenity.description && (
-                    <p className="mt-1 text-sm leading-relaxed text-navy/60">
+                    <p className="mt-1 min-h-[3lh] text-sm leading-relaxed text-navy/60">
                         {amenity.description}
                     </p>
                 )}
