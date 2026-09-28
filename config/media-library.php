@@ -30,6 +30,18 @@ use Spatie\MediaLibraryPro\Models\TemporaryUpload;
 return [
 
     /*
+     * Whether image conversions are built at all.
+     *
+     * Building them is by far the most expensive thing an upload does: every
+     * registered size decodes and re-encodes the source. The live site needs the
+     * results, so this stays on. The test suite does not - it seeds the whole
+     * database dozens of times over and asserts that photographs are attached and
+     * shown, never that a particular derivative exists - so it turns this off and
+     * saves several minutes a run.
+     */
+    'generate_conversions' => env('MEDIA_GENERATE_CONVERSIONS', true),
+
+    /*
      * The disk on which to store added files and derived images by default. Choose
      * one or more of the disks you've configured in config/filesystems.php.
      */

@@ -11,6 +11,7 @@ use App\Models\AvailabilityBlock;
 use App\Models\RatePlan;
 use App\Models\Room;
 use App\Models\RoomType;
+use Database\Seeders\Concerns\AttachesPhotographs;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
 
@@ -22,6 +23,8 @@ use Illuminate\Support\Str;
  */
 class AccommodationSeeder extends Seeder
 {
+    use AttachesPhotographs;
+
     /**
      * Run the database seeds.
      */
@@ -234,6 +237,21 @@ class AccommodationSeeder extends Seeder
             ],
         ];
 
+        /*
+         * The photograph on each category's card, keyed by slug rather than by
+         * category name, because the slug is what the rest of the application and
+         * the file names agree on.
+         */
+        $photographs = [
+            'standard-double' => 'room-standard-double.jpg',
+            'deluxe-single' => 'room-deluxe-single.jpg',
+            'twin-room' => 'room-twin.jpg',
+            'deluxe-double' => 'room-deluxe-double.jpg',
+            'deluxe-family' => 'room-deluxe-family.jpg',
+            'honeymoon-suite' => 'room-honeymoon-suite.jpg',
+            'executive-suite' => 'room-executive-suite.jpg',
+        ];
+
         $models = [];
 
         foreach ($definitions as $definition) {
@@ -251,6 +269,8 @@ class AccommodationSeeder extends Seeder
                     ->filter()
                     ->all(),
             );
+
+            $this->attachPhotograph($roomType, $photographs[$definition['slug']] ?? null, 'cover');
 
             $models[$roomType->slug] = $roomType;
         }

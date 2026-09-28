@@ -7,6 +7,7 @@ use App\Models\GalleryItem;
 use App\Models\HeroSlide;
 use App\Models\NearbyAttraction;
 use App\Models\Setting;
+use Database\Seeders\Concerns\AttachesPhotographs;
 use Illuminate\Database\Seeder;
 
 /**
@@ -19,6 +20,8 @@ use Illuminate\Database\Seeder;
  */
 class SiteContentSeeder extends Seeder
 {
+    use AttachesPhotographs;
+
     /**
      * Run the database seeds.
      */
@@ -216,13 +219,31 @@ We can collect you from Kamuzu International Airport. Please request your transf
             ],
         ];
 
+        /*
+         * The photograph each slide leads with. Kept apart from the slide data
+         * above, because a file name is seeding detail rather than a column - and
+         * because a slide whose photograph is not here yet should still be seeded
+         * rather than blocking the rest.
+         */
+        $photographs = [
+            'Your Lakeside Escape in Senga Bay' => 'hero-lakeside-escape.jpg',
+            'Sunsets over the water' => 'hero-sunsets-over-the-water.jpg',
+            'Days on Lake Malawi' => 'hero-days-on-lake-malawi.jpg',
+        ];
+
         foreach ($slides as $slide) {
-            HeroSlide::query()->updateOrCreate(['headline' => $slide['headline']], $slide + ['is_active' => true]);
+            $hero = HeroSlide::query()->updateOrCreate(['headline' => $slide['headline']], $slide + ['is_active' => true]);
+
+            $this->attachPhotograph($hero, $photographs[$slide['headline']] ?? null);
         }
     }
 
     /**
-     * The gallery grid. Photographs are attached to these tiles in a later pass.
+     * The gallery grid, and the photograph behind each tile.
+     *
+     * Three of these are the room photographs rather than gallery-only ones - the
+     * tiles that show a room are showing that room, and a second photograph of the
+     * same category would only be a different version of the same picture.
      */
     private function seedGallery(): void
     {
@@ -247,8 +268,29 @@ We can collect you from Kamuzu International Airport. Please request your transf
             ['Bonfire on the beach', 'Evenings on the sand', 'beach', false],
         ];
 
+        $photographs = [
+            'The swimming pool' => 'gallery-swimming-pool.jpg',
+            'Beachfront at Senga Bay' => 'gallery-beachfront.jpg',
+            'Sunset over the bay' => 'gallery-sunset-over-the-bay.jpg',
+            'Namalenje Hall' => 'gallery-namalenje-hall.jpg',
+            'The Lakeview Restaurant' => 'gallery-lakeview-restaurant.jpg',
+            'Deluxe Double' => 'room-deluxe-double.jpg',
+            'The bar and lounge' => 'gallery-bar-and-lounge.jpg',
+            'Island tour by speed boat' => 'gallery-island-tour.jpg',
+            'Gazebo and gardens' => 'gallery-gazebo-and-gardens.jpg',
+            'Wedding on the beach' => 'gallery-wedding-on-the-beach.jpg',
+            'Deluxe Family' => 'room-deluxe-family.jpg',
+            'Standard Double' => 'room-standard-double.jpg',
+            'Grilled chambo' => 'gallery-grilled-chambo.jpg',
+            'Water skiing' => 'gallery-water-skiing.jpg',
+            'Birdlife on the shore' => 'gallery-birdlife.jpg',
+            'Conference break-out room' => 'gallery-breakout-room.jpg',
+            'Poolside at midday' => 'gallery-poolside.jpg',
+            'Bonfire on the beach' => 'gallery-bonfire.jpg',
+        ];
+
         foreach ($tiles as $index => [$title, $caption, $category, $featured]) {
-            GalleryItem::query()->updateOrCreate(
+            $tile = GalleryItem::query()->updateOrCreate(
                 ['title' => $title],
                 [
                     'caption' => $caption,
@@ -259,6 +301,8 @@ We can collect you from Kamuzu International Airport. Please request your transf
                     'is_active' => true,
                 ],
             );
+
+            $this->attachPhotograph($tile, $photographs[$title] ?? null);
         }
     }
 
