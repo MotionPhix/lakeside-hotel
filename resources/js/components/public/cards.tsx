@@ -13,7 +13,12 @@ import {
 import { Button } from '@/components/ui/button';
 import { AmenityIcon } from '@/components/public/amenity-icon';
 import { imageBoxes, ResponsiveImage } from '@/components/public/responsive-image';
-import { formatLabel, formatMoney, formatPriceBasis } from '@/lib/format';
+import {
+    formatDistance,
+    formatLabel,
+    formatMoney,
+    formatPriceBasis,
+} from '@/lib/format';
 import rooms from '@/routes/site/rooms';
 import type {
     ActivityData,
@@ -427,11 +432,21 @@ export function AttractionCard({
             <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-sand text-lake">
                 <MapPin className="size-5" aria-hidden />
             </span>
-            <div>
-                <h3 className="font-medium text-navy">{attraction.name}</h3>
+            {/* min-w-0 so the text column can be narrower than its longest word.
+                Without it a flex child refuses to shrink past its content, which
+                is how a long place name pushes a card wider than its column. */}
+            <div className="min-w-0">
+                {/* Two lines of room reserved, whether or not the name needs
+                    them. "Nkhotakota Wildlife Reserve" wraps and "Salima Town
+                    Centre" does not, and side by side that difference used to
+                    push the distance line and the description out of step
+                    across the row. */}
+                <h3 className="line-clamp-2 min-h-12 font-medium text-navy">
+                    {attraction.name}
+                </h3>
                 {attraction.distance_km && (
                     <p className="mt-0.5 text-xs text-navy/50">
-                        {attraction.distance_km} km
+                        {formatDistance(attraction.distance_km)} km
                         {attraction.travel_time_minutes
                             ? ` · about ${attraction.travel_time_minutes} minutes`
                             : ''}

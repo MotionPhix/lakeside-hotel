@@ -80,7 +80,11 @@ export default function Contact({ attractions }: Props) {
                         </div>
                     </div>
 
-                    <aside className="space-y-3">
+                    {/* min-w-0 so the column may be narrower than its widest
+                        content. These cards hold email addresses, which are one
+                        long unbreakable word, and without this the column refuses
+                        to shrink and takes the whole page out with it. */}
+                    <aside className="min-w-0 space-y-3">
                         {channels.map((channel) => (
                             <div
                                 key={channel.label}

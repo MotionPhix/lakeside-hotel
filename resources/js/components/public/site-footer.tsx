@@ -78,26 +78,34 @@ export function SiteFooter() {
                             />
                             <span>{site.contact.address}</span>
                         </li>
-                        <li className="flex gap-3">
+                        {/* min-w-0 on each row so the text can be narrower than
+                            its content. A flex row will not otherwise shrink past
+                            its longest word, and the address below is one very
+                            long word. */}
+                        <li className="flex min-w-0 gap-3">
                             <Phone
                                 className="mt-0.5 size-4 shrink-0 text-gold"
                                 aria-hidden
                             />
                             <a
                                 href={`tel:${site.contact.phone.replace(/\s/g, '')}`}
-                                className="transition-colors hover:text-white"
+                                className="whitespace-nowrap transition-colors hover:text-white"
                             >
                                 {site.contact.phone}
                             </a>
                         </li>
-                        <li className="flex gap-3">
+                        <li className="flex min-w-0 gap-3">
                             <Mail
                                 className="mt-0.5 size-4 shrink-0 text-gold"
                                 aria-hidden
                             />
+                            {/* Allowed to break mid-word, which is the one place
+                                on the site where that is the better trade: an
+                                address has nowhere to break on its own, and the
+                                alternative is a sideways-scrolling page. */}
                             <a
                                 href={`mailto:${site.contact.email}`}
-                                className="transition-colors hover:text-white"
+                                className="break-all transition-colors hover:text-white"
                             >
                                 {site.contact.email}
                             </a>
@@ -120,7 +128,12 @@ export function SiteFooter() {
                                     rel="noreferrer"
                                     className="inline-flex items-center gap-2 rounded-md border border-sand/25 px-3 py-2 font-medium transition-colors hover:border-gold hover:text-gold"
                                 >
-                                    WhatsApp {site.contact.whatsapp}
+                                    WhatsApp{' '}
+                                    {/* The number stays whole; the word before it
+                                        is what gives way when there is no room. */}
+                                    <span className="whitespace-nowrap">
+                                        {site.contact.whatsapp}
+                                    </span>
                                 </a>
                             </li>
                         )}

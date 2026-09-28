@@ -35,7 +35,11 @@ export function ContactCta({
                         description={description}
                     />
                 </div>
-                <div className="flex flex-col gap-3">
+                {/* min-w-0 because a grid child will not shrink past its content:
+                    the address in the last button is one long unbreakable word,
+                    and it was widening this whole column - and with it the
+                    section, and with it the page. */}
+                <div className="flex min-w-0 flex-col gap-3">
                     {link && (
                         <Button asChild size="lg">
                             <a href={link} target="_blank" rel="noreferrer">
@@ -50,10 +54,19 @@ export function ContactCta({
                             {contact.phone}
                         </a>
                     </Button>
-                    <Button asChild variant="ghost" size="lg">
-                        <a href={`mailto:${contact.email}`}>
-                            <Mail />
-                            {contact.email}
+                    {/* The exception to the nowrap on every other button. An email
+                        address has no space to break at, so it is given permission
+                        to wrap mid-word rather than shove the page sideways on a
+                        narrow phone. */}
+                    <Button asChild variant="ghost" size="lg" className="h-auto py-3">
+                        <a
+                            href={`mailto:${contact.email}`}
+                            className="min-w-0 whitespace-normal"
+                        >
+                            <Mail className="shrink-0" />
+                            <span className="break-all text-left leading-tight">
+                                {contact.email}
+                            </span>
                         </a>
                     </Button>
                 </div>

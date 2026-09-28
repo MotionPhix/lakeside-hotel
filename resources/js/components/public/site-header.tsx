@@ -1,5 +1,6 @@
 import { Link, usePage } from '@inertiajs/react';
-import { CalendarCheck, Menu, Phone } from 'lucide-react';
+import { CalendarCheck, Phone } from 'lucide-react';
+import { ListSortDescending } from '@/components/icons/list-sort-descending';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
@@ -51,9 +52,19 @@ export function SiteHeader() {
                     />
                 </Link>
 
+                {/*
+                    Eight links, a phone number and a button need about 1280px
+                    between them. They were switching on at `lg` (1024px), which
+                    is exactly where an iPad Pro 13 sits in portrait - 1032px -
+                    so the widest tablet in common use got a desktop layout with
+                    13px of overflow, the phone number broken over three lines
+                    inside a 72px bar, and the button cut off at the edge. Below
+                    this the menu button takes over, which is the layout that
+                    width can actually carry.
+                */}
                 <nav
                     aria-label="Main"
-                    className="hidden items-center gap-0.5 lg:flex"
+                    className="hidden items-center gap-0.5 xl:flex"
                 >
                     {siteNav.map((item) => (
                         <Link
@@ -74,12 +85,17 @@ export function SiteHeader() {
                     ))}
                 </nav>
 
-                <div className="hidden items-center gap-2 lg:flex">
+                <div className="hidden items-center gap-2 xl:flex">
+                    {/*
+                        A phone number is the one string on the page that must
+                        never be broken across lines: "+265 / 1 263 / 400" is not
+                        a number anyone can read back.
+                    */}
                     <a
                         href={`tel:${site.contact.phone.replace(/\s/g, '')}`}
-                        className="flex items-center gap-2 rounded-md px-2 py-2 text-sm font-medium text-navy/80 transition-colors hover:text-lake"
+                        className="flex items-center gap-2 whitespace-nowrap rounded-md px-2 py-2 text-sm font-medium text-navy/80 transition-colors hover:text-lake"
                     >
-                        <Phone className="size-4" aria-hidden />
+                        <Phone className="size-4 shrink-0" aria-hidden />
                         {site.contact.phone}
                     </a>
                     <Button asChild size="lg">
@@ -92,13 +108,16 @@ export function SiteHeader() {
 
                 <Sheet open={open} onOpenChange={setOpen}>
                     <SheetTrigger asChild>
+                        {/* Explicitly square. `size="icon"` alone left this 36
+                            wide and 44 tall, which read as a squashed rectangle
+                            next to a square-ish logo. */}
                         <Button
                             variant="outline"
                             size="icon"
-                            className="lg:hidden"
+                            className="size-11 shrink-0 xl:hidden"
                             aria-label="Open menu"
                         >
-                            <Menu />
+                            <ListSortDescending className="size-5" />
                         </Button>
                     </SheetTrigger>
                     <SheetContent

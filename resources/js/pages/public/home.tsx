@@ -303,7 +303,12 @@ export default function Home({
                             description="A conference centre seating up to 120 delegates, weddings on the beach, and private events on the terrace."
                         />
                     </Reveal>
-                    <div className="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                    {/* [&>*]:min-w-0 lets each card be narrower than its own
+                        longest unbreakable content. A grid item defaults to
+                        min-width:auto, so one wide card can push the grid - and
+                        the page - past the viewport. It shows up on Windows,
+                        where a visible scrollbar takes ~5px off the viewport. */}
+                    <div className="mt-12 grid gap-6 [&>*]:min-w-0 md:grid-cols-2 lg:grid-cols-3">
                         {conferencePackages.map((pkg, index) => (
                             <Reveal key={pkg.id} delay={index * 70}>
                                 <PackageCard pkg={pkg} />
@@ -362,7 +367,12 @@ export default function Home({
                             align="center"
                         />
                     </Reveal>
-                    <div className="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                    {/* [&>*]:min-w-0 lets each card be narrower than its own
+                        longest unbreakable content. A grid item defaults to
+                        min-width:auto, so one wide card can push the grid - and
+                        the page - past the viewport. It shows up on Windows,
+                        where a visible scrollbar takes ~5px off the viewport. */}
+                    <div className="mt-12 grid gap-6 [&>*]:min-w-0 md:grid-cols-2 lg:grid-cols-3">
                         {testimonials.map((testimonial, index) => (
                             <Reveal key={testimonial.id} delay={index * 60}>
                                 <TestimonialCard testimonial={testimonial} />
@@ -383,7 +393,12 @@ export default function Home({
                             invert
                         />
                     </Reveal>
-                    <div className="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                    {/* [&>*]:min-w-0 lets each card be narrower than its own
+                        longest unbreakable content. A grid item defaults to
+                        min-width:auto, so one wide card can push the grid - and
+                        the page - past the viewport. It shows up on Windows,
+                        where a visible scrollbar takes ~5px off the viewport. */}
+                    <div className="mt-12 grid gap-6 [&>*]:min-w-0 md:grid-cols-2 lg:grid-cols-3">
                         {offers.map((offer, index) => (
                             <Reveal key={offer.id} delay={index * 70}>
                                 <OfferCard offer={offer} tone="navy" />
@@ -437,7 +452,7 @@ export default function Home({
 
             {/* Contact */}
             <Section tone="sand" spacing="tight">
-                <div className="grid gap-8 lg:grid-cols-3 lg:items-center">
+                <div className="grid gap-8 [&>*]:min-w-0 lg:grid-cols-3 lg:items-center">
                     <Reveal className="lg:col-span-2">
                         <SectionHeading
                             eyebrow="Get in touch"

@@ -85,7 +85,13 @@ export function BookingWidget({ roomTypes }: { roomTypes: BookableRoom[] }) {
 
                 <div className="grid gap-1.5 lg:col-span-3">
                     <Label className="text-xs text-navy/60">Guests</Label>
-                    <div className="grid grid-cols-2 gap-2">
+                    {/* Side by side only in the band where the widget is a single
+                        full-width column. From `lg` the widget splits into twelve
+                        columns and this one is about 250px, so two selects have
+                        roughly 120px each - not enough for "0 children", which is
+                        why it was arriving clipped as "0 childre". Stacked again
+                        from `lg`, each select gets the full column. */}
+                    <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-1">
                         <Select value={adults} onValueChange={setAdults}>
                             <SelectTrigger
                                 className={fieldClass}

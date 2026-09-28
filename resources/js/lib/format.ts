@@ -24,6 +24,31 @@ export function formatMoney(
 }
 
 /**
+ * A distance as short as it can honestly be: "85 km", "2.5 km".
+ *
+ * The values arrive with two decimal places, so every attraction on the site read
+ * "85.00 km" and "120.00 km". Nobody measures a drive to the park to the
+ * centimetre, and the two extra characters were enough to push the line onto a
+ * second row in a card on a tablet.
+ */
+export function formatDistance(value: number | string | null): string {
+    if (value === null || value === '') {
+        return '';
+    }
+
+    const distance = typeof value === 'number' ? value : Number(value);
+
+    if (!Number.isFinite(distance)) {
+        return String(value);
+    }
+
+    // One decimal at most, and none at all when there is nothing to say.
+    return Number.isInteger(distance)
+        ? String(distance)
+        : distance.toFixed(1).replace(/\.0$/, '');
+}
+
+/**
  * How a price is charged, e.g. "per person".
  */
 export function formatPriceBasis(basis: string): string {
