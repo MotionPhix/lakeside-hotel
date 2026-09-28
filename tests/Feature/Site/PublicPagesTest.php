@@ -153,7 +153,7 @@ test('the gallery page exposes the categories in use', function () {
         ->assertOk()
         ->assertInertia(fn (Assert $page) => $page
             ->component('public/gallery')
-            ->has('items', 22)
+            ->has('items', 27)
             ->has('categories')
         );
 });

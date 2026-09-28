@@ -277,38 +277,50 @@ We can collect you from Kamuzu International Airport. Please request your transf
             ['Arrivals', 'Checking in at the front desk', 'hotel', false],
             ['The conference hall', 'Set for a full plenary', 'events', true],
             ['Fishermen on the lake', 'Boats working the bay in the morning', 'lake', false],
+            // The second delivery. The restaurant and the bar were the last two
+            // interiors still standing in for rooms the hotel does not have.
+            ['The restaurant terrace', 'Tables along the water', 'dining', true],
+            ['The lounge', 'The bar and the pool table', 'hotel', false],
+            ['A double room', 'A double room, made up', 'rooms', false],
+            ['The four-poster room', 'The canopy bed, net drawn back', 'rooms', true],
+            ['A double and a single', 'A room that takes both', 'rooms', false],
         ];
 
         /*
          * The hotel's own photographs wherever they exist, and the AI stand-ins
-         * only where they do not. Anything still pointing at a `gallery-` file is
-         * a placeholder: there is no photograph of the restaurant, the bar, a
-         * wedding, the gazebo, the birdlife, the chambo or the bonfire yet, and
-         * those frames should be re-shot and swapped in the same way.
+         * only where they do not. Anything still pointing at a `gallery-` file is a
+         * placeholder, and there are seven left: the beach, the gazebo, a wedding,
+         * the birdlife, the chambo, the water skiing and the bonfire. Those frames
+         * should be shot and swapped in the same way.
          */
         $photographs = [
             'The swimming pool' => 'real-pool-night.jpg',
             'Beachfront at Senga Bay' => 'gallery-beachfront.jpg',
             'Sunset over the bay' => 'real-hero-terrace-dusk.jpg',
             'Namalenje Hall' => 'real-conference-hall.jpg',
-            'The Lakeview Restaurant' => 'gallery-lakeview-restaurant.jpg',
+            'The Lakeview Restaurant' => 'real-restaurant.jpg',
             'Deluxe Double' => 'real-room-double-curtains.jpg',
-            'The bar and lounge' => 'gallery-bar-and-lounge.jpg',
+            'The bar and lounge' => 'real-bar.jpg',
             'Island tour by speed boat' => 'real-speedboat-moored.jpg',
             'Gazebo and gardens' => 'gallery-gazebo-and-gardens.jpg',
             'Wedding on the beach' => 'gallery-wedding-on-the-beach.jpg',
-            'Deluxe Family' => 'real-room-family.jpg',
+            'Deluxe Family' => 'real-room-family-bunks.jpg',
             'Standard Double' => 'real-room-double-head-on.jpg',
             'Grilled chambo' => 'gallery-grilled-chambo.jpg',
             'Water skiing' => 'gallery-water-skiing.jpg',
             'Birdlife on the shore' => 'gallery-birdlife.jpg',
             'Conference break-out room' => 'real-conference-workshop.jpg',
-            'Poolside at midday' => 'real-pool-loungers.jpg',
+            'Poolside at midday' => 'real-pool-day.jpg',
             'Bonfire on the beach' => 'gallery-bonfire.jpg',
             'The reception' => 'real-reception.jpg',
             'Arrivals' => 'real-reception-desk.jpg',
-            'The conference hall' => 'real-conference-plenary.jpg',
+            'The conference hall' => 'real-conference-hall-2.jpg',
             'Fishermen on the lake' => 'real-fishing-boat.jpg',
+            'The restaurant terrace' => 'real-restaurant-terrace.jpg',
+            'The lounge' => 'real-lounge.jpg',
+            'A double room' => 'real-room-double-paintings.jpg',
+            'The four-poster room' => 'real-room-four-poster.jpg',
+            'A double and a single' => 'real-room-double-and-single.jpg',
         ];
 
         foreach ($tiles as $index => [$title, $caption, $category, $featured]) {
