@@ -44,12 +44,25 @@ export type SiteSocial = {
     tripadvisor: string;
 };
 
+/**
+ * Whether the site is measured, and by whom.
+ *
+ * `provider` is blank on a site that measures nothing, which is how it ships.
+ * The tag itself is written by the Blade template rather than loaded from here -
+ * this is the shape of the settings, not a script the front end owns.
+ */
+export type SiteAnalytics = {
+    provider: string;
+    measurement_id: string;
+};
+
 export type SiteSettings = {
     name: string;
     tagline: string;
     contact: SiteContact;
     booking: SiteBookingInfo;
     social: SiteSocial;
+    analytics: SiteAnalytics;
     logo: string;
     whatsapp_link: string;
 };

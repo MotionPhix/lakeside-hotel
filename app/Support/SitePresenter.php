@@ -64,6 +64,15 @@ class SitePresenter
                 'check_in_time' => $get('hotel.check_in_time', '14:00'),
                 'check_out_time' => $get('hotel.check_out_time', '11:00'),
             ],
+            /*
+             * Handed to the front end with the rest of the settings so the
+             * analytics tag can be written by the Blade template without a second
+             * query. Blank provider means nothing is loaded at all.
+             */
+            'analytics' => [
+                'provider' => $get('analytics.provider'),
+                'measurement_id' => $get('analytics.measurement_id'),
+            ],
             'booking' => [
                 'currency' => $get('hotel.currency', 'MWK'),
                 'vat_rate' => (float) $get('booking.vat_rate', '16.5'),

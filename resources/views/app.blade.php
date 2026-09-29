@@ -85,6 +85,9 @@
             @if (! empty($seo['schema']))
                 @include('partials.page-schema', ['schema' => $seo['schema']])
             @endif
+
+            {{-- Off unless configured, and never on the staff screens. --}}
+            @include('partials.analytics')
         @endif
 
     </head>

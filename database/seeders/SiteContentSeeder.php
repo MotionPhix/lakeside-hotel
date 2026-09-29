@@ -76,7 +76,18 @@ class SiteContentSeeder extends Seeder
             ['social.tripadvisor', '', 'social', 'string'],
             ['seo.default_title', 'Lakeside Hotel and Conference Centre | Senga Bay, Salima', 'seo', 'string'],
             ['seo.default_description', 'Book a lakeside room, suite or family room at Lakeside Hotel and Conference Centre in Senga Bay, Salima. Lake Malawi views, the Lakeview Restaurant, four conference halls and lake activities.', 'seo', 'text'],
-            ['analytics.google_id', '', 'seo', 'string'],
+            /*
+             * Analytics is off until somebody switches it on. With both left
+             * blank no script is loaded and no request leaves the guest's browser,
+             * which is the state the site should ship in: nobody has asked for
+             * their visitors to be measured.
+             *
+             * `provider` is one of plausible, fathom, umami or google. The first
+             * three set no cookies at all. Google does, which is why it is listed
+             * last and not the default.
+             */
+            ['analytics.provider', '', 'analytics', 'string'],
+            ['analytics.measurement_id', '', 'analytics', 'string'],
         ];
 
         foreach ($settings as [$key, $value, $section, $type]) {

@@ -94,7 +94,7 @@ test('the database seeder builds a complete, browsable hotel', function () {
         ->and(Testimonial::query()->awaitingModeration()->count())->toBe(2)
         ->and(GalleryItem::query()->active()->count())->toBe(27)
         ->and(NearbyAttraction::query()->active()->count())->toBe(8)
-        ->and(Setting::query()->count())->toBe(35)
+        ->and(Setting::query()->count())->toBe(36)
         ->and(ContentBlock::query()->count())->toBe(9)
         ->and(SiteSection::query()->published('home')->count())->toBe(13)
         ->and(Booking::query()->count())->toBe(52)
