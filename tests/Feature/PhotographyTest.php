@@ -62,6 +62,31 @@ test('the hero slides lead with the hotel\'s own photography', function () {
     }
 });
 
+test('a photograph says what it shows, not what it is called on disk', function () {
+    /*
+     * The media library falls back to the file name when nobody has described a
+     * picture, so the site was announcing photographs to screen readers as
+     * "real-room-double-head-on" and "gallery-swimming-pool". It also read that
+     * way to a search engine, and it was the alt attached to every share card.
+     */
+    $this->seed();
+
+    $unnamed = [];
+
+    foreach ([[GalleryItem::class, 'image'], [RoomType::class, 'cover']] as [$model, $collection]) {
+        foreach ($model::query()->with('media')->get() as $record) {
+            $media = $record->getFirstMedia($collection);
+            $alt = $media?->getCustomProperty('alt');
+
+            if ($alt === null || $alt === '' || $alt === $media->file_name) {
+                $unnamed[] = $media?->file_name ?? '(no photograph)';
+            }
+        }
+    }
+
+    expect($unnamed)->toBe([], 'announced by file name: '.implode(', ', $unnamed));
+});
+
 test('every gallery tile has its photograph', function () {
     $this->seed();
 

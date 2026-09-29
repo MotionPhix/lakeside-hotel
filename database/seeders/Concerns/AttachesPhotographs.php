@@ -26,9 +26,19 @@ trait AttachesPhotographs
      * collections: a second file on one of them throws. Clearing first also means
      * re-seeding after a photograph is swapped leaves the new one in place rather
      * than the one it replaced.
+     *
+     * `alt` is what a screen reader reads out and what a search engine reads to
+     * understand a picture. Left unset, the media library falls back to the file
+     * name, so the site was announcing photographs as "real-room-double-head-on"
+     * and "gallery-swimming-pool". Every photograph here is given the human name
+     * the seeder already knows it by.
      */
-    protected function attachPhotograph(HasMedia $model, ?string $file, string $collection = 'image'): void
-    {
+    protected function attachPhotograph(
+        HasMedia $model,
+        ?string $file,
+        string $collection = 'image',
+        ?string $alt = null,
+    ): void {
         if ($file === null) {
             return;
         }
@@ -43,6 +53,10 @@ trait AttachesPhotographs
         }
 
         $model->clearMediaCollection($collection);
-        $model->addMedia($path)->preservingOriginal()->toMediaCollection($collection);
+
+        $model->addMedia($path)
+            ->preservingOriginal()
+            ->withCustomProperties(['alt' => $alt])
+            ->toMediaCollection($collection);
     }
 }

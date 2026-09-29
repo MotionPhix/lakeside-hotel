@@ -276,7 +276,12 @@ class AccommodationSeeder extends Seeder
                     ->all(),
             );
 
-            $this->attachPhotograph($roomType, $photographs[$definition['slug']] ?? null, 'cover');
+            $this->attachPhotograph(
+                $roomType,
+                $photographs[$definition['slug']] ?? null,
+                'cover',
+                $definition['name'],
+            );
 
             $models[$roomType->slug] = $roomType;
         }

@@ -336,7 +336,7 @@ We can collect you from Kamuzu International Airport. Please request your transf
                 ],
             );
 
-            $this->attachPhotograph($tile, $photographs[$title] ?? null);
+            $this->attachPhotograph($tile, $photographs[$title] ?? null, 'image', $title);
         }
     }
 

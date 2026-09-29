@@ -241,20 +241,32 @@ class PageSeo
      */
     private static function picture(?Media $media, array $site): array
     {
+        $place = $site['name'].', Senga Bay, Lake Malawi';
         $presented = SitePresenter::media($media);
 
         if ($presented === null) {
             return [
                 'url' => $site['url'].SitePresenter::FALLBACK_IMAGE,
-                'alt' => $site['name'],
+                'alt' => $place,
             ];
         }
 
         $alt = trim((string) $presented['alt']);
 
+        /*
+         * `SitePresenter::media` falls back to the media's name when nobody has
+         * described the picture, and the name is the file name. That is fine as a
+         * label in a staff screen and useless here: a share card was announcing
+         * the photograph as "real-room-double-head-on". Where there is no real
+         * description, say where the picture was taken instead.
+         */
+        if ($alt === '' || $alt === $media->name || $alt === $media->file_name) {
+            $alt = $place;
+        }
+
         return [
             'url' => $site['url'].$presented['hero'],
-            'alt' => $alt !== '' ? $alt : $site['name'],
+            'alt' => $alt,
         ];
     }
 }
