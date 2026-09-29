@@ -53,7 +53,10 @@ class PageSeo
      * Everything a crawler or a link preview needs, or null for a page that is not
      * part of the public site.
      *
-     * @return array{title: string, description: string, canonical: string, image: string, imageAlt: string, robots: string, type: string}|null
+     * `schema` is the page's own structured data where it has any - a room has one,
+     * most pages do not, because the site-wide `Hotel` description covers them.
+     *
+     * @return array{title: string, description: string, canonical: string, image: string, imageAlt: string, robots: string, type: string, schema: array<string, mixed>|null}|null
      */
     public static function for(Request $request): ?array
     {
@@ -82,6 +85,7 @@ class PageSeo
                 ? 'noindex, follow'
                 : 'index, follow',
             'type' => $name === 'home' ? 'website' : 'article',
+            'schema' => $page['schema'] ?? null,
         ];
     }
 
@@ -89,7 +93,7 @@ class PageSeo
      * The title, description and photograph for one route.
      *
      * @param  array<string, mixed>  $site
-     * @return array{title: string, description: string, image?: ?Media}|null
+     * @return array{title: string, description: string, image?: ?Media, schema?: array<string, mixed>}|null
      */
     private static function page(string $name, Request $request, array $site): ?array
     {
@@ -182,7 +186,7 @@ class PageSeo
     /**
      * A room page describes that room, not rooms in general.
      *
-     * @return array{title: string, description: string, image?: ?Media}
+     * @return array{title: string, description: string, image?: ?Media, schema?: array<string, mixed>}
      */
     private static function room(Request $request, string $address): array
     {
@@ -199,6 +203,7 @@ class PageSeo
             'title' => $roomType->name,
             'description' => (string) ($roomType->tagline ?: $roomType->description),
             'image' => self::firstMedia($roomType, 'cover'),
+            'schema' => SitePresenter::roomStructuredData($roomType),
         ];
     }
 

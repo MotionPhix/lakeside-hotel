@@ -79,6 +79,12 @@
         {{-- Structured data for search engines, on the public site only. --}}
         @if (str_starts_with($page['component'] ?? '', 'public/'))
             @include('partials.hotel-schema')
+
+            {{-- And the page's own, where it has any: a room page describes the
+                 room as well as the hotel it sits in. --}}
+            @if (! empty($seo['schema']))
+                @include('partials.page-schema', ['schema' => $seo['schema']])
+            @endif
         @endif
 
     </head>

@@ -17,6 +17,12 @@ export type PageSeoData = {
     imageAlt: string;
     robots: string;
     type: string;
+    /**
+     * The page's own structured data, where it has any - a room page describes
+     * the room. Written into the HTML by the Blade template; the front end has no
+     * use for it, and it is here so the type matches what the server sends.
+     */
+    schema: Record<string, unknown> | null;
 };
 
 /**

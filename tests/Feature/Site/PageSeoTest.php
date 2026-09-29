@@ -6,6 +6,7 @@ use App\Support\PageSeo;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Route;
+use Illuminate\Support\Collection;
 
 uses(RefreshDatabase::class);
 
@@ -178,4 +179,75 @@ test('robots points crawlers at the sitemap and keeps them out of the admin', fu
         ->toContain('Sitemap: '.url('/sitemap.xml'))
         ->toContain('Disallow: /admin')
         ->toContain('Allow: /');
+});
+
+/**
+ * Pulls every JSON-LD block out of a page and decodes it.
+ *
+ * Decoding doubles as validation: malformed structured data throws here rather
+ * than reaching a search engine as a silent no-op.
+ *
+ * @return Collection<int, array<string, mixed>>
+ */
+function structuredDataIn(string $html): Collection
+{
+    preg_match_all('/<script type="application\/ld\+json">\s*(.*?)\s*<\/script>/s', $html, $matches);
+
+    return collect($matches[1])->map(
+        fn (string $json): array => json_decode($json, true, 512, JSON_THROW_ON_ERROR),
+    );
+}
+
+test('a room page describes the room, not just the hotel', function () {
+    $this->seed();
+
+    $roomType = RoomType::query()->with('amenities')->firstOrFail();
+
+    $schemas = structuredDataIn((string) $this->get(route('site.rooms.show', $roomType))->getContent());
+
+    $room = $schemas->firstWhere('@type', 'HotelRoom');
+
+    expect($room)->not->toBeNull('the room page carries no HotelRoom schema')
+        ->and($room['name'])->toBe($roomType->name)
+        ->and($room['occupancy']['maxValue'])->toBe($roomType->maxOccupancy())
+        ->and($room['offers']['priceCurrency'])->toBe('MWK')
+        ->and($room['offers']['price'])->toBe((string) $roomType->fromPrice())
+        ->and($room['amenityFeature'])->not->toBeEmpty()
+        ->and($room['image'])->not->toBeEmpty();
+
+    // The hotel is still described as well, and the room says where it is.
+    expect($schemas->firstWhere('@type', 'Hotel'))->not->toBeNull()
+        ->and($room['containedInPlace']['@type'])->toBe('Hotel');
+
+    // A crawler reading structured data has no page to resolve a relative path
+    // against, so every photograph has to be absolute.
+    foreach ($room['image'] as $url) {
+        expect($url)->toStartWith('http');
+    }
+});
+
+test('only a room page claims to be a room', function () {
+    $this->seed();
+
+    foreach (publicPages() as $path) {
+        expect((string) $this->get($path)->getContent())
+            ->not->toContain('"HotelRoom"', "{$path} is describing a room it does not have");
+    }
+});
+
+test('every page with structured data produces JSON a search engine can read', function () {
+    $this->seed();
+
+    $roomType = RoomType::query()->firstOrFail();
+
+    foreach ([...array_values(publicPages()), route('site.rooms.show', $roomType)] as $path) {
+        $schemas = structuredDataIn((string) $this->get($path)->getContent());
+
+        expect($schemas)->not->toBeEmpty("{$path} has no structured data");
+
+        foreach ($schemas as $schema) {
+            expect($schema)->toHaveKey('@context')
+                ->and($schema)->toHaveKey('@type');
+        }
+    }
 });

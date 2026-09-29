@@ -298,6 +298,116 @@ class SitePresenter
     }
 
     /**
+     * A room category described as a `HotelRoom`, for the room's own page.
+     *
+     * The site-wide `Hotel` schema says what the hotel is; this says what this
+     * particular room is, which is the thing somebody searching for a room wants
+     * to know. It is what allows a result to carry a bed, a size and a nightly
+     * price instead of just a name.
+     *
+     * The price is the "from" rate the page itself shows, so the two agree.
+     *
+     * @return array<string, mixed>
+     */
+    public static function roomStructuredData(RoomType $roomType): array
+    {
+        $site = self::settings();
+
+        $schema = [
+            '@context' => 'https://schema.org',
+            '@type' => 'HotelRoom',
+            'name' => $roomType->name,
+            'description' => $roomType->tagline ?: $roomType->description,
+            'url' => route('site.rooms.show', $roomType),
+            'occupancy' => [
+                '@type' => 'QuantitativeValue',
+                'maxValue' => $roomType->maxOccupancy(),
+            ],
+            'containedInPlace' => [
+                '@type' => 'Hotel',
+                'name' => $site['name'],
+                'address' => $site['contact']['address'],
+            ],
+        ];
+
+        $images = self::roomImages($roomType, $site);
+
+        if ($images !== []) {
+            $schema['image'] = $images;
+        }
+
+        if ($roomType->bed_configuration) {
+            $schema['bed'] = [
+                '@type' => 'BedDetails',
+                'type' => $roomType->bed_configuration,
+            ];
+        }
+
+        if ($roomType->size_sqm) {
+            $schema['floorSize'] = [
+                '@type' => 'QuantitativeValue',
+                'value' => (int) $roomType->size_sqm,
+                'unitCode' => 'MTK',
+            ];
+        }
+
+        $amenities = self::amenities($roomType->amenities);
+
+        if ($amenities !== []) {
+            $schema['amenityFeature'] = array_map(
+                fn (array $amenity): array => [
+                    '@type' => 'LocationFeatureSpecification',
+                    'name' => $amenity['name'],
+                    'value' => true,
+                ],
+                $amenities,
+            );
+        }
+
+        $price = $roomType->fromPrice();
+
+        if ($price !== null && $price !== '') {
+            $schema['offers'] = [
+                '@type' => 'Offer',
+                'price' => (string) $price,
+                'priceCurrency' => $site['booking']['currency'],
+                'availability' => 'https://schema.org/InStock',
+                'url' => route('site.rooms.show', $roomType),
+            ];
+        }
+
+        return $schema;
+    }
+
+    /**
+     * Every photograph of a room, as absolute URLs.
+     *
+     * Absolute because a crawler reading structured data has no page to resolve a
+     * relative path against.
+     *
+     * @param  array<string, mixed>  $site
+     * @return list<string>
+     */
+    private static function roomImages(RoomType $roomType, array $site): array
+    {
+        $paths = [];
+
+        $cover = self::cover($roomType);
+
+        if ($cover !== null) {
+            $paths[] = $cover['hero'];
+        }
+
+        foreach (self::gallery($roomType) as $image) {
+            $paths[] = $image['hero'];
+        }
+
+        return array_values(array_unique(
+            array_map(fn (string $path): string => $site['url'].$path, $paths),
+        ));
+    }
+
+    /**
      * @return array<string, mixed>
      */
     public static function menuItem(MenuItem $item): array
