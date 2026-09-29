@@ -234,7 +234,7 @@ export default function BookingIndex({
                 )}
 
                 {searched && offers.length > 0 && (
-                    <div className="mt-10 grid gap-6 lg:grid-cols-2">
+                    <div className="mt-10 grid gap-6 lg:auto-rows-fr lg:grid-cols-2">
                         {offers.map((offer, index) => (
                             <Reveal key={offer.slug} delay={index * 60}>
                                 <OfferResult
@@ -265,7 +265,7 @@ export default function BookingIndex({
                     />
                 </Reveal>
 
-                <div className="mt-12 grid gap-6 md:grid-cols-3">
+                <div className="mt-12 grid gap-6 md:auto-rows-fr md:grid-cols-3">
                     <Reveal>
                         <PolicyCard
                             title="Paying"

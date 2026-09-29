@@ -95,7 +95,7 @@ export default function Events({
                             description="Each hall can be set up theatre style, as a classroom or as a boardroom, and they combine for larger gatherings."
                         />
                     </Reveal>
-                    <div className="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                    <div className="mt-12 grid gap-6 md:auto-rows-fr md:grid-cols-2 lg:grid-cols-3">
                         {halls.map((hall, index) => (
                             <Reveal key={hall.id} delay={index * 70}>
                                 <article className="flex h-full flex-col rounded-xl border border-navy/10 bg-white p-6">
@@ -183,7 +183,7 @@ export default function Events({
                             description="Day delegate rates, residential retreats and half day meetings, all catered from our own kitchen."
                         />
                     </Reveal>
-                    <div className="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                    <div className="mt-12 grid gap-6 md:auto-rows-fr md:grid-cols-2 lg:grid-cols-3">
                         {conferencePackages.map((pkg, index) => (
                             <Reveal key={pkg.id} delay={index * 70}>
                                 <PackageCard pkg={pkg} />
@@ -202,7 +202,7 @@ export default function Events({
                             description="Say it on the sand, celebrate on the terrace, with the sun going down behind you."
                         />
                     </Reveal>
-                    <div className="mt-12 grid gap-6 md:grid-cols-2">
+                    <div className="mt-12 grid gap-6 md:auto-rows-fr md:grid-cols-2">
                         {weddingPackages.map((pkg, index) => (
                             <Reveal key={pkg.id} delay={index * 70}>
                                 <PackageCard pkg={pkg} />

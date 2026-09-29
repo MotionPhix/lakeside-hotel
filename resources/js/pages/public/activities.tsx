@@ -30,7 +30,7 @@ export default function Activities({ activities }: Props) {
             />
 
             <Section tone="white">
-                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                <div className="grid gap-6 sm:auto-rows-fr sm:grid-cols-2 lg:grid-cols-3">
                     {activities.map((activity, index) => (
                         <Reveal key={activity.id} delay={index * 55}>
                             <ActivityCard activity={activity} />

@@ -161,7 +161,7 @@ export default function Home({
                         </Reveal>
                     </div>
 
-                    <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                    <div className="mt-12 grid gap-6 sm:auto-rows-fr sm:grid-cols-2 lg:grid-cols-3">
                         {roomTypes.map((roomType, index) => (
                             <Reveal key={roomType.id} delay={index * 70}>
                                 <RoomCard roomType={roomType} />
@@ -181,7 +181,7 @@ export default function Home({
                             align="center"
                         />
                     </Reveal>
-                    <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                    <div className="mt-12 grid gap-4 sm:auto-rows-fr sm:grid-cols-2 lg:grid-cols-3">
                         {amenities.map((amenity, index) => (
                             <Reveal key={amenity.id} delay={index * 40}>
                                 <AmenityTile amenity={amenity} />
@@ -203,7 +203,7 @@ export default function Home({
                         />
                     </Reveal>
 
-                    <div className="mt-12 grid gap-8 lg:grid-cols-3">
+                    <div className="mt-12 grid gap-8 lg:auto-rows-fr lg:grid-cols-3">
                         {diningVenues.map((venue, index) => (
                             <Reveal key={venue.id} delay={index * 80}>
                                 <div className="flex h-full flex-col">
@@ -273,7 +273,7 @@ export default function Home({
                             description="Sunset cruises, fishing at dawn, snorkelling over the rock shelves, or nothing at all."
                         />
                     </Reveal>
-                    <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                    <div className="mt-12 grid gap-6 sm:auto-rows-fr sm:grid-cols-2 lg:grid-cols-3">
                         {activities.map((activity, index) => (
                             <Reveal key={activity.id} delay={index * 60}>
                                 <ActivityCard activity={activity} />
@@ -308,7 +308,7 @@ export default function Home({
                         min-width:auto, so one wide card can push the grid - and
                         the page - past the viewport. It shows up on Windows,
                         where a visible scrollbar takes ~5px off the viewport. */}
-                    <div className="mt-12 grid gap-6 [&>*]:min-w-0 md:grid-cols-2 lg:grid-cols-3">
+                    <div className="mt-12 grid gap-6 [&>*]:min-w-0 md:auto-rows-fr md:grid-cols-2 lg:grid-cols-3">
                         {conferencePackages.map((pkg, index) => (
                             <Reveal key={pkg.id} delay={index * 70}>
                                 <PackageCard pkg={pkg} />
@@ -347,7 +347,7 @@ export default function Home({
                             </Button>
                         </Reveal>
                     </div>
-                    <div className="mt-12 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                    <div className="mt-12 grid gap-3 sm:auto-rows-fr sm:grid-cols-2 lg:grid-cols-4">
                         {gallery.map((item, index) => (
                             <Reveal key={item.id} delay={index * 40}>
                                 <GalleryTile item={item} />
@@ -372,7 +372,7 @@ export default function Home({
                         min-width:auto, so one wide card can push the grid - and
                         the page - past the viewport. It shows up on Windows,
                         where a visible scrollbar takes ~5px off the viewport. */}
-                    <div className="mt-12 grid gap-6 [&>*]:min-w-0 md:grid-cols-2 lg:grid-cols-3">
+                    <div className="mt-12 grid gap-6 [&>*]:min-w-0 md:auto-rows-fr md:grid-cols-2 lg:grid-cols-3">
                         {testimonials.map((testimonial, index) => (
                             <Reveal key={testimonial.id} delay={index * 60}>
                                 <TestimonialCard testimonial={testimonial} />
@@ -398,7 +398,7 @@ export default function Home({
                         min-width:auto, so one wide card can push the grid - and
                         the page - past the viewport. It shows up on Windows,
                         where a visible scrollbar takes ~5px off the viewport. */}
-                    <div className="mt-12 grid gap-6 [&>*]:min-w-0 md:grid-cols-2 lg:grid-cols-3">
+                    <div className="mt-12 grid gap-6 [&>*]:min-w-0 md:auto-rows-fr md:grid-cols-2 lg:grid-cols-3">
                         {offers.map((offer, index) => (
                             <Reveal key={offer.id} delay={index * 70}>
                                 <OfferCard offer={offer} tone="navy" />

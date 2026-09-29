@@ -454,20 +454,20 @@ export function AttractionCard({
     attraction: NearbyAttractionData;
 }) {
     return (
-        <div className="flex gap-4 rounded-xl border border-navy/10 bg-white p-5">
+        <div className="flex h-full gap-4 rounded-xl border border-navy/10 bg-white p-5">
             <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-sand text-lake">
                 <MapPin className="size-5" aria-hidden />
             </span>
             {/* min-w-0 so the text column can be narrower than its longest word.
                 Without it a flex child refuses to shrink past its content, which
                 is how a long place name pushes a card wider than its column. */}
-            <div className="min-w-0">
+            <div className="min-w-0 flex-1">
                 {/* Two lines of room reserved, whether or not the name needs
                     them. "Nkhotakota Wildlife Reserve" wraps and "Salima Town
                     Centre" does not, and side by side that difference used to
                     push the distance line and the description out of step
                     across the row. */}
-                <h3 className="line-clamp-2 min-h-12 font-medium text-navy">
+                <h3 className="min-h-[2lh] font-medium text-navy">
                     {attraction.name}
                 </h3>
                 {attraction.distance_km && (
@@ -478,8 +478,12 @@ export function AttractionCard({
                             : ''}
                     </p>
                 )}
+                {/* Three lines reserved, as on the facility tiles. The row of
+                    three short descriptions was drawing a shallower card than the
+                    row beside it, which is the difference the eye reads as
+                    uneven heights even when every card in a row matches. */}
                 {attraction.description && (
-                    <p className="mt-2 text-sm leading-relaxed text-navy/65">
+                    <p className="mt-2 min-h-[3lh] text-sm leading-relaxed text-navy/65">
                         {attraction.description}
                     </p>
                 )}

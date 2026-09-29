@@ -35,7 +35,7 @@ export default function Offers({ offers }: Props) {
                         about the best available rate for your dates.
                     </p>
                 ) : (
-                    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                    <div className="grid gap-6 md:auto-rows-fr md:grid-cols-2 lg:grid-cols-3">
                         {offers.map((offer, index) => (
                             <Reveal key={offer.id} delay={index * 60}>
                                 <OfferCard offer={offer} />

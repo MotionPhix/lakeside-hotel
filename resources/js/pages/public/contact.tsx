@@ -175,9 +175,27 @@ export default function Contact({ attractions }: Props) {
                             title="Nearby"
                         />
                     </Reveal>
-                    <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                    {/* auto-rows-fr is what actually makes these equal. Reserving
+                        lines inside each card only helps while every card's text
+                        fits the reserve - and it does not: at 1024 one
+                        description runs to five lines, so its whole row grows and
+                        the two rows drift apart. Giving every row the same
+                        fraction of height levels them whatever is written in
+                        them. Only from `sm`, where cards sit side by side and the
+                        comparison is visible; a single column of cards is
+                        stacked, and stretching each to the tallest would only add
+                        white space. */}
+                    <div className="mt-10 grid gap-4 sm:auto-rows-fr sm:grid-cols-2 lg:grid-cols-3">
                         {attractions.slice(0, 6).map((attraction, index) => (
-                            <Reveal key={attraction.id} delay={index * 45}>
+                            /* h-full so the height the grid gives the wrapper
+                               reaches the card inside it. Without it the row is
+                               stretched and the card is not, and the borders end
+                               at three different heights. */
+                            <Reveal
+                                key={attraction.id}
+                                delay={index * 45}
+                                className="h-full"
+                            >
                                 <AttractionCard attraction={attraction} />
                             </Reveal>
                         ))}

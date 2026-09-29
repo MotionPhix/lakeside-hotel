@@ -127,9 +127,13 @@ export default function About({ about, lake, attractions }: Props) {
                             description="Everything within an easy drive of Senga Bay."
                         />
                     </Reveal>
-                    <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                    <div className="mt-12 grid gap-4 sm:auto-rows-fr sm:grid-cols-2 lg:grid-cols-3">
                         {attractions.map((attraction, index) => (
-                            <Reveal key={attraction.id} delay={index * 45}>
+                            <Reveal
+                                key={attraction.id}
+                                delay={index * 45}
+                                className="h-full"
+                            >
                                 <AttractionCard attraction={attraction} />
                             </Reveal>
                         ))}

@@ -220,7 +220,7 @@ export default function RoomShow({ roomType, otherRoomTypes }: Props) {
                             title="Other rooms you may like"
                         />
                     </Reveal>
-                    <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                    <div className="mt-10 grid gap-6 sm:auto-rows-fr sm:grid-cols-2 lg:grid-cols-3">
                         {otherRoomTypes.map((other, index) => (
                             <Reveal key={other.id} delay={index * 60}>
                                 <RoomCard roomType={other} />
