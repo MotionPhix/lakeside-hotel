@@ -1,4 +1,4 @@
-import { Head } from '@inertiajs/react';
+import { SeoHead } from '@/components/public/seo-head';
 import { Info } from 'lucide-react';
 import { ActivityCard } from '@/components/public/cards';
 import { ContactCta } from '@/components/public/contact-cta';
@@ -14,12 +14,7 @@ type Props = {
 export default function Activities({ activities }: Props) {
     return (
         <>
-            <Head title="Activities & Experiences">
-                <meta
-                    name="description"
-                    content="Lake Malawi activities at Senga Bay: sunset cruises, fishing trips, snorkelling, kayaking, village walks and team building with Lakeside Hotel."
-                />
-            </Head>
+            <SeoHead />
 
             <PageHero
                 eyebrow="Experiences"

@@ -1,4 +1,5 @@
-import { Head, usePage } from '@inertiajs/react';
+import { usePage } from '@inertiajs/react';
+import { SeoHead } from '@/components/public/seo-head';
 import { Clock, CreditCard, Percent, Users } from 'lucide-react';
 import { ContactCta } from '@/components/public/contact-cta';
 import { PageHero } from '@/components/public/page-hero';
@@ -50,12 +51,7 @@ export default function Policies({ policies, transfers }: Props) {
 
     return (
         <>
-            <Head title="Booking policies">
-                <meta
-                    name="description"
-                    content="Check in and check out times, deposits, cancellation policy, child policy and airport transfers at Lakeside Hotel and Conference Centre, Senga Bay."
-                />
-            </Head>
+            <SeoHead />
 
             <PageHero
                 eyebrow="Before you book"

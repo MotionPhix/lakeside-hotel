@@ -1,4 +1,5 @@
-import { Head, Link, usePage } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
+import { SeoHead } from '@/components/public/seo-head';
 import { BedDouble, CalendarCheck, Ruler, Users } from 'lucide-react';
 import { RoomCard } from '@/components/public/cards';
 import { ContactCta } from '@/components/public/contact-cta';
@@ -53,12 +54,7 @@ export default function RoomShow({ roomType, otherRoomTypes }: Props) {
 
     return (
         <>
-            <Head title={roomType.name}>
-                <meta
-                    name="description"
-                    content={roomType.tagline ?? roomType.description}
-                />
-            </Head>
+            <SeoHead />
 
             <PageHero
                 eyebrow="Accommodation"

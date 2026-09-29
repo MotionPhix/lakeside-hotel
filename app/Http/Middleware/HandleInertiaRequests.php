@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use App\Models\User;
+use App\Support\PageSeo;
 use App\Support\SitePresenter;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
@@ -45,6 +46,14 @@ class HandleInertiaRequests extends Middleware
                 'user' => $this->authenticatedUser($request),
             ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
+
+            /*
+             * Left as a closure so it is built when the response is assembled,
+             * which is after route model binding has run. A room page can then
+             * describe the room it is actually showing rather than rooms in
+             * general.
+             */
+            'seo' => fn (): ?array => PageSeo::for($request),
         ];
     }
 

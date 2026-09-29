@@ -1,4 +1,5 @@
-import { Head, Link, usePage } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
+import { SeoHead } from '@/components/public/seo-head';
 import { ArrowRight, Mail, MapPin, MessageCircle, Phone } from 'lucide-react';
 import { BookingWidget } from '@/components/public/booking-widget';
 import {
@@ -71,12 +72,7 @@ export default function Home({
 
     return (
         <>
-            <Head title={site.tagline}>
-                <meta
-                    name="description"
-                    content={`${site.name} in Senga Bay, Salima. Rooms, suites, lakeside chalets, dining, conferences and lake activities on Lake Malawi.`}
-                />
-            </Head>
+            <SeoHead />
 
             <HomeHero
                 slides={heroSlides}

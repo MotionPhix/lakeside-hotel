@@ -1,4 +1,4 @@
-import { Head } from '@inertiajs/react';
+import { SeoHead } from '@/components/public/seo-head';
 import { AmenityTile, RoomCard } from '@/components/public/cards';
 import { ContactCta } from '@/components/public/contact-cta';
 import { PageHero } from '@/components/public/page-hero';
@@ -14,12 +14,7 @@ type Props = {
 export default function RoomsIndex({ roomTypes, amenities }: Props) {
     return (
         <>
-            <Head title="Rooms & Suites">
-                <meta
-                    name="description"
-                    content="Rooms, executive suites, family rooms and lakeside chalets at Lakeside Hotel and Conference Centre, Senga Bay, Salima."
-                />
-            </Head>
+            <SeoHead />
 
             <PageHero
                 eyebrow="Accommodation"

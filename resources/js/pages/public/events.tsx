@@ -1,4 +1,5 @@
-import { Head, Link } from '@inertiajs/react';
+import { Link } from '@inertiajs/react';
+import { SeoHead } from '@/components/public/seo-head';
 import { ArrowRight, Users } from 'lucide-react';
 import { AmenityIcon } from '@/components/public/amenity-icon';
 import { PackageCard } from '@/components/public/cards';
@@ -45,12 +46,7 @@ export default function Events({
 
     return (
         <>
-            <Head title="Conferences & Events">
-                <meta
-                    name="description"
-                    content="Conference facilities and event packages at Lakeside Hotel and Conference Centre, Senga Bay. Meetings, corporate retreats, weddings and private events on Lake Malawi."
-                />
-            </Head>
+            <SeoHead />
 
             <PageHero
                 eyebrow="Conferences & events"

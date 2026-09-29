@@ -1,4 +1,5 @@
-import { Head, Link, usePage } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
+import { SeoHead } from '@/components/public/seo-head';
 import { ArrowRight } from 'lucide-react';
 import { AttractionCard } from '@/components/public/cards';
 import { ContactCta } from '@/components/public/contact-cta';
@@ -25,12 +26,7 @@ export default function About({ about, lake, attractions }: Props) {
 
     return (
         <>
-            <Head title="About us">
-                <meta
-                    name="description"
-                    content={`About ${site.name}: a lakeside hotel and conference centre on the shore of Lake Malawi at Senga Bay, Salima.`}
-                />
-            </Head>
+            <SeoHead />
 
             <PageHero
                 eyebrow="About"

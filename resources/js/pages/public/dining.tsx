@@ -1,4 +1,4 @@
-import { Head } from '@inertiajs/react';
+import { SeoHead } from '@/components/public/seo-head';
 import { Clock, Shirt, Star } from 'lucide-react';
 import { ContactCta } from '@/components/public/contact-cta';
 import { PageHero } from '@/components/public/page-hero';
@@ -16,12 +16,7 @@ type Props = {
 export default function Dining({ intro, venues }: Props) {
     return (
         <>
-            <Head title="Restaurant & Dining">
-                <meta
-                    name="description"
-                    content="Dining at Lakeside Hotel and Conference Centre, Senga Bay: chambo and tilapia from Lake Malawi, a terrace restaurant, the Anchor Bar and a poolside bar."
-                />
-            </Head>
+            <SeoHead />
 
             <PageHero
                 eyebrow="Dining"

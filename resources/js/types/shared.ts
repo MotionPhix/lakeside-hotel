@@ -2,6 +2,24 @@ import type { Auth } from '@/types/auth';
 import type { SiteSettings } from '@/types/hotel';
 
 /**
+ * What the server tells a search engine and a link preview about this page.
+ *
+ * Built by `App\Support\PageSeo`. The same values are written into the HTML
+ * server-side, because the scrapers behind a link preview never run JavaScript -
+ * this copy is what keeps the title right as somebody moves around the site
+ * without a full page load.
+ */
+export type PageSeoData = {
+    title: string;
+    description: string;
+    canonical: string;
+    image: string;
+    imageAlt: string;
+    robots: string;
+    type: string;
+};
+
+/**
  * Props Inertia shares with every response. Mirrors
  * `App\Http\Middleware\HandleInertiaRequests::share()`.
  */
@@ -10,4 +28,6 @@ export type SharedData = {
     site: SiteSettings;
     auth: Auth;
     sidebarOpen: boolean;
+    /** Null on the staff side, which is not published. */
+    seo: PageSeoData | null;
 };

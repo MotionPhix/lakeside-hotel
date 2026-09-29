@@ -1,4 +1,5 @@
-import { Head, router } from '@inertiajs/react';
+import { router } from '@inertiajs/react';
+import { SeoHead } from '@/components/public/seo-head';
 import { BedDouble, CalendarDays, Search, Users } from 'lucide-react';
 import type { FormEvent } from 'react';
 import { useState } from 'react';
@@ -80,12 +81,7 @@ export default function BookingIndex({
 
     return (
         <>
-            <Head title="Book your stay">
-                <meta
-                    name="description"
-                    content="Check availability and book a room at Lakeside Hotel and Conference Centre, Senga Bay, Salima."
-                />
-            </Head>
+            <SeoHead />
 
             <PageHero
                 eyebrow="Book a stay"

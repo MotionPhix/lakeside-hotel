@@ -1,4 +1,5 @@
-import { Head, router } from '@inertiajs/react';
+import { router } from '@inertiajs/react';
+import { SeoHead } from '@/components/public/seo-head';
 import { CreditCard, Mail, Printer } from 'lucide-react';
 import { useState } from 'react';
 import { ContactCta } from '@/components/public/contact-cta';
@@ -43,9 +44,7 @@ export default function BookingShow({ reservation, booking }: Props) {
 
     return (
         <>
-            <Head title={`Booking ${reservation.reference}`}>
-                <meta name="robots" content="noindex" />
-            </Head>
+            <SeoHead />
 
             <PageHero
                 eyebrow="Your booking"

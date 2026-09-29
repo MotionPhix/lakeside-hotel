@@ -42,8 +42,38 @@
 
         @viteReactRefresh
         @vite(['resources/css/app.css', 'resources/js/app.tsx', "resources/js/pages/{$page['component']}.tsx"])
+        @php
+            /*
+             * Written into the HTML here rather than left to the front end,
+             * because the scrapers that build a link preview - WhatsApp,
+             * Facebook, LinkedIn - do not run JavaScript. They read what the
+             * server sends, so a share card assembled in the browser is a share
+             * card they never see.
+             */
+            $seo = $page['props']['seo'] ?? null;
+        @endphp
+
         <x-inertia::head>
-            <title>{{ config('app.name', 'Laravel') }}</title>
+            <title>{{ $seo['title'] ?? config('app.name', 'Laravel') }}</title>
+
+            @if ($seo)
+                <meta name="description" content="{{ $seo['description'] }}">
+                <meta name="robots" content="{{ $seo['robots'] }}">
+                <link rel="canonical" href="{{ $seo['canonical'] }}">
+
+                <meta property="og:type" content="{{ $seo['type'] }}">
+                <meta property="og:site_name" content="{{ config('app.name') }}">
+                <meta property="og:title" content="{{ $seo['title'] }}">
+                <meta property="og:description" content="{{ $seo['description'] }}">
+                <meta property="og:url" content="{{ $seo['canonical'] }}">
+                <meta property="og:image" content="{{ $seo['image'] }}">
+                <meta property="og:image:alt" content="{{ $seo['imageAlt'] }}">
+
+                <meta name="twitter:card" content="summary_large_image">
+                <meta name="twitter:title" content="{{ $seo['title'] }}">
+                <meta name="twitter:description" content="{{ $seo['description'] }}">
+                <meta name="twitter:image" content="{{ $seo['image'] }}">
+            @endif
         </x-inertia::head>
 
         {{-- Structured data for search engines, on the public site only. --}}

@@ -1,4 +1,4 @@
-import { Head } from '@inertiajs/react';
+import { SeoHead } from '@/components/public/seo-head';
 import { OfferCard } from '@/components/public/cards';
 import { ContactCta } from '@/components/public/contact-cta';
 import { PageHero } from '@/components/public/page-hero';
@@ -13,12 +13,7 @@ type Props = {
 export default function Offers({ offers }: Props) {
     return (
         <>
-            <Head title="Special Offers">
-                <meta
-                    name="description"
-                    content="Special offers at Lakeside Hotel and Conference Centre, Senga Bay: weekend specials, stay 3 pay 2, honeymoon packages, corporate rates and green season discounts."
-                />
-            </Head>
+            <SeoHead />
 
             <PageHero
                 eyebrow="Special offers"

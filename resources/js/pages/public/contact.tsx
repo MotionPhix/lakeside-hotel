@@ -1,4 +1,5 @@
-import { Head, usePage } from '@inertiajs/react';
+import { usePage } from '@inertiajs/react';
+import { SeoHead } from '@/components/public/seo-head';
 import { Clock, Mail, MapPin, MessageCircle, Phone } from 'lucide-react';
 import { AttractionCard } from '@/components/public/cards';
 import { ContactForm } from '@/components/public/contact-form';
@@ -53,12 +54,7 @@ export default function Contact({ attractions }: Props) {
 
     return (
         <>
-            <Head title="Contact us">
-                <meta
-                    name="description"
-                    content={`Contact ${site.name} in Senga Bay, Salima: phone, WhatsApp, email, directions and a contact form.`}
-                />
-            </Head>
+            <SeoHead />
 
             <PageHero
                 eyebrow="Contact"

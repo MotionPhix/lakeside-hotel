@@ -1,4 +1,5 @@
-import { Head, useForm } from '@inertiajs/react';
+import { useForm } from '@inertiajs/react';
+import { SeoHead } from '@/components/public/seo-head';
 import { CalendarDays, Check, Users } from 'lucide-react';
 import type { FormEvent } from 'react';
 import InputError from '@/components/input-error';
@@ -67,12 +68,7 @@ export default function BookingCreate({ search, offer, booking }: Props) {
 
     return (
         <>
-            <Head title="Your details">
-                <meta
-                    name="description"
-                    content="Confirm your stay at Lakeside Hotel and Conference Centre."
-                />
-            </Head>
+            <SeoHead />
 
             <PageHero
                 eyebrow="Almost there"

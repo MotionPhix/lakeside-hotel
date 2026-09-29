@@ -1,4 +1,4 @@
-import { Head } from '@inertiajs/react';
+import { SeoHead } from '@/components/public/seo-head';
 import { useMemo, useState } from 'react';
 import { GalleryTile } from '@/components/public/cards';
 import { ContactCta } from '@/components/public/contact-cta';
@@ -28,12 +28,7 @@ export default function Gallery({ items, categories }: Props) {
 
     return (
         <>
-            <Head title="Gallery">
-                <meta
-                    name="description"
-                    content="Photographs and video from Lakeside Hotel and Conference Centre in Senga Bay, Salima: the lake, rooms, dining, activities and events."
-                />
-            </Head>
+            <SeoHead />
 
             <PageHero
                 eyebrow="Gallery"
