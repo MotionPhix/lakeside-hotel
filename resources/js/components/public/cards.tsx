@@ -1,4 +1,5 @@
 import { Link } from '@inertiajs/react';
+import type { MouseEvent } from 'react';
 import {
     BedDouble,
     CalendarRange,
@@ -502,17 +503,58 @@ export function AttractionCard({
     );
 }
 
-export function GalleryTile({ item }: { item: GalleryItemData }) {
+/**
+ * One photograph in a gallery grid.
+ *
+ * `onOpen` turns the photograph into something that can be opened, which is what
+ * the gallery page does and the homepage strip does not - it has nowhere to send a
+ * click - so leaving it out leaves the tile exactly as it was.
+ *
+ * The caption used to arrive on hover alone, which meant a guest on a phone never
+ * saw it and neither did anybody using a keyboard. It now also comes up while the
+ * button inside holds focus, and the viewer repeats it in full for a tap.
+ */
+export function GalleryTile({
+    item,
+    onOpen,
+}: {
+    item: GalleryItemData;
+    /**
+     * Receives the click, so the caller can hold on to the button and hand the
+     * keyboard back to it when the viewer closes.
+     */
+    onOpen?: (event: MouseEvent<HTMLButtonElement>) => void;
+}) {
+    const label = item.image?.alt || item.title || 'Lakeside Hotel';
+
     return (
         <figure className="group relative overflow-hidden rounded-lg bg-sand">
-            <CardImage
-                image={item.image}
-                alt={item.image?.alt || item.title || 'Lakeside Hotel'}
-                label={item.title ?? undefined}
-                className="aspect-4/3"
-            />
+            {onOpen ? (
+                <button
+                    type="button"
+                    onClick={onOpen}
+                    /* The magnifier says "this opens" before the click lands. */
+                    className="block w-full cursor-zoom-in"
+                    aria-label={`Open ${item.title ?? 'this photograph'} larger`}
+                >
+                    <CardImage
+                        image={item.image}
+                        alt={label}
+                        label={item.title ?? undefined}
+                        className="aspect-4/3"
+                    />
+                </button>
+            ) : (
+                <CardImage
+                    image={item.image}
+                    alt={label}
+                    label={item.title ?? undefined}
+                    className="aspect-4/3"
+                />
+            )}
+
             {(item.title || item.caption) && (
-                <figcaption className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-navy/85 to-transparent p-4 pt-10 text-white opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                <figcaption className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-navy/85 to-transparent p-4 pt-10 text-white opacity-0 transition-opacity duration-300 group-focus-within:opacity-100 group-hover:opacity-100">
                     {item.title && (
                         <p className="font-display font-semibold">
                             {item.title}

@@ -1,7 +1,8 @@
 import { SeoHead } from '@/components/public/seo-head';
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { GalleryTile } from '@/components/public/cards';
 import { ContactCta } from '@/components/public/contact-cta';
+import { GalleryViewer } from '@/components/public/gallery-viewer';
 import { PageHero } from '@/components/public/page-hero';
 import { Section } from '@/components/public/section';
 import { cn } from '@/lib/utils';
@@ -16,6 +17,14 @@ type Props = {
 export default function Gallery({ items, categories }: Props) {
     const [active, setActive] = useState<string>('all');
 
+    /* Which of the visible photographs the viewer has open, by position, or null
+       when it is closed. */
+    const [openIndex, setOpenIndex] = useState<number | null>(null);
+
+    /* The photograph that opened it, so closing the viewer gives the keyboard back
+       to the tile the guest was standing on. */
+    const openedFrom = useRef<HTMLElement | null>(null);
+
     const visible = useMemo(
         () =>
             active === 'all'
@@ -25,6 +34,17 @@ export default function Gallery({ items, categories }: Props) {
     );
 
     const filters = ['all', ...categories];
+
+    /*
+     * The viewer walks through `visible`, so its positions only mean anything
+     * against the filter that produced them. Changing the filter therefore closes
+     * it: left open, it would be pointing at a photograph from a set the guest is
+     * no longer looking at.
+     */
+    const showCategory = (category: string) => {
+        setActive(category);
+        setOpenIndex(null);
+    };
 
     return (
         <>
@@ -43,7 +63,7 @@ export default function Gallery({ items, categories }: Props) {
                         <button
                             key={category}
                             type="button"
-                            onClick={() => setActive(category)}
+                            onClick={() => showCategory(category)}
                             aria-pressed={active === category}
                             className={cn(
                                 'rounded-full border px-4 py-2 text-sm font-medium transition-colors',
@@ -65,17 +85,31 @@ export default function Gallery({ items, categories }: Props) {
                     </p>
                 ) : (
                     <div className="mt-10 columns-1 gap-3 sm:columns-2 lg:columns-3 [&>figure]:mb-3">
-                        {visible.map((item) => (
+                        {visible.map((item, position) => (
                             <figure
                                 key={item.id}
                                 className="break-inside-avoid"
                             >
-                                <GalleryTile item={item} />
+                                <GalleryTile
+                                    item={item}
+                                    onOpen={(event) => {
+                                        openedFrom.current =
+                                            event.currentTarget;
+                                        setOpenIndex(position);
+                                    }}
+                                />
                             </figure>
                         ))}
                     </div>
                 )}
             </Section>
+
+            <GalleryViewer
+                items={visible}
+                index={openIndex}
+                onIndexChange={setOpenIndex}
+                restoreFocusTo={openedFrom}
+            />
 
             <ContactCta
                 title="Want to see it in person?"
