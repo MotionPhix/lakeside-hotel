@@ -1,5 +1,6 @@
 import { Link, usePage } from '@inertiajs/react';
 import { Clock, Facebook, Instagram, Mail, MapPin, Phone } from 'lucide-react';
+import { NavLink } from '@/components/public/nav-link';
 import { NewsletterForm } from '@/components/public/newsletter-form';
 import { footerNav, siteNav, whatsappLink } from '@/lib/site-nav';
 import { login } from '@/routes';
@@ -79,12 +80,9 @@ export function SiteFooter() {
                     <ul className="mt-4 space-y-2.5 text-sm">
                         {siteNav.map((item) => (
                             <li key={item.title}>
-                                <Link
-                                    href={item.href}
-                                    className="text-sand/75 transition-colors hover:text-white"
-                                >
+                                <NavLink href={item.href} variant="footer">
                                     {item.title}
-                                </Link>
+                                </NavLink>
                             </li>
                         ))}
                     </ul>
@@ -176,12 +174,9 @@ export function SiteFooter() {
                     <ul className="mt-6 space-y-2 text-sm">
                         {footerNav.map((item) => (
                             <li key={item.title}>
-                                <Link
-                                    href={item.href}
-                                    className="text-sand/75 transition-colors hover:text-white"
-                                >
+                                <NavLink href={item.href} variant="footer">
                                     {item.title}
-                                </Link>
+                                </NavLink>
                             </li>
                         ))}
                     </ul>

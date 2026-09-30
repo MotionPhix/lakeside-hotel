@@ -286,6 +286,9 @@ button[aria-haspopup='dialog'] {
  * cannot be lost the same way. `:focus-visible` keeps it to keyboard users, so a
  * mouse click shows nothing extra.
  *
+ * Links are covered too, by the rule below, since the navigation is the thing a
+ * keyboard user reaches first and uses most.
+ *
  * 2px at a 2px offset is the indicator WCAG 2.4.13 asks for: a change of perimeter
  * rather than of colour alone, and clear of the control's own border.
  */
@@ -296,6 +299,28 @@ textarea:focus-visible,
 button[aria-haspopup='dialog']:focus-visible,
 [data-slot='button']:focus-visible {
     outline: 2px solid var(--color-lake);
+    outline-offset: 2px;
+}
+
+/*
+ * A link is the exception, and has to be.
+ *
+ * Its own colour is the one thing on the page guaranteed to contrast with
+ * whatever the link is sitting on - sand on the navy footer, navy on the white
+ * header - and no single colour manages both. The lake that reads clearly on
+ * white measures 1.9:1 against the footer's navy, so a fixed ring would be at its
+ * faintest in the one place a keyboard user is furthest from the top of the page.
+ *
+ * There is a second reason it takes the link's own colour. These links carry
+ * `transition-colors`, which transitions `outline-color` as well, so a fixed
+ * colour does not appear - it fades in from the text colour over 150ms, settling
+ * from sand or navy into lake. With nothing to travel, there is nothing to fade.
+ *
+ * Button-styled links are excluded. Their colour is the button's, which is white
+ * on navy, and a white ring around a button on a white page is no ring at all.
+ */
+a[href]:not([data-slot='button']):focus-visible {
+    outline: 2px solid currentColor;
     outline-offset: 2px;
 }
 

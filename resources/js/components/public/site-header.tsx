@@ -1,6 +1,7 @@
 import { Link, usePage } from '@inertiajs/react';
 import { CalendarCheck, Phone } from 'lucide-react';
 import { ListSortDescending } from '@/components/icons/list-sort-descending';
+import { NavLink } from '@/components/public/nav-link';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
@@ -25,17 +26,23 @@ import type { SharedData } from '@/types';
 export function SiteHeader() {
     const { site } = usePage<SharedData>().props;
     const [open, setOpen] = useState(false);
-    const { isCurrentOrParentUrl } = useCurrentUrl();
+    const { isCurrentUrl } = useCurrentUrl();
 
     const bookingLink = bookingRoutes.index.url();
 
     return (
         <header className="sticky top-0 z-50 border-b border-navy/10 bg-white">
             <div className="mx-auto flex h-18 max-w-7xl items-center justify-between gap-4 px-5 sm:px-8">
+                {/*
+                    The logo is the only way home from the desktop bar - there is
+                    no Home link beside the other eight - so it is what carries
+                    "you are here" on the homepage, where no other item is current.
+                */}
                 <Link
                     href={home()}
                     className="flex shrink-0 items-center"
                     aria-label={`${site.name} home`}
+                    aria-current={isCurrentUrl(home()) ? 'page' : undefined}
                 >
                     <img
                         src={site.logo}
@@ -67,21 +74,13 @@ export function SiteHeader() {
                     className="hidden items-center gap-0.5 xl:flex"
                 >
                     {siteNav.map((item) => (
-                        <Link
+                        <NavLink
                             key={item.title}
                             href={item.href}
-                            className={`rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-sand hover:text-lake ${
-                                isCurrentOrParentUrl(
-                                    typeof item.href === 'string'
-                                        ? item.href
-                                        : item.href.url,
-                                )
-                                    ? 'text-lake'
-                                    : 'text-navy/80'
-                            }`}
+                            variant="header"
                         >
                             {item.title}
-                        </Link>
+                        </NavLink>
                     ))}
                 </nav>
 
@@ -129,22 +128,22 @@ export function SiteHeader() {
                         </SheetTitle>
 
                         <div className="flex flex-col gap-1 px-4 pt-8">
-                            <Link
+                            <NavLink
                                 href={home()}
-                                onClick={() => setOpen(false)}
-                                className="rounded-md px-3 py-3 font-display text-lg font-semibold text-navy"
+                                variant="mobile"
+                                onNavigate={() => setOpen(false)}
                             >
                                 Home
-                            </Link>
+                            </NavLink>
                             {siteNav.map((item) => (
-                                <Link
+                                <NavLink
                                     key={item.title}
                                     href={item.href}
-                                    onClick={() => setOpen(false)}
-                                    className="rounded-md px-3 py-3 font-display text-lg font-semibold text-navy"
+                                    variant="mobile"
+                                    onNavigate={() => setOpen(false)}
                                 >
                                     {item.title}
-                                </Link>
+                                </NavLink>
                             ))}
                         </div>
 
