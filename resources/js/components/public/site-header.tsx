@@ -44,8 +44,8 @@ export function SiteHeader() {
                            height and lets the width follow, and the browser needs
                            to know the ratio before the image arrives or the whole
                            header moves down the moment it does. */
-                        width={2888}
-                        height={1375}
+                        width={8084}
+                        height={2304}
                         loading="eager"
                         decoding="async"
                         className="h-11 w-auto sm:h-12"
@@ -93,7 +93,7 @@ export function SiteHeader() {
                     */}
                     <a
                         href={`tel:${site.contact.phone.replace(/\s/g, '')}`}
-                        className="flex items-center gap-2 whitespace-nowrap rounded-md px-2 py-2 text-sm font-medium text-navy/80 transition-colors hover:text-lake"
+                        className="flex items-center gap-2 rounded-md px-2 py-2 text-sm font-medium whitespace-nowrap text-navy/80 transition-colors hover:text-lake"
                     >
                         <Phone className="size-4 shrink-0" aria-hidden />
                         {site.contact.phone}

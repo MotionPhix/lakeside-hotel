@@ -96,7 +96,12 @@ class SitePresenter
                 'instagram' => $get('social.instagram'),
                 'tripadvisor' => $get('social.tripadvisor'),
             ],
-            'logo' => '/bucket/lakeside_hotel_logo.png',
+            /* The compact lockup - the script and the wave, without the
+               "HOTEL AND CONFERENCE CENTRE" strapline underneath - because the
+               header renders it at 44 to 48px tall and the strapline needs about
+               80px before it is legible. The full lockup is used in the footer,
+               where there is room for it. */
+            'logo' => '/bucket/lakeside-wordmark_v1.png',
             'whatsapp_link' => $whatsapp === '' ? '' : 'https://wa.me/'.$whatsapp,
             'url' => rtrim((string) config('app.url'), '/'),
         ];

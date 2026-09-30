@@ -8,8 +8,18 @@ import type { SharedData } from '@/types';
 /**
  * The site footer.
  *
- * Uses the hotel name as live text rather than the logo, because the logo is
- * deep blue artwork that would not read against the navy background.
+ * The brand block carries the hotel's full lockup - the script, the wave and the
+ * "HOTEL AND CONFERENCE CENTRE" strapline - rather than the name set in type.
+ *
+ * That artwork is deep blue end to end, and this footer is navy: measured against
+ * it the ink comes out at 0.49:1, which is to say invisible. So it is flattened to
+ * white. `brightness-0` comes first because inverting the two blues directly turns
+ * them orange and green; flattening to a single tone first makes the invert come
+ * out white with the shapes intact. Transparency survives a filter, so the gaps
+ * through the wave stay open.
+ *
+ * A light variant drawn for dark backgrounds would be better than a filter. The
+ * artwork is raster with no paths to recolour, and there is not one.
  */
 export function SiteFooter() {
     const { site } = usePage<SharedData>().props;
@@ -23,9 +33,23 @@ export function SiteFooter() {
         <footer className="bg-navy text-sand">
             <div className="mx-auto grid max-w-7xl gap-10 px-5 py-14 sm:px-8 lg:grid-cols-12 lg:gap-8 lg:py-20">
                 <div className="lg:col-span-4">
-                    <p className="font-display text-2xl font-semibold text-white">
-                        {site.name}
-                    </p>
+                    {/*
+                        80px tall, which is the height the strapline needs before
+                        it can be read - below that it turns to mush, and there is
+                        no point printing it.
+
+                        The file is its own resolution, so the browser is told the
+                        ratio up front and the footer does not jump when it lands.
+                    */}
+                    <img
+                        src="/bucket/lakeside-wordmark.png"
+                        alt={site.name}
+                        width={8528}
+                        height={3057}
+                        loading="lazy"
+                        decoding="async"
+                        className="h-20 w-auto brightness-0 invert"
+                    />
                     <p className="mt-3 max-w-sm text-sm leading-relaxed text-sand/70">
                         {site.tagline}
                     </p>
