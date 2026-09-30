@@ -1,24 +1,21 @@
 import { router } from '@inertiajs/react';
 import { SeoHead } from '@/components/public/seo-head';
-import { BedDouble, CalendarDays, Search, Users } from 'lucide-react';
-import type { FormEvent } from 'react';
-import { useState } from 'react';
-import { DateRangePicker } from '@/components/date-picker';
+import { BedDouble } from 'lucide-react';
+import {
+    ANY_ROOM,
+    BookingSearchFields,
+    roomTypeParam,
+} from '@/components/public/booking-search-fields';
 import { BookingTotals } from '@/components/public/booking-totals';
 import { ContactCta } from '@/components/public/contact-cta';
 import { PageHero } from '@/components/public/page-hero';
-import { imageBoxes, ResponsiveImage } from '@/components/public/responsive-image';
+import {
+    imageBoxes,
+    ResponsiveImage,
+} from '@/components/public/responsive-image';
 import { Reveal } from '@/components/public/reveal';
 import { Section, SectionHeading } from '@/components/public/section';
 import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/components/ui/select';
 import { formatMoney, formatNight } from '@/lib/format';
 import bookingRoutes from '@/routes/site/booking';
 import type {
@@ -36,9 +33,6 @@ type Props = {
     booking: BookingContext;
 };
 
-/** The "any room" choice shadcn's Select needs as a real value. */
-const ANY_ROOM = 'any';
-
 /**
  * Step one of booking: pick the dates and party, then see what the hotel can
  * actually sell for them, priced.
@@ -54,31 +48,14 @@ export default function BookingIndex({
     roomTypes,
     booking,
 }: Props) {
-    const [range, setRange] = useState({
-        from: search.check_in,
-        to: search.check_out,
-    });
-    const [adults, setAdults] = useState(String(search.adults));
-    const [children, setChildren] = useState(String(search.children));
-    const [roomType, setRoomType] = useState(search.room_type || ANY_ROOM);
-
-    const today = new Date().toISOString().slice(0, 10);
-
-    const submit = (event: FormEvent) => {
-        event.preventDefault();
-
-        router.get(
-            bookingRoutes.index.url(),
-            {
-                check_in: range.from,
-                check_out: range.to,
-                adults,
-                children,
-                room_type: roomType === ANY_ROOM ? '' : roomType,
-            },
-            { preserveScroll: true },
-        );
-    };
+    /* Identifies the search the results belong to, so the fields can be re-seeded. */
+    const searchKey = [
+        search.check_in,
+        search.check_out,
+        search.adults,
+        search.children,
+        search.room_type,
+    ].join('|');
 
     return (
         <>
@@ -92,129 +69,41 @@ export default function BookingIndex({
             />
 
             <Section tone="white">
-                <form
-                    onSubmit={submit}
-                    className="rounded-xl border border-navy/10 bg-white p-4 shadow-sm sm:p-6"
-                >
-                    <div className="grid gap-4 lg:grid-cols-12">
-                        <div className="grid gap-1.5 lg:col-span-4">
-                            <Label className="text-xs text-navy/60">
-                                Check in – check out
-                            </Label>
-                            <DateRangePicker
-                                from={range.from}
-                                to={range.to}
-                                onChange={setRange}
-                                min={today}
-                                placeholder="Choose your dates"
-                                className="w-full rounded-md border-navy/15 bg-white text-sm text-navy"
-                            />
-                        </div>
-
-                        <div className="grid gap-1.5 lg:col-span-3">
-                            <Label className="text-xs text-navy/60">
-                                Guests
-                            </Label>
-                            <div className="grid grid-cols-2 gap-2">
-                                <Select
-                                    value={adults}
-                                    onValueChange={setAdults}
-                                >
-                                    <SelectTrigger
-                                        className="w-full rounded-md border-navy/15 bg-white text-sm text-navy"
-                                        aria-label="Adults"
-                                    >
-                                        <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {[1, 2, 3, 4, 5, 6].map((count) => (
-                                            <SelectItem
-                                                key={count}
-                                                value={String(count)}
-                                            >
-                                                {count}{' '}
-                                                {count === 1
-                                                    ? 'adult'
-                                                    : 'adults'}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-
-                                <Select
-                                    value={children}
-                                    onValueChange={setChildren}
-                                >
-                                    <SelectTrigger
-                                        className="w-full rounded-md border-navy/15 bg-white text-sm text-navy"
-                                        aria-label="Children"
-                                    >
-                                        <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {[0, 1, 2, 3].map((count) => (
-                                            <SelectItem
-                                                key={count}
-                                                value={String(count)}
-                                            >
-                                                {count}{' '}
-                                                {count === 1
-                                                    ? 'child'
-                                                    : 'children'}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                            </div>
-                        </div>
-
-                        <div className="grid gap-1.5 lg:col-span-3">
-                            <Label className="text-xs text-navy/60">
-                                Room type
-                            </Label>
-                            <Select
-                                value={roomType}
-                                onValueChange={setRoomType}
-                            >
-                                <SelectTrigger className="w-full rounded-md border-navy/15 bg-white text-sm text-navy">
-                                    <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value={ANY_ROOM}>
-                                        Any room
-                                    </SelectItem>
-                                    {roomTypes.map((option) => (
-                                        <SelectItem
-                                            key={option.slug}
-                                            value={option.slug}
-                                        >
-                                            {option.name}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        </div>
-
-                        <div className="flex items-end lg:col-span-2">
-                            <Button type="submit" size="lg" className="w-full">
-                                <Search />
-                                Check availability
-                            </Button>
-                        </div>
-                    </div>
-
-                    <p className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-1 text-xs text-navy/55">
-                        <span className="flex items-center gap-1.5">
-                            <CalendarDays className="size-3.5" aria-hidden />
-                            Check in from {booking.check_in_time}, out by{' '}
-                            {booking.check_out_time}
-                        </span>
-                        <span className="flex items-center gap-1.5">
-                            <Users className="size-3.5" aria-hidden />
-                            Best rate guaranteed when you book direct
-                        </span>
-                    </p>
-                </form>
+                <div className="rounded-xl border border-navy/10 bg-white p-4 shadow-sm sm:p-6">
+                    {/*
+                        The same fields the homepage searches with. Keyed on the
+                        search that produced the results below, so arriving back
+                        here from the browser's history re-seeds them: without it
+                        the fields would go on describing the search the guest had
+                        just navigated away from.
+                    */}
+                    <BookingSearchFields
+                        key={searchKey}
+                        initialValues={{
+                            from: search.check_in,
+                            to: search.check_out,
+                            adults: String(search.adults),
+                            children: String(search.children),
+                            roomType: search.room_type || ANY_ROOM,
+                        }}
+                        onSearch={(values) =>
+                            router.get(
+                                bookingRoutes.index.url(),
+                                {
+                                    check_in: values.from,
+                                    check_out: values.to,
+                                    adults: values.adults,
+                                    children: values.children,
+                                    room_type: roomTypeParam(values.roomType),
+                                },
+                                { preserveScroll: true },
+                            )
+                        }
+                        roomTypes={roomTypes}
+                        checkInTime={booking.check_in_time}
+                        checkOutTime={booking.check_out_time}
+                    />
+                </div>
 
                 {searched && offers.length === 0 && (
                     <div className="mt-10 rounded-xl border border-navy/10 bg-sand/50 p-8 text-center">
@@ -377,13 +266,12 @@ function OfferResult({
                     </p>
                 )}
 
-                 <BookingTotals
-                     pricing={offer.pricing}
-                     label={`Room, ${offer.nights} nights`}
-                     currency={currency}
-                     className="mt-4"
-                 />
-
+                <BookingTotals
+                    pricing={offer.pricing}
+                    label={`Room, ${offer.nights} nights`}
+                    currency={currency}
+                    className="mt-4"
+                />
 
                 <div className="mt-6 flex flex-1 items-end">
                     <Button onClick={reserve} size="lg" className="w-full">

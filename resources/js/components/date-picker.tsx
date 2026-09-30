@@ -62,6 +62,7 @@ export function DatePicker({
     clearable = false,
     className,
     'aria-invalid': ariaInvalid,
+    'aria-describedby': ariaDescribedBy,
 }: {
     /** ISO `yyyy-MM-dd`, or an empty string for no selection. */
     value: string;
@@ -77,6 +78,8 @@ export function DatePicker({
     clearable?: boolean;
     className?: string;
     'aria-invalid'?: boolean;
+    /** What explains this field, such as the message shown when it is rejected. */
+    'aria-describedby'?: string;
 }) {
     const [open, setOpen] = useState(false);
     const selected = toDate(value);
@@ -105,6 +108,7 @@ export function DatePicker({
                     variant="outline"
                     disabled={disabled}
                     aria-invalid={ariaInvalid}
+                    aria-describedby={ariaDescribedBy}
                     data-empty={!selected}
                     className={cn(
                         triggerClass,
@@ -175,6 +179,7 @@ export function DateRangePicker({
     numberOfMonths = 2,
     className,
     'aria-invalid': ariaInvalid,
+    'aria-describedby': ariaDescribedBy,
 }: {
     /** ISO `yyyy-MM-dd`, or an empty string. */
     from: string;
@@ -189,6 +194,12 @@ export function DateRangePicker({
     numberOfMonths?: number;
     className?: string;
     'aria-invalid'?: boolean;
+    /**
+     * What explains this field, such as the message shown when a search arrives
+     * without dates. Without it a screen reader reaches the control and hears no
+     * reason for the state it is in.
+     */
+    'aria-describedby'?: string;
 }) {
     const [open, setOpen] = useState(false);
 
@@ -223,6 +234,7 @@ export function DateRangePicker({
                     variant="outline"
                     disabled={disabled}
                     aria-invalid={ariaInvalid}
+                    aria-describedby={ariaDescribedBy}
                     data-empty={!label}
                     className={cn(
                         triggerClass,

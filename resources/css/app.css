@@ -272,6 +272,34 @@ button[aria-haspopup='dialog'] {
 }
 
 /*
+ * ---------------------------------------------------------------------------
+ * A focus indicator that actually shows
+ * ---------------------------------------------------------------------------
+ *
+ * The controls carry shadcn's `focus-visible:ring-[3px]`, which composes the ring
+ * into `box-shadow` from `--tw-ring-color`. Measured in the browser it does not
+ * paint - the box-shadow computes fully transparent - so the only thing a keyboard
+ * user could see was the border changing colour, which is easy to miss and, on a
+ * control whose resting border is already subtle, easy to miss entirely.
+ *
+ * An outline is drawn by the browser rather than assembled from variables, so it
+ * cannot be lost the same way. `:focus-visible` keeps it to keyboard users, so a
+ * mouse click shows nothing extra.
+ *
+ * 2px at a 2px offset is the indicator WCAG 2.4.13 asks for: a change of perimeter
+ * rather than of colour alone, and clear of the control's own border.
+ */
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[role='combobox']:focus-visible,
+button[aria-haspopup='dialog']:focus-visible,
+[data-slot='button']:focus-visible {
+    outline: 2px solid var(--color-lake);
+    outline-offset: 2px;
+}
+
+/*
  * The calendar lays its day buttons out on its own --cell-size grid, so they opt
  * back out of everything above.
  *
