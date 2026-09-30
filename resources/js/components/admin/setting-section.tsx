@@ -56,9 +56,7 @@ export function SettingSection({ section }: { section: SettingSection }) {
                                 key={field.key}
                                 field={field}
                                 value={form.data.settings[field.wire]}
-                                error={
-                                    form.errors[`settings.${field.wire}`]
-                                }
+                                error={form.errors[`settings.${field.wire}`]}
                                 onChange={(value) =>
                                     form.setData('settings', {
                                         ...form.data.settings,

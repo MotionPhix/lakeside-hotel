@@ -12,7 +12,10 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { AmenityIcon } from '@/components/public/amenity-icon';
-import { imageBoxes, ResponsiveImage } from '@/components/public/responsive-image';
+import {
+    imageBoxes,
+    ResponsiveImage,
+} from '@/components/public/responsive-image';
 import {
     formatDistance,
     formatLabel,
@@ -128,21 +131,23 @@ export function RoomCard({ roomType }: { roomType: RoomTypeSummary }) {
                     )}
                 </ul>
 
-                 <div className="mt-auto flex items-end justify-between gap-3 pt-5">
-                     <div>
-                         <p className="text-xs text-navy/50">From</p>
-                         <p className="font-display text-lg font-semibold text-lake">
-                             {/* The inclusive figure: what a guest pays, not what
+                <div className="mt-auto flex items-end justify-between gap-3 pt-5">
+                    <div>
+                        <p className="text-xs text-navy/50">From</p>
+                        <p className="font-display text-lg font-semibold text-lake">
+                            {/* The inclusive figure: what a guest pays, not what
                                  the room costs before tax. */}
-                             {formatMoney(
-                                 roomType.from?.amount ?? roomType.from_price,
-                             )}
-                             <span className="ml-1 text-xs font-normal text-navy/50">
-                                 / night
-                             </span>
-                         </p>
-                         <p className="text-xs text-navy/50">Incl. VAT &amp; levy</p>
-                     </div>
+                            {formatMoney(
+                                roomType.from?.amount ?? roomType.from_price,
+                            )}
+                            <span className="ml-1 text-xs font-normal text-navy/50">
+                                / night
+                            </span>
+                        </p>
+                        <p className="text-xs text-navy/50">
+                            Incl. VAT &amp; levy
+                        </p>
+                    </div>
                     <Button asChild variant="outline" size="sm">
                         <Link href={rooms.show(roomType.slug)}>View room</Link>
                     </Button>

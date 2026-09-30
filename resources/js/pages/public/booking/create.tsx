@@ -5,7 +5,10 @@ import type { FormEvent } from 'react';
 import InputError from '@/components/input-error';
 import { BookingTotals } from '@/components/public/booking-totals';
 import { PageHero } from '@/components/public/page-hero';
-import { imageBoxes, ResponsiveImage } from '@/components/public/responsive-image';
+import {
+    imageBoxes,
+    ResponsiveImage,
+} from '@/components/public/responsive-image';
 import { Section } from '@/components/public/section';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -448,12 +451,11 @@ export default function BookingCreate({ search, offer, booking }: Props) {
                                         ))}
                                     </dl>
 
-                                     <BookingTotals
-                                         pricing={offer.pricing}
-                                         label={`Room, ${offer.nights} nights`}
-                                         className="mt-4 border-t border-navy/10 pt-4"
-                                     />
-
+                                    <BookingTotals
+                                        pricing={offer.pricing}
+                                        label={`Room, ${offer.nights} nights`}
+                                        className="mt-4 border-t border-navy/10 pt-4"
+                                    />
                                 </div>
                             </div>
 

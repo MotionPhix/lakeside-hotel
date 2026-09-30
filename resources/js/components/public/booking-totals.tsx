@@ -40,7 +40,9 @@ export function BookingTotals({
     }
 
     const itemised = pricing.show_separately;
-    const discount = Number(itemised ? pricing.discount_net : pricing.discount_gross);
+    const discount = Number(
+        itemised ? pricing.discount_net : pricing.discount_gross,
+    );
 
     return (
         <div className={className}>
@@ -50,11 +52,11 @@ export function BookingTotals({
                      * Only worth saying when the tax is not laid out below: with
                      * the breakdown on, the reader can see it for themselves.
                      */
-                    label={
-                        itemised ? label : `${label} (incl. VAT & levy)`
-                    }
+                    label={itemised ? label : `${label} (incl. VAT & levy)`}
                     value={formatMoney(
-                        itemised ? pricing.subtotal_net : pricing.subtotal_gross,
+                        itemised
+                            ? pricing.subtotal_net
+                            : pricing.subtotal_gross,
                         currency,
                     )}
                 />

@@ -169,33 +169,32 @@ export default function BookingShow({ reservation, booking }: Props) {
                                 Summary
                             </h2>
 
-                             <BookingTotals
-                                 pricing={reservation.pricing}
-                                 label={`Room, ${reservation.nights} nights`}
-                                 currency={reservation.currency}
-                                 className="mt-5"
-                             >
-                                 {paid > 0 && (
-                                     <Row
-                                         label="Paid"
-                                         value={formatMoney(
-                                             reservation.amount_paid,
-                                             reservation.currency,
-                                         )}
-                                     />
-                                 )}
-                                 {balance > 0 && (
-                                     <Row
-                                         label="Balance"
-                                         value={formatMoney(
-                                             reservation.balance,
-                                             reservation.currency,
-                                         )}
-                                         emphasis
-                                     />
-                                 )}
-                             </BookingTotals>
-
+                            <BookingTotals
+                                pricing={reservation.pricing}
+                                label={`Room, ${reservation.nights} nights`}
+                                currency={reservation.currency}
+                                className="mt-5"
+                            >
+                                {paid > 0 && (
+                                    <Row
+                                        label="Paid"
+                                        value={formatMoney(
+                                            reservation.amount_paid,
+                                            reservation.currency,
+                                        )}
+                                    />
+                                )}
+                                {balance > 0 && (
+                                    <Row
+                                        label="Balance"
+                                        value={formatMoney(
+                                            reservation.balance,
+                                            reservation.currency,
+                                        )}
+                                        emphasis
+                                    />
+                                )}
+                            </BookingTotals>
 
                             {balance > 0 &&
                                 booking.online_payment_available && (
