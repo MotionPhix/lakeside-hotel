@@ -45,6 +45,35 @@ export type SiteSocial = {
 };
 
 /**
+ * A price as a guest should see it.
+ *
+ * `amount` already includes VAT and the tourism levy, because a figure that grows
+ * by 17.5% at checkout is not the price that was advertised. `net` and the two
+ * parts always travel with it and `show_separately` decides whether they are also
+ * displayed - the money is the same either way, which is the point of quoting
+ * inclusive and offering the breakdown.
+ */
+export type Pricing = {
+    /** The taxable base: the room, less any discount, before tax. */
+    net: string;
+    /** The figure to display. Includes the tax. */
+    amount: string;
+    /** The room before any discount, before tax. */
+    subtotal_net: string;
+    /** The room before any discount, tax included. */
+    subtotal_gross: string;
+    /** Any discount, before tax. */
+    discount_net: string;
+    /** The same discount tax included, so the rows reconcile to the total. */
+    discount_gross: string;
+    includes_tax: boolean;
+    show_separately: boolean;
+    vat: { rate: number; amount: string };
+    levy: { rate: number; amount: string };
+    tax_total: string;
+};
+
+/**
  * Whether the site is measured, and by whom.
  *
  * `provider` is blank on a site that measures nothing, which is how it ships.
@@ -86,9 +115,19 @@ export type RoomTypeSummary = {
     max_occupancy: number;
     size_sqm: number | null;
     bed_configuration: string | null;
+    /** The rate before tax, as the hotel set it. */
     from_price: string;
+    /**
+     * The same rate as a guest should see it: VAT and the tourism levy already
+     * included. Null only when no rate is set at all.
+     */
+    from: Pricing | null;
     base_price: string;
+    /** The same rate as a guest should see it. */
+    base: Pricing | null;
     weekend_price: string | null;
+    /** The same rate as a guest should see it. Null when there is no weekend rate. */
+    weekend: Pricing | null;
     min_nights: number;
     is_featured: boolean;
     cover: MediaImage | null;

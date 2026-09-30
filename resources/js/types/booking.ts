@@ -1,4 +1,4 @@
-import type { MediaImage } from './hotel';
+import type { MediaImage, Pricing } from './hotel';
 
 /** The dates and party a guest is searching with. */
 export type BookingSearch = {
@@ -13,7 +13,8 @@ export type BookingSearch = {
 export type RoomTypeOption = {
     slug: string;
     name: string;
-    from: string;
+    /** The room's cheapest rate as a guest should see it: tax included. */
+    from: Pricing | null;
 };
 
 /**
@@ -40,6 +41,12 @@ export type BookingOffer = {
     subtotal: string;
     tax_total: string;
     total: string;
+    /**
+     * How the total is presented: the same figure either way, with VAT and the
+     * levy broken out only when the hotel has asked for it. `subtotal` and
+     * `tax_total` remain the accounting figures whatever the toggle says.
+     */
+    pricing: Pricing;
     amenities: string[];
 };
 
@@ -77,6 +84,8 @@ export type Reservation = {
     discount_total: string;
     tax_total: string;
     total: string;
+    /** How the total is presented - see {@link BookingOffer.pricing}. */
+    pricing: Pricing;
     amount_paid: string;
     balance: string;
     payment_method: string | null;

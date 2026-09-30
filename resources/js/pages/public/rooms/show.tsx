@@ -4,6 +4,7 @@ import { BedDouble, CalendarCheck, Ruler, Users } from 'lucide-react';
 import { RoomCard } from '@/components/public/cards';
 import { ContactCta } from '@/components/public/contact-cta';
 import { PageHero } from '@/components/public/page-hero';
+import { PriceLines } from '@/components/public/price-lines';
 import { imageBoxes, ResponsiveImage } from '@/components/public/responsive-image';
 import { Reveal } from '@/components/public/reveal';
 import { Section, SectionHeading } from '@/components/public/section';
@@ -138,23 +139,39 @@ export default function RoomShow({ roomType, otherRoomTypes }: Props) {
 
                     <aside className="lg:sticky lg:top-24 lg:self-start">
                         <div className="rounded-xl border border-navy/10 bg-sand p-6">
-                            <p className="text-xs text-navy/55">Rates from</p>
-                            <p className="mt-1 font-display text-3xl font-semibold text-lake">
-                                {formatMoney(roomType.from_price)}
-                            </p>
-                            <p className="text-xs text-navy/55">
-                                per night, breakfast included
-                            </p>
+                             <p className="text-xs text-navy/55">Rates from</p>
+                             <p className="mt-1 font-display text-3xl font-semibold text-lake">
+                                 {/* The figure a guest pays, not the rate before
+                                     tax - the two differ by 17.5%. */}
+                                 {formatMoney(
+                                     roomType.from?.amount ??
+                                         roomType.from_price,
+                                 )}
+                             </p>
+                             <p className="text-xs text-navy/55">
+                                 per night, breakfast included
+                             </p>
+
+                             {/* Included either way. When the hotel has asked to
+                                 show them separately, the same money is laid out
+                                 as VAT and the levy beneath the total. */}
+                             <PriceLines
+                                 pricing={roomType.from}
+                                 className="mt-4 border-t border-navy/10 pt-4"
+                             />
+
 
                             <dl className="mt-6 space-y-2 border-t border-navy/10 pt-5 text-sm text-navy/70">
                                 <div className="flex justify-between gap-4">
                                     <dt>Weekend rate</dt>
-                                    <dd className="font-medium text-navy">
-                                        {formatMoney(
-                                            roomType.weekend_price ??
-                                                roomType.base_price,
-                                        )}
-                                    </dd>
+                                     <dd className="font-medium text-navy">
+                                         {formatMoney(
+                                             roomType.weekend?.amount ??
+                                                 roomType.base?.amount ??
+                                                 roomType.weekend_price ??
+                                                 roomType.base_price,
+                                         )}
+                                     </dd>
                                 </div>
                                 {roomType.min_nights > 1 && (
                                     <div className="flex justify-between gap-4">

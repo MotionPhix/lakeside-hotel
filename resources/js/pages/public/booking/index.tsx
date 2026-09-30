@@ -4,6 +4,7 @@ import { BedDouble, CalendarDays, Search, Users } from 'lucide-react';
 import type { FormEvent } from 'react';
 import { useState } from 'react';
 import { DateRangePicker } from '@/components/date-picker';
+import { BookingTotals } from '@/components/public/booking-totals';
 import { ContactCta } from '@/components/public/contact-cta';
 import { PageHero } from '@/components/public/page-hero';
 import { imageBoxes, ResponsiveImage } from '@/components/public/responsive-image';
@@ -376,28 +377,13 @@ function OfferResult({
                     </p>
                 )}
 
-                <dl className="mt-4 space-y-2 text-sm">
-                    <div className="flex justify-between gap-4">
-                        <dt className="text-navy/60">
-                            Room, {offer.nights} nights
-                        </dt>
-                        <dd className="text-navy">
-                            {formatMoney(offer.subtotal, currency)}
-                        </dd>
-                    </div>
-                    <div className="flex justify-between gap-4">
-                        <dt className="text-navy/60">VAT and tourism levy</dt>
-                        <dd className="text-navy">
-                            {formatMoney(offer.tax_total, currency)}
-                        </dd>
-                    </div>
-                    <div className="flex justify-between gap-4 border-t border-navy/10 pt-2 text-base font-semibold">
-                        <dt className="text-navy">Total</dt>
-                        <dd className="text-navy">
-                            {formatMoney(offer.total, currency)}
-                        </dd>
-                    </div>
-                </dl>
+                 <BookingTotals
+                     pricing={offer.pricing}
+                     label={`Room, ${offer.nights} nights`}
+                     currency={currency}
+                     className="mt-4"
+                 />
+
 
                 <div className="mt-6 flex flex-1 items-end">
                     <Button onClick={reserve} size="lg" className="w-full">

@@ -6,6 +6,7 @@ use App\Enums\BookingSource;
 use App\Enums\BookingStatus;
 use App\Enums\PaymentOption;
 use App\Enums\PaymentStatus;
+use App\Support\Tax;
 use Carbon\CarbonInterface;
 use Database\Factories\BookingFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -70,13 +71,17 @@ class Booking extends Model
 
     /**
      * Value added tax charged on accommodation in Malawi.
+     *
+     * Kept as the statutory figure where it has always been documented, but the
+     * live rate and the arithmetic both belong to {@see Tax}, which is the one
+     * place that decides what tax is.
      */
-    public const VAT_RATE = 16.5;
+    public const VAT_RATE = Tax::VAT_RATE;
 
     /**
      * Tourism levy charged per night on accommodation in Malawi.
      */
-    public const TOURISM_LEVY_RATE = 1.0;
+    public const TOURISM_LEVY_RATE = Tax::LEVY_RATE;
 
     /**
      * The currency the hotel trades in, used when nothing has been configured
@@ -95,21 +100,25 @@ class Booking extends Model
 
     /**
      * The combined accommodation tax rate as a percentage. Both parts are
-     * editable in the dashboard, with the statutory figures above as the fallback.
+     * editable in the dashboard.
      */
     public static function taxRate(): float
     {
-        return (float) Setting::value('booking.vat_rate', (string) self::VAT_RATE)
-            + (float) Setting::value('booking.tourism_levy_rate', (string) self::TOURISM_LEVY_RATE);
+        return Tax::rate();
     }
 
     /**
      * Tax on an amount. Stated once so a quote shown to a guest and the folio they
      * are finally billed on cannot disagree.
+     *
+     * The two taxes are rounded separately and then added, rather than one
+     * rounding of the combined rate. Guests are shown VAT and the levy as separate
+     * lines, and lines that do not add up to the total are worse than a cent of
+     * arithmetic purity. The difference only appears on amounts with odd cents.
      */
     public static function taxFor(string $taxable): string
     {
-        return number_format((float) $taxable * (self::taxRate() / 100), 2, '.', '');
+        return Tax::on($taxable)['total'];
     }
 
     /**

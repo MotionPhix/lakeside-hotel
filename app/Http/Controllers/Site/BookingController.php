@@ -16,6 +16,7 @@ use App\Services\Booking\AvailabilityService;
 use App\Services\Booking\ReservationService;
 use App\Services\Payments\PaymentService;
 use App\Support\BookingPresenter;
+use App\Support\SitePresenter;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
@@ -271,7 +272,9 @@ class BookingController extends Controller
             ->map(fn (RoomType $roomType): array => [
                 'slug' => $roomType->slug,
                 'name' => $roomType->name,
-                'from' => $roomType->fromPrice(),
+                // The filtered list is a price shown to a guest, so it is the
+                // inclusive figure like every other one on the site.
+                'from' => SitePresenter::price($roomType->fromPrice()),
             ])
             ->all();
     }

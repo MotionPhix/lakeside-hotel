@@ -21,6 +21,7 @@ import adminBookings from '@/routes/admin/bookings';
 import adminContent from '@/routes/admin/content';
 import adminGuests from '@/routes/admin/guests';
 import adminInquiries from '@/routes/admin/inquiries';
+import adminSystem from '@/routes/admin/system';
 import users from '@/routes/admin/users';
 import type { NavItem, SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
@@ -42,6 +43,7 @@ const moduleRoutes: Partial<Record<string, NavHref>> = {
     // be seventeen sidebar rows nobody could scan.
     content: adminContent.hub(),
     users: users.index(),
+    system: adminSystem.index(),
 };
 
 /**

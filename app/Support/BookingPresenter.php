@@ -11,8 +11,10 @@ use App\Services\Booking\AvailabilityOffer;
  * Shapes the booking engine's output for the website.
  *
  * Prices leave here exactly as the engine calculated them. Tax in particular is
- * not recomputed for display: {@see Booking::taxFor()} is the same call the folio
- * makes, so the figure a guest is quoted is the figure they are billed.
+ * not recomputed for display: {@see Tax} is the same arithmetic the folio uses,
+ * so the figure a guest is quoted is the figure they are billed. What this adds
+ * is presentation - the amount as a guest should read it, and the parts of it
+ * when the hotel has asked to show them separately.
  */
 final class BookingPresenter
 {
@@ -51,6 +53,11 @@ final class BookingPresenter
             'subtotal' => $quote->subtotal,
             'tax_total' => $tax,
             'total' => number_format((float) $quote->subtotal + (float) $tax, 2, '.', ''),
+            'pricing' => Tax::breakdown(
+                $quote->subtotal,
+                '0.00',
+                number_format((float) $quote->subtotal + (float) $tax, 2, '.', ''),
+            ),
             'amenities' => $roomType->amenities->pluck('name')->all(),
         ];
     }
@@ -78,6 +85,13 @@ final class BookingPresenter
             'discount_total' => $booking->discount_total,
             'tax_total' => $booking->tax_total,
             'total' => $booking->total,
+            /* Tax is charged after any discount, which is how the folio was built
+               and so the base the displayed parts are worked out from too. */
+            'pricing' => Tax::breakdown(
+                $booking->subtotal,
+                $booking->discount_total,
+                $booking->total,
+            ),
             'amount_paid' => $booking->amount_paid,
             'balance' => $booking->balance(),
             'payment_method' => $booking->payment_method?->value,

@@ -75,8 +75,15 @@ class SitePresenter
             ],
             'booking' => [
                 'currency' => $get('hotel.currency', 'MWK'),
-                'vat_rate' => (float) $get('booking.vat_rate', '16.5'),
-                'tourism_levy_rate' => (float) $get('booking.tourism_levy_rate', '1'),
+                'vat_rate' => Tax::vatRate(),
+                'tourism_levy_rate' => Tax::levyRate(),
+                /*
+                 * Both taxes together, as a percentage, and whether a guest is
+                 * shown them broken out. Guests always see prices that include
+                 * them; this only decides whether the two lines also appear.
+                 */
+                'tax_rate' => Tax::rate(),
+                'show_taxes_separately' => Tax::showSeparately(),
                 'deposit_percentage' => (int) $get('booking.deposit_percentage', '50'),
                 'online_payment_enabled' => $get('booking.online_payment_enabled', '1') === '1',
                 'pay_at_hotel_enabled' => $get('booking.pay_at_hotel_enabled', '1') === '1',
@@ -278,9 +285,22 @@ class SitePresenter
             'max_occupancy' => $roomType->maxOccupancy(),
             'size_sqm' => $roomType->size_sqm,
             'bed_configuration' => $roomType->bed_configuration,
+            /* The net rate, and the figure a guest is shown for it. Rates are
+               held net because that is what the folio is built from; guests see
+               the inclusive figure so the price they are quoted is the price
+               they pay. */
             'from_price' => $roomType->fromPrice(),
+            'from' => self::price($roomType->fromPrice()),
             'base_price' => (string) $roomType->base_price,
             'weekend_price' => $roomType->weekend_price === null ? null : (string) $roomType->weekend_price,
+            /* The other two rates in the same shape, so the page does not have to
+               decide which prices are quoted before tax and which are not. */
+            'base' => self::price((string) $roomType->base_price),
+            'weekend' => self::price(
+                $roomType->weekend_price === null
+                    ? null
+                    : (string) $roomType->weekend_price,
+            ),
             'min_nights' => $roomType->min_nights,
             'is_featured' => $roomType->is_featured,
             'cover' => self::cover($roomType),
@@ -414,6 +434,26 @@ class SitePresenter
         return array_values(array_unique(
             array_map(fn (string $path): string => $site['url'].$path, $paths),
         ));
+    }
+
+    /**
+     * A price as a guest should see it: the figure they will actually pay.
+     *
+     * Rates are held net, because that is what the hotel sets and what the folio
+     * is built from, and then shown inclusive, because a price that grows by
+     * 17.5% at checkout is not the price that was advertised. The net figure and
+     * the two tax parts travel with it so a page can break them out, and so a
+     * test can prove the parts add up to the figure shown.
+     *
+     * @return array<string, mixed>|null
+     */
+    public static function price(?string $net): ?array
+    {
+        if ($net === null || $net === '') {
+            return null;
+        }
+
+        return Tax::price($net);
     }
 
     /**

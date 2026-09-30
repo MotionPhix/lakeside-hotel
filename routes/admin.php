@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\BookingController;
 use App\Http\Controllers\Admin\GuestController;
 use App\Http\Controllers\Admin\InquiryController;
 use App\Http\Controllers\Admin\ResourceController;
+use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -191,4 +192,23 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
     Route::delete('users/{user}', [UserController::class, 'destroy'])
         ->middleware('permission:users.manage')
         ->name('users.destroy');
+
+    /*
+    | System settings
+    |
+    | The hotel's own configuration: the tax rates every price is worked out from,
+    | what a guest is charged and under what terms, and how the hotel is reached.
+    |
+    | One permission for reading and writing, like availability: a screen that
+    | shows the rates and cannot change them is a screen nobody opens twice. The
+    | rates decide what guests are charged across the whole site, so this is
+    | `system.manage` rather than something a front desk holds.
+    */
+    Route::get('system', [SettingController::class, 'index'])
+        ->middleware('permission:system.manage')
+        ->name('system.index');
+
+    Route::patch('system', [SettingController::class, 'update'])
+        ->middleware('permission:system.manage')
+        ->name('system.update');
 });

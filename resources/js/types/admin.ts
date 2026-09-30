@@ -285,3 +285,41 @@ export type AvailabilityClosure = {
     created_by: string | null;
     state: AvailabilityClosureState;
 };
+
+/** Which control a setting is edited with. Mirrors `App\Cms\SettingSchema`. */
+export type SettingControl =
+    | 'toggle'
+    | 'text'
+    | 'textarea'
+    | 'number'
+    | 'email'
+    | 'time';
+
+/** One editable setting on the system settings screen. */
+export type SettingField = {
+    /** The stored key, e.g. `booking.vat_rate`. */
+    key: string;
+    /**
+     * The name it is submitted under. Setting keys contain dots, which Laravel
+     * reads as nesting, so they are escaped - the server decides how, and this is
+     * also the key its validation error arrives under.
+     */
+    wire: string;
+    label: string;
+    control: SettingControl;
+    help?: string;
+    /** Shown after the input, e.g. `%`. */
+    suffix?: string;
+    /** The increment a number input offers. */
+    step?: string;
+    /** The stored value, as a string. */
+    value: string;
+};
+
+/** A group of settings, saved together. */
+export type SettingSection = {
+    key: string;
+    label: string;
+    description: string;
+    fields: SettingField[];
+};

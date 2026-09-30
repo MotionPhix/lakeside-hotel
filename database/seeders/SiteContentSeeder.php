@@ -63,6 +63,13 @@ class SiteContentSeeder extends Seeder
             ['hotel.rooms_total', '42', 'general', 'integer'],
             ['booking.vat_rate', '16.5', 'booking', 'decimal'],
             ['booking.tourism_levy_rate', '1', 'booking', 'decimal'],
+
+            /*
+             * Guests are shown one price that already includes both taxes. Turning
+             * this on breaks VAT and the levy out as separate lines beneath it -
+             * the same total either way, shown two ways.
+             */
+            ['booking.show_taxes_separately', '0', 'booking', 'boolean'],
             ['booking.deposit_percentage', '50', 'booking', 'integer'],
             ['booking.pay_at_hotel_enabled', '1', 'booking', 'boolean'],
             ['booking.online_payment_enabled', '1', 'booking', 'boolean'],
@@ -169,7 +176,10 @@ There is tubing, parasailing, fishing off the island, and bird watching and feed
                 'title' => 'Booking policies',
                 'subtitle' => 'Everything you need to know before you reserve',
                 'sort_order' => 8,
-                'body' => 'Rates are quoted per room per night in Malawian Kwacha and include breakfast for two. Government value added tax of 16.5% and the 1% tourism levy are added at checkout.
+                /* The rates themselves are not repeated here. They are settings the
+                   hotel can change, and prose that names them goes stale the first
+                   time they move. */
+                'body' => 'Rates are quoted per room per night in Malawian Kwacha, include breakfast for two, and include government value added tax and the tourism levy. There is nothing to add at checkout: the price you are quoted is the price you pay.
 
 Check in is from 14:00 and check out is by 11:00. Later check out can be arranged at reception, subject to availability.
 
