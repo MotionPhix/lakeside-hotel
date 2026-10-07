@@ -13,6 +13,7 @@ use App\Http\Requests\Admin\CancelBookingRequest;
 use App\Http\Requests\Admin\RecordPaymentRequest;
 use App\Http\Requests\Admin\UpdateBookingNotesRequest;
 use App\Models\Booking;
+use App\Models\BookingExtra;
 use App\Models\BookingItem;
 use App\Models\Room;
 use App\Services\Booking\BookingLifecycle;
@@ -89,7 +90,7 @@ class BookingController extends Controller
      */
     public function show(Booking $booking): Response
     {
-        $booking->load('guest', 'items.roomType', 'items.ratePlan', 'items.room', 'payments.recorder', 'coupon', 'creator');
+        $booking->load('guest', 'items.roomType', 'items.ratePlan', 'items.room', 'payments.recorder', 'coupon', 'creator', 'extras');
 
         return Inertia::render('admin/bookings/show', [
             'booking' => $this->detail($booking),
@@ -277,6 +278,21 @@ class BookingController extends Controller
             'payment_method' => $booking->payment_method?->label(),
             'coupon' => $booking->coupon?->code,
             'special_requests' => $booking->special_requests,
+            /* What else was sold with the room, and what is left once it is taken
+               off. The desk collects the balance, so it has to see both. */
+            'extras' => $booking->extras
+                ->map(fn (BookingExtra $extra): array => [
+                    'id' => $extra->id,
+                    'name' => $extra->name,
+                    'label' => $extra->label(),
+                    'basis_label' => $extra->priceBasisLabel(),
+                    'unit_price' => $extra->unit_price,
+                    'quantity' => $extra->quantity,
+                    'subtotal' => $extra->subtotal,
+                ])
+                ->values()
+                ->all(),
+            'extras_total' => $booking->extrasTotal(),
             'internal_notes' => $booking->internal_notes,
             'transfer_details' => $booking->transfer_details,
             'cancellation_reason' => $booking->cancellation_reason,

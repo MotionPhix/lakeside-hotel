@@ -3,9 +3,12 @@
 namespace App\Support;
 
 use App\Enums\PaymentOption;
+use App\Models\Activity;
 use App\Models\Booking;
+use App\Models\BookingExtra;
 use App\Models\Setting;
 use App\Services\Booking\AvailabilityOffer;
+use Illuminate\Support\Collection;
 
 /**
  * Shapes the booking engine's output for the website.
@@ -63,6 +66,73 @@ final class BookingPresenter
     }
 
     /**
+     * One extra as the booking screens read it. Priced and named as it was when
+     * the guest chose it, not as the catalogue reads now.
+     *
+     * @return array<string, mixed>
+     */
+    private static function extraLine(BookingExtra $extra): array
+    {
+        return [
+            'id' => $extra->getKey(),
+            'name' => $extra->name,
+            'label' => $extra->label(),
+            'price_basis' => $extra->price_basis,
+            'basis_label' => $extra->priceBasisLabel(),
+            'unit_price' => $extra->unit_price,
+            'quantity' => $extra->quantity,
+            'subtotal' => $extra->subtotal,
+        ];
+    }
+
+    /**
+     * One extra as it is offered while booking.
+     *
+     * Carries everything the form needs to describe it, price it and bound its
+     * quantity, so the running total it shows is worked out from the same numbers
+     * the reservation will be built from.
+     *
+     * @return array<string, mixed>
+     */
+    public static function extraOption(Activity $activity): array
+    {
+        $bounds = $activity->quantityBounds();
+
+        return [
+            'id' => $activity->getKey(),
+            'name' => $activity->name,
+            'description' => $activity->description,
+            'duration' => $activity->durationForHumans(),
+            'price' => number_format((float) $activity->price, 2, '.', ''),
+            'price_basis' => $activity->price_basis,
+            'basis_label' => $activity->priceBasisLabel(),
+            'min_quantity' => $bounds['min'],
+            'max_quantity' => $bounds['max'],
+            'quantity_label' => $bounds['label'],
+        ];
+    }
+
+    /**
+     * The extras a guest may add to a stay.
+     *
+     * `active()` has already filtered and ordered them. Complimentary activities
+     * are left out: this list is of things that cost money, and something that
+     * costs nothing is not a figure to add to a folio.
+     *
+     * @param  Collection<int, Activity>  $activities
+     * @return list<array<string, mixed>>
+     */
+    public static function extraOptions(Collection $activities): array
+    {
+        return array_values(
+            $activities
+                ->reject(fn (Activity $activity): bool => $activity->isComplimentary())
+                ->map(fn (Activity $activity): array => self::extraOption($activity))
+                ->all(),
+        );
+    }
+
+    /**
      * A reservation, for the guest's own summary page.
      *
      * @return array<string, mixed>
@@ -84,13 +154,30 @@ final class BookingPresenter
             'subtotal' => $booking->subtotal,
             'discount_total' => $booking->discount_total,
             'tax_total' => $booking->tax_total,
+            /* The whole stay, extras included - what the guest owes. The extras
+               themselves are itemised below. */
             'total' => $booking->total,
-            /* Tax is charged after any discount, which is how the folio was built
-               and so the base the displayed parts are worked out from too. */
+            /*
+             * The accommodation on its own, and deliberately without a total
+             * passed in: `breakdown` derives its total from the net and the two
+             * taxes, which guarantees the rows it renders add up to the figure
+             * beside them. Handing it the booking's total instead would fold the
+             * extras into the accommodation's tax rows and the parts would no
+             * longer reconcile.
+             */
             'pricing' => Tax::breakdown(
                 $booking->subtotal,
                 $booking->discount_total,
-                $booking->total,
+            ),
+            'extras' => $booking->extras
+                ->map(fn (BookingExtra $extra): array => self::extraLine($extra))
+                ->values()
+                ->all(),
+            'extras_total' => number_format(
+                (float) $booking->extras->sum('subtotal'),
+                2,
+                '.',
+                '',
             ),
             'amount_paid' => $booking->amount_paid,
             'balance' => $booking->balance(),

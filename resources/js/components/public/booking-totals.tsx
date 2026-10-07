@@ -25,6 +25,7 @@ export function BookingTotals({
     label,
     currency,
     className,
+    extras,
     children,
 }: {
     pricing: Pricing | null | undefined;
@@ -34,6 +35,11 @@ export function BookingTotals({
     className?: string;
     /** Rows to place after the total, such as what has been paid. */
     children?: ReactNode;
+    /**
+     * Extras to list between the accommodation and the total. Added to the total
+     * shown, so the figure beside it is everything listed above it.
+     */
+    extras?: { label: string; amount: string }[];
 }) {
     if (!pricing) {
         return null;
@@ -43,6 +49,24 @@ export function BookingTotals({
     const discount = Number(
         itemised ? pricing.discount_net : pricing.discount_gross,
     );
+
+    /*
+     * The extras are added to the accommodation's total rather than worked into
+     * its tax rows, so the figure beside "Total" is the sum of everything listed
+     * above it. With no extras this is exactly what it always was.
+     *
+     * Kept as a bare number for the `Row` below to format, not formatted here:
+     * formatting it here and then handing the result to `formatMoney` again is how
+     * this row came to read "On request" - the second pass parses "MWK 200,925" as
+     * a number, gets NaN, and gives up.
+     */
+    const total = (
+        Number(pricing.amount) +
+        (extras ?? []).reduce(
+            (running, extra) => running + Number(extra.amount),
+            0,
+        )
+    ).toFixed(2);
 
     return (
         <div className={className}>
@@ -86,9 +110,22 @@ export function BookingTotals({
                     </>
                 )}
 
+                {/*
+                    The extras, each named as it was chosen. They sit after the tax
+                    because that is how they are charged: the accommodation is taxed
+                    and they are added to it at the price they were offered at.
+                */}
+                {extras?.map((extra) => (
+                    <Row
+                        key={extra.label}
+                        label={extra.label}
+                        value={formatMoney(extra.amount, currency)}
+                    />
+                ))}
+
                 <Row
                     label="Total"
-                    value={formatMoney(pricing.amount, currency)}
+                    value={formatMoney(total, currency)}
                     emphasis
                 />
 

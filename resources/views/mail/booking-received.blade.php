@@ -71,6 +71,13 @@
                         <td style="{{ $value }}">{{ $item->roomType?->name ?? 'Room' }} — {{ Money::format($booking->currency, $item->subtotal) }}</td>
                     </tr>
                 @endforeach
+                {{-- The desk needs to see what else was sold, not just the room. --}}
+                @foreach ($booking->extras as $extra)
+                    <tr>
+                        <td style="{{ $label }}">Extra</td>
+                        <td style="{{ $value }}">{{ $extra->label() }} — {{ Money::format($booking->currency, $extra->subtotal) }}</td>
+                    </tr>
+                @endforeach
                 <tr>
                     <td style="{{ $label }}">Total</td>
                     <td style="{{ $value }}">{{ Money::format($booking->currency, $booking->total) }}</td>

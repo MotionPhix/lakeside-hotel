@@ -142,6 +142,18 @@ export type AdminBookingDetail = AdminBookingRow & {
     amount_paid: string;
     payment_method: string | null;
     coupon: string | null;
+    /** What else was sold with the room, as it was priced when it was sold. */
+    extras: {
+        id: number;
+        name: string;
+        /** Reads as the desk should see it, e.g. "Sunset cruise × 2". */
+        label: string;
+        basis_label: string;
+        unit_price: string;
+        quantity: number;
+        subtotal: string;
+    }[];
+    extras_total: string;
     special_requests: string | null;
     internal_notes: string | null;
     transfer_details: Record<string, string> | null;

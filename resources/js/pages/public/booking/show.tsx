@@ -173,6 +173,12 @@ export default function BookingShow({ reservation, booking }: Props) {
                                 pricing={reservation.pricing}
                                 label={`Room, ${reservation.nights} nights`}
                                 currency={reservation.currency}
+                                /* What was added to the room, listed and counted
+                                   towards the total. */
+                                extras={reservation.extras.map((extra) => ({
+                                    label: extra.label,
+                                    amount: extra.subtotal,
+                                }))}
                                 className="mt-5"
                             >
                                 {paid > 0 && (

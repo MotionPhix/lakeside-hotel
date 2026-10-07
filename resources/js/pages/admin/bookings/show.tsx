@@ -515,6 +515,15 @@ export default function BookingShow({ booking, methods }: Props) {
                                     label="VAT and tourism levy"
                                     value={money(booking.tax_total)}
                                 />
+                                {/* Each extra the guest agreed to, named and priced
+                                    as it was sold - the desk collects against this. */}
+                                {booking.extras.map((extra) => (
+                                    <Line
+                                        key={extra.id}
+                                        label={extra.label}
+                                        value={money(extra.subtotal)}
+                                    />
+                                ))}
                                 <Line
                                     label="Total"
                                     value={money(booking.total)}

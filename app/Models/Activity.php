@@ -86,6 +86,70 @@ class Activity extends Model implements HasMedia
     }
 
     /**
+     * What this costs for a quantity the guest has chosen.
+     *
+     * A group price is the price of the group however many come, so the quantity
+     * is not a multiplier; a per-person or per-hour price is quoted for one and
+     * is. This is the only place the multiplication happens, so the figure a
+     * guest is shown while choosing and the figure written to the folio come from
+     * the same sum.
+     */
+    public function priceForQuantity(int $quantity): string
+    {
+        if ($this->isComplimentary()) {
+            return number_format(0, 2, '.', '');
+        }
+
+        $total = $this->price_basis === 'per_group'
+            ? (float) $this->price
+            : (float) $this->price * max($quantity, 1);
+
+        return number_format($total, 2, '.', '');
+    }
+
+    /**
+     * How many may be chosen, and what to call that number.
+     *
+     * `null` for the label where there is nothing to choose - a group price is
+     * always one group - which is what tells the form to leave the control out
+     * rather than offer a quantity of one that means nothing.
+     *
+     * @return array{min: int, max: int, label: string|null}
+     */
+    public function quantityBounds(): array
+    {
+        if ($this->price_basis === 'per_group' || $this->isComplimentary()) {
+            return ['min' => 1, 'max' => 1, 'label' => null];
+        }
+
+        if ($this->price_basis === 'per_hour') {
+            return ['min' => 1, 'max' => 12, 'label' => 'Hours'];
+        }
+
+        /* Where nobody has said how many may come, allow a full party. */
+        $max = (int) $this->max_participants;
+
+        return [
+            'min' => 1,
+            'max' => $max >= 1 ? $max : 12,
+            'label' => 'People',
+        ];
+    }
+
+    /**
+     * How the price is quoted, for reading, e.g. "per person".
+     */
+    public function priceBasisLabel(): string
+    {
+        return match ($this->price_basis) {
+            'per_group' => 'per group',
+            'per_hour' => 'per hour',
+            'complimentary' => 'complimentary',
+            default => 'per person',
+        };
+    }
+
+    /**
      * The duration in a human readable form, e.g. "2 hours".
      */
     public function durationForHumans(): ?string

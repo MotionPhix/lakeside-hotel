@@ -8,6 +8,7 @@ use App\Exceptions\StayNotAvailable;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Site\BookingSearchRequest;
 use App\Http\Requests\Site\BookingStoreRequest;
+use App\Models\Activity;
 use App\Models\Booking;
 use App\Models\Coupon;
 use App\Models\Payment;
@@ -87,6 +88,8 @@ class BookingController extends Controller
         return Inertia::render('public/booking/create', [
             'search' => $this->searchSummary($request),
             'offer' => BookingPresenter::offer($offer),
+            /* What can be added to the stay. `active()` narrows and orders them. */
+            'extras' => BookingPresenter::extraOptions(Activity::query()->active()->get()),
             'booking' => BookingPresenter::context(),
         ]);
     }
@@ -132,6 +135,7 @@ class BookingController extends Controller
                 airportTransfer: $request->boolean('airport_transfer'),
                 specialRequests: $request->input('special_requests'),
                 transfer: $request->transfer(),
+                extras: $request->extras(),
             );
         } catch (StayNotAvailable) {
             Inertia::flash('toast', [
@@ -156,7 +160,7 @@ class BookingController extends Controller
     public function show(Booking $booking): Response
     {
         return Inertia::render('public/booking/show', [
-            'reservation' => BookingPresenter::booking($booking->load('guest', 'items.roomType')),
+            'reservation' => BookingPresenter::booking($booking->load('guest', 'items.roomType', 'extras')),
             'booking' => BookingPresenter::context(),
         ]);
     }

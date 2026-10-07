@@ -250,12 +250,49 @@ class Booking extends Model
         $taxable = max($subtotal - $discount, 0);
         $tax = (float) self::taxFor(number_format($taxable, 2, '.', ''));
 
+        /*
+         * Extras are added after the accommodation has been taxed, at the price
+         * the hotel publishes for them, and they leave the accommodation's own
+         * arithmetic untouched. Two consequences worth stating plainly:
+         *
+         *   - The coupon applies to the rooms alone, so a discount that took a
+         *     tenth off a stay still takes a tenth off the stay and not off the
+         *     boat trip. Its meaning is unchanged by extras existing.
+         *   - The tourism levy is a levy on accommodation, which is why nothing
+         *     here goes near it. The VAT inside an extra's own price - if that
+         *     price is quoted gross - is not separated out into `tax_total`: the
+         *     guest pays the published figure either way, but a folio that has to
+         *     show VAT on services needs that split made here.
+         */
+        $extras = (float) $this->extras()->sum('subtotal');
+
         $this->subtotal = number_format($subtotal, 2, '.', '');
         $this->discount_total = number_format($discount, 2, '.', '');
         $this->tax_total = number_format($tax, 2, '.', '');
-        $this->total = number_format($taxable + $tax, 2, '.', '');
+        $this->total = number_format($taxable + $tax + $extras, 2, '.', '');
 
         return $this;
+    }
+
+    /**
+     * The extras added to this stay, in the order they were chosen.
+     *
+     * @return HasMany<BookingExtra, $this>
+     */
+    public function extras(): HasMany
+    {
+        return $this->hasMany(BookingExtra::class)
+            ->orderBy('sort_order')
+            ->orderBy('id');
+    }
+
+    /**
+     * What the extras come to. Added to the stay rather than taxed with it - see
+     * {@see self::recalculateTotals()}.
+     */
+    public function extrasTotal(): string
+    {
+        return number_format((float) $this->extras()->sum('subtotal'), 2, '.', '');
     }
 
     /**

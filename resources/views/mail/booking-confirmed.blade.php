@@ -86,9 +86,16 @@
 
             <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:10px 0 0;">
                 <tr>
-                    <td style="padding:0 0 8px;font-size:14px;color:#5b6b7c;">Room and extras</td>
+                    <td style="padding:0 0 8px;font-size:14px;color:#5b6b7c;">{{ $booking->nights }} {{ Str::plural('night', $booking->nights) }} of room</td>
                     <td style="padding:0 0 8px;font-size:14px;text-align:right;color:#17324d;">{{ Money::format($booking->currency, $booking->subtotal) }}</td>
                 </tr>
+                {{-- Each extra on its own line, named and priced as it was chosen. --}}
+                @foreach ($booking->extras as $extra)
+                    <tr>
+                        <td style="padding:0 0 8px;font-size:14px;color:#5b6b7c;">{{ $extra->label() }}</td>
+                        <td style="padding:0 0 8px;font-size:14px;text-align:right;color:#17324d;">{{ Money::format($booking->currency, $extra->subtotal) }}</td>
+                    </tr>
+                @endforeach
                 @if ((float) $booking->discount_total > 0)
                     <tr>
                         <td style="padding:0 0 8px;font-size:14px;color:#5b6b7c;">Discount</td>

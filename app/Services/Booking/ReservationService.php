@@ -6,6 +6,7 @@ use App\Enums\BookingSource;
 use App\Enums\BookingStatus;
 use App\Enums\PaymentOption;
 use App\Exceptions\StayNotAvailable;
+use App\Models\Activity;
 use App\Models\Booking;
 use App\Models\Coupon;
 use App\Models\Guest;
@@ -34,6 +35,7 @@ final class ReservationService
      *
      * @param  array<string, mixed>  $guestAttributes
      * @param  array<string, mixed>|null  $transfer
+     * @param  array<int, array{activity: Activity, quantity: int}>  $extras
      */
     public function reserve(
         RoomType $roomType,
@@ -45,10 +47,12 @@ final class ReservationService
         ?string $specialRequests = null,
         ?array $transfer = null,
         BookingSource $source = BookingSource::Website,
+        array $extras = [],
     ): Booking {
         return DB::transaction(function () use (
             $roomType, $stay, $guestAttributes, $paymentOption,
             $coupon, $airportTransfer, $specialRequests, $transfer, $source,
+            $extras,
         ): Booking {
             if (! $this->availability->isAvailable($roomType, $stay)) {
                 throw StayNotAvailable::for($roomType, $stay);
@@ -85,9 +89,35 @@ final class ReservationService
                 'nightly_rates' => $quote->nightly,
             ]);
 
+            /*
+             * Whatever was chosen alongside the room, priced from the catalogue as
+             * it stands now and then written down: the name, the basis and the
+             * unit price are all copied onto the line, so re-pricing the sunset
+             * cruise next season cannot rewrite what this guest agreed to.
+             *
+             * `priceForQuantity()` is the same call the form made when it showed
+             * the running total, which is what keeps the two figures equal.
+             */
+            foreach ($extras as $position => $extra) {
+                /** @var Activity $activity */
+                $activity = $extra['activity'];
+                $quantity = (int) $extra['quantity'];
+
+                $booking->extras()->create([
+                    'activity_id' => $activity->getKey(),
+                    'name' => $activity->name,
+                    'price_basis' => $activity->price_basis,
+                    'unit_price' => number_format((float) $activity->price, 2, '.', ''),
+                    /* A group price is one group however many come. */
+                    'quantity' => $activity->price_basis === 'per_group' ? 1 : $quantity,
+                    'subtotal' => $activity->priceForQuantity($quantity),
+                    'sort_order' => $position,
+                ]);
+            }
+
             $booking->recalculateTotals()->syncPaymentStatus()->save();
 
-            return $booking->load('guest', 'items.roomType');
+            return $booking->load('guest', 'items.roomType', 'extras');
         });
     }
 

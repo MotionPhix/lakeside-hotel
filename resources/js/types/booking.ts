@@ -10,6 +10,48 @@ export type BookingSearch = {
 };
 
 /** A room category offered in the search form's filter. */
+/**
+ * One extra as it is offered while booking.
+ *
+ * `max_quantity` and `quantity_label` come from the activity itself rather than
+ * from the form: how many of a thing may be chosen is a property of the thing, and
+ * sending it here means the control the guest sees cannot disagree with what the
+ * server will accept. A null `quantity_label` means there is nothing to count - the
+ * price is for the group - so the form leaves the control out.
+ */
+export type BookingExtraOption = {
+    id: number;
+    name: string;
+    description: string | null;
+    duration: string | null;
+    /** The unit price, as configured. */
+    price: string;
+    price_basis: string;
+    basis_label: string;
+    min_quantity: number;
+    max_quantity: number;
+    quantity_label: string | null;
+};
+
+/** An extra the guest has chosen, in the shape the form submits it. */
+export type BookingExtraChoice = {
+    id: number;
+    quantity: number;
+};
+
+/** One extra as it sits on a stay: named and priced as it was when chosen. */
+export type BookingExtraLine = {
+    id: number;
+    name: string;
+    /** Reads as the guest should see it, e.g. "Sunset cruise × 2". */
+    label: string;
+    price_basis: string;
+    basis_label: string;
+    unit_price: string;
+    quantity: number;
+    subtotal: string;
+};
+
 export type RoomTypeOption = {
     slug: string;
     name: string;
@@ -83,9 +125,17 @@ export type Reservation = {
     subtotal: string;
     discount_total: string;
     tax_total: string;
+    /** The whole stay: accommodation, its tax, and the extras. */
     total: string;
-    /** How the total is presented - see {@link BookingOffer.pricing}. */
+    /**
+     * The accommodation alone - see {@link BookingOffer.pricing}. Extras are
+     * itemised separately in {@link Reservation.extras} and added on top.
+     */
     pricing: Pricing;
+    /** The extras chosen with this stay, in the order they were added. */
+    extras: BookingExtraLine[];
+    /** What those extras come to. */
+    extras_total: string;
     amount_paid: string;
     balance: string;
     payment_method: string | null;
