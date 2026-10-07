@@ -6,7 +6,19 @@ function Table({ className, ...props }: React.ComponentProps<"table">) {
   return (
     <div
       data-slot="table-container"
-      className="relative w-full overflow-x-auto"
+      /*
+       * `min-w-0` so that the overflow above can actually happen: an overflow
+       * container whose automatic minimum is its min-content will not shrink far
+       * enough to need to scroll.
+       *
+       * Note on a page that was measured rather than guessed at: this alone did
+       * NOT fix the booking page, where a four-column table was setting a 533px
+       * width inside a 328px column. The stop had to go on the grid item the card
+       * sat in, because this wrapper is `w-full` and against an indefinite
+       * container its contribution falls back to its content. Both are wanted;
+       * this one is the belt.
+       */
+      className="relative w-full min-w-0 overflow-x-auto"
     >
       <table
         data-slot="table"

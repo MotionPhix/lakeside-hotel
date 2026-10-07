@@ -11,7 +11,7 @@ import {
     Wallet,
 } from 'lucide-react';
 import type { FormEvent } from 'react';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import Heading from '@/components/heading';
 import InputError from '@/components/input-error';
 import { Badge } from '@/components/ui/badge';
@@ -51,12 +51,19 @@ import bookings from '@/routes/admin/bookings';
 import type {
     AdminBookingDetail,
     AdminBookingItem,
+    BookingExtraOption,
     SelectOption,
 } from '@/types';
+import { quantitiesBetween } from '@/lib/utils';
 
 type Props = {
     booking: AdminBookingDetail;
     methods: SelectOption[];
+    /**
+     * What the desk may sell on top of the room, from the same catalogue the
+     * booking form offers. Empty for anybody who could not add one anyway.
+     */
+    extras_available: BookingExtraOption[];
 };
 
 /**
@@ -89,7 +96,11 @@ function roomOptions(item: AdminBookingItem): { id: number; name: string }[] {
  * status being re-interpreted here, so the screen cannot offer a move the
  * service would refuse.
  */
-export default function BookingShow({ booking, methods }: Props) {
+export default function BookingShow({
+    booking,
+    methods,
+    extras_available,
+}: Props) {
     const { can } = usePermissions();
 
     /*
@@ -100,6 +111,49 @@ export default function BookingShow({ booking, methods }: Props) {
     const canManage = can('bookings.manage');
 
     const money = (amount: string) => formatMoney(amount, booking.currency);
+
+    /*
+     * Selling an extra, which is a different shape from the rest of the page's
+     * actions: it is a small form rather than a button, because what is being sold
+     * has to be chosen first. It has its own form state so validation comes back
+     * against the field that caused it.
+     */
+    const extraForm = useForm({ activity_id: '', quantity: '1' });
+
+    const chosenExtra = extras_available.find(
+        (option) => String(option.id) === extraForm.data.activity_id,
+    );
+
+    /*
+     * Set the moment a sale goes out and cleared once it has landed.
+     *
+     * `extraForm.processing` is not enough on its own: two clicks in the same tick
+     * both see it false, because the state has not re-rendered between them. That
+     * sold the same extra twice and left two identical lines and 240,000 on the
+     * folio. The ref is set synchronously, so the second click finds it set.
+     */
+    const selling = useRef(false);
+
+    const sellExtra = (event: FormEvent) => {
+        event.preventDefault();
+
+        if (selling.current) {
+            return;
+        }
+
+        selling.current = true;
+
+        extraForm.post(bookings.extras.store.url(booking.reference), {
+            preserveScroll: true,
+            onFinish: () => {
+                selling.current = false;
+            },
+            /* The choice is cleared afterwards: the next extra is usually a
+               different one, and leaving it selected is how the same thing gets
+               sold twice by accident. */
+            onSuccess: () => extraForm.reset(),
+        });
+    };
 
     const act = (
         url: string,
@@ -258,8 +312,29 @@ export default function BookingShow({ booking, methods }: Props) {
                     </CardContent>
                 </Card>
 
-                <div className="grid gap-6 lg:grid-cols-3">
-                    <div className="flex flex-col gap-6 lg:col-span-2">
+                {/*
+                    `min-w-0` on the columns, and it has to be here rather than
+                    deeper.
+
+                    Below `lg` this grid has a single column, and a grid item's
+                    automatic minimum size is its min-content - so the widest thing
+                    inside set the width of every card. The Stay table did that, at
+                    533px inside a 328px column, and the page's `overflow-x: clip`
+                    then hid the folio figures and the Remove buttons off the right
+                    edge where nothing could scroll to them. A `min-w-0` on the
+                    table's own wrapper could not help: that wrapper is `w-full`,
+                    so against an indefinite container its contribution falls back
+                    to its content. The stop has to be on the item.
+                */}
+                {/*
+                    `grid-cols-1` below `lg` is not decoration either. Tailwind's
+                    numbered column utilities resolve to `minmax(0, 1fr)`, where an
+                    implicit single column would be sized `auto` - to the widest
+                    thing in it. Between the two, every card gets a track it can
+                    shrink into.
+                */}
+                <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+                    <div className="flex min-w-0 flex-col gap-6 lg:col-span-2">
                         <Card>
                             <CardHeader>
                                 <CardTitle>Stay</CardTitle>
@@ -495,7 +570,7 @@ export default function BookingShow({ booking, methods }: Props) {
                         </Card>
                     </div>
 
-                    <div className="flex flex-col gap-6">
+                    <div className="flex min-w-0 flex-col gap-6">
                         <Card>
                             <CardHeader>
                                 <CardTitle>Folio</CardTitle>
@@ -543,6 +618,199 @@ export default function BookingShow({ booking, methods }: Props) {
                                         Chosen at booking:{' '}
                                         {booking.payment_method}
                                     </p>
+                                )}
+                            </CardContent>
+                        </Card>
+
+                        {/*
+                    What else was sold with the room. The folio above shows the
+                    lines and what they come to; this is where the desk adds one or
+                    takes one back, which is the half of selling extras a guest
+                    cannot do themselves.
+                */}
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Extras</CardTitle>
+                            </CardHeader>
+
+                            <CardContent className="space-y-4">
+                                {booking.extras.length === 0 ? (
+                                    <p className="text-sm text-muted-foreground">
+                                        Nothing extra was sold with this stay.
+                                    </p>
+                                ) : (
+                                    <ul className="divide-y">
+                                        {booking.extras.map((extra) => (
+                                            <li
+                                                key={extra.id}
+                                                className="flex flex-wrap items-center justify-between gap-3 py-2"
+                                            >
+                                                <span className="min-w-0 text-sm break-words">
+                                                    {extra.label}
+                                                </span>
+
+                                                <span className="flex shrink-0 items-center gap-3">
+                                                    <span className="text-sm font-medium">
+                                                        {money(extra.subtotal)}
+                                                    </span>
+
+                                                    {canManage && (
+                                                        <Button
+                                                            type="button"
+                                                            variant="ghost"
+                                                            size="sm"
+                                                            onClick={() =>
+                                                                router.delete(
+                                                                    bookings.extras.destroy.url(
+                                                                        [
+                                                                            booking.reference,
+                                                                            extra.id,
+                                                                        ],
+                                                                    ),
+                                                                    {
+                                                                        preserveScroll: true,
+                                                                    },
+                                                                )
+                                                            }
+                                                        >
+                                                            Remove
+                                                        </Button>
+                                                    )}
+                                                </span>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                )}
+
+                                {canManage && extras_available.length > 0 && (
+                                    <form
+                                        onSubmit={sellExtra}
+                                        className="space-y-3 border-t pt-4"
+                                    >
+                                        <div className="grid gap-3 sm:grid-cols-2">
+                                            <div className="space-y-1.5">
+                                                <Label htmlFor="extra-activity">
+                                                    What to add
+                                                </Label>
+                                                <Select
+                                                    value={
+                                                        extraForm.data
+                                                            .activity_id
+                                                    }
+                                                    onValueChange={(
+                                                        activity_id,
+                                                    ) =>
+                                                        extraForm.setData(
+                                                            'activity_id',
+                                                            activity_id,
+                                                        )
+                                                    }
+                                                >
+                                                    <SelectTrigger
+                                                        id="extra-activity"
+                                                        className="w-full"
+                                                    >
+                                                        <SelectValue placeholder="Choose an extra" />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        {extras_available.map(
+                                                            (option) => (
+                                                                <SelectItem
+                                                                    key={
+                                                                        option.id
+                                                                    }
+                                                                    value={String(
+                                                                        option.id,
+                                                                    )}
+                                                                >
+                                                                    {
+                                                                        option.name
+                                                                    }{' '}
+                                                                    —{' '}
+                                                                    {money(
+                                                                        option.price,
+                                                                    )}{' '}
+                                                                    {
+                                                                        option.basis_label
+                                                                    }
+                                                                </SelectItem>
+                                                            ),
+                                                        )}
+                                                    </SelectContent>
+                                                </Select>
+                                                <InputError
+                                                    message={
+                                                        extraForm.errors
+                                                            .activity_id
+                                                    }
+                                                />
+                                            </div>
+
+                                            {/* Only where there is something to count: a
+                                        group price is one group. */}
+                                            {chosenExtra?.quantity_label && (
+                                                <div className="space-y-1.5">
+                                                    <Label htmlFor="extra-quantity">
+                                                        {
+                                                            chosenExtra.quantity_label
+                                                        }
+                                                    </Label>
+                                                    <Select
+                                                        value={
+                                                            extraForm.data
+                                                                .quantity
+                                                        }
+                                                        onValueChange={(
+                                                            quantity,
+                                                        ) =>
+                                                            extraForm.setData(
+                                                                'quantity',
+                                                                quantity,
+                                                            )
+                                                        }
+                                                    >
+                                                        <SelectTrigger
+                                                            id="extra-quantity"
+                                                            className="w-full"
+                                                        >
+                                                            <SelectValue />
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                            {quantitiesBetween(
+                                                                chosenExtra.min_quantity,
+                                                                chosenExtra.max_quantity,
+                                                            ).map((count) => (
+                                                                <SelectItem
+                                                                    key={count}
+                                                                    value={String(
+                                                                        count,
+                                                                    )}
+                                                                >
+                                                                    {count}
+                                                                </SelectItem>
+                                                            ))}
+                                                        </SelectContent>
+                                                    </Select>
+                                                    <InputError
+                                                        message={
+                                                            extraForm.errors
+                                                                .quantity
+                                                        }
+                                                    />
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        <Button
+                                            type="submit"
+                                            disabled={
+                                                extraForm.data.activity_id ===
+                                                    '' || extraForm.processing
+                                            }
+                                        >
+                                            Add to the folio
+                                        </Button>
+                                    </form>
                                 )}
                             </CardContent>
                         </Card>
@@ -832,8 +1100,18 @@ function Line({
                     : 'flex justify-between gap-4'
             }
         >
-            <span className="text-muted-foreground">{label}</span>
-            <span>{value}</span>
+            {/*
+                The label may be long - "Fishing off the Islands (for the group)" -
+                and an unbreakable one forces the whole card wider than the column
+                it sits in. At a narrow width that pushed every figure and every
+                Remove button past the edge of the screen, where `<main>` clips
+                them with no scrollbar to reach them. So the label wraps and
+                shrinks; the figure beside it does neither.
+            */}
+            <span className="min-w-0 break-words text-muted-foreground">
+                {label}
+            </span>
+            <span className="shrink-0 whitespace-nowrap">{value}</span>
         </div>
     );
 }

@@ -16,7 +16,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { formatMoney, formatNight } from '@/lib/format';
-import { cn } from '@/lib/utils';
+import { cn, quantitiesBetween } from '@/lib/utils';
 import bookingRoutes from '@/routes/site/booking';
 import {
     Select,
@@ -40,17 +40,6 @@ type Props = {
     extras: BookingExtraOption[];
     booking: BookingContext;
 };
-
-/** Every whole number from one bound to the other, for the quantity control. */
-function quantitiesBetween(min: number, max: number): number[] {
-    const counts: number[] = [];
-
-    for (let count = min; count <= max; count += 1) {
-        counts.push(count);
-    }
-
-    return counts;
-}
 
 /**
  * Step two: who is coming, what they would like added, and how they would like to

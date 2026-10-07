@@ -44,4 +44,18 @@ final class BookingNotActionable extends RuntimeException
             $arrival->format('j F Y'),
         ));
     }
+
+    /**
+     * The stay has ended, one way or another, so nothing more may be written to
+     * what it cost. Its folio is a record by then, not a working document.
+     */
+    public static function closed(Booking $booking, string $action): self
+    {
+        return new self(sprintf(
+            'Booking %s is %s, so the folio cannot be %s.',
+            $booking->reference,
+            $booking->status->label(),
+            $action,
+        ));
+    }
 }

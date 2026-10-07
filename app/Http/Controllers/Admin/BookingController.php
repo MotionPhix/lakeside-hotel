@@ -4,14 +4,17 @@ namespace App\Http\Controllers\Admin;
 
 use App\Enums\BookingStatus;
 use App\Enums\PaymentMethod;
+use App\Enums\Permission;
 use App\Exceptions\BookingNotActionable;
 use App\Exceptions\RoomNotAvailable;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\AssignRoomRequest;
+use App\Http\Requests\Admin\BookingExtraRequest;
 use App\Http\Requests\Admin\BookingIndexRequest;
 use App\Http\Requests\Admin\CancelBookingRequest;
 use App\Http\Requests\Admin\RecordPaymentRequest;
 use App\Http\Requests\Admin\UpdateBookingNotesRequest;
+use App\Models\Activity;
 use App\Models\Booking;
 use App\Models\BookingExtra;
 use App\Models\BookingItem;
@@ -19,8 +22,10 @@ use App\Models\Room;
 use App\Services\Booking\BookingLifecycle;
 use App\Services\Booking\RoomAllocation;
 use App\Services\Payments\PaymentService;
+use App\Support\BookingPresenter;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -88,13 +93,21 @@ class BookingController extends Controller
     /**
      * One reservation in full, with everything the desk needs to act on it.
      */
-    public function show(Booking $booking): Response
+    public function show(Request $request, Booking $booking): Response
     {
         $booking->load('guest', 'items.roomType', 'items.ratePlan', 'items.room', 'payments.recorder', 'coupon', 'creator', 'extras');
 
         return Inertia::render('admin/bookings/show', [
             'booking' => $this->detail($booking),
             'methods' => PaymentMethod::options(),
+            /*
+             * What the desk may sell on top of the room. Only sent to somebody who
+             * could actually add one - the same catalogue the booking form offers,
+             * from the same presenter, so the two cannot describe a different bar.
+             */
+            'extras_available' => $request->user()?->can(Permission::ManageBookings->value)
+                ? BookingPresenter::extraOptions(Activity::query()->active()->get())
+                : [],
         ]);
     }
 
@@ -197,6 +210,68 @@ class BookingController extends Controller
         ]);
 
         return back();
+    }
+
+    /**
+     * Sell an extra onto a stay that has already been taken.
+     *
+     * Guests pick extras while they book; the desk sells them over the phone, at
+     * check-in and at the bar, and until now there was no way to write one down
+     * afterwards. The line is priced and recorded exactly as the booking form
+     * records one, so a folio cannot tell you which door it came through.
+     */
+    public function storeExtra(BookingExtraRequest $request, Booking $booking): RedirectResponse
+    {
+        $activity = $request->activity();
+        $quantity = $request->quantity();
+
+        return $this->apply(function () use ($booking, $activity, $quantity): void {
+            $this->refuseIfClosed($booking, 'given another extra');
+
+            $booking->extras()->create([
+                'activity_id' => $activity->getKey(),
+                'name' => $activity->name,
+                'price_basis' => $activity->price_basis,
+                'unit_price' => number_format((float) $activity->price, 2, '.', ''),
+                /* A group price is one group however many come, so nothing is
+                   counted and `priceForQuantity` returns the price as it stands. */
+                'quantity' => $activity->price_basis === 'per_group' ? 1 : $quantity,
+                'subtotal' => $activity->priceForQuantity($quantity),
+                'sort_order' => (int) $booking->extras()->max('sort_order') + 1,
+            ]);
+
+            $booking->recalculateTotals()->syncPaymentStatus()->save();
+        }, $activity->name.' added to the folio.');
+    }
+
+    /**
+     * Take an extra back off a folio.
+     *
+     * The whole line goes rather than its quantity being trimmed. What the desk
+     * needs to be able to say is that something was sold and then was not; a line
+     * edited down to nothing would leave the folio making a claim of its own.
+     */
+    public function destroyExtra(Booking $booking, BookingExtra $extra): RedirectResponse
+    {
+        abort_unless((int) $extra->booking_id === (int) $booking->getKey(), 404);
+
+        return $this->apply(function () use ($booking, $extra): void {
+            $this->refuseIfClosed($booking, 'changed');
+
+            $extra->delete();
+
+            $booking->recalculateTotals()->syncPaymentStatus()->save();
+        }, 'Extra removed from the folio.');
+    }
+
+    /**
+     * Once a stay has ended its folio is a record rather than a working document.
+     */
+    private function refuseIfClosed(Booking $booking, string $action): void
+    {
+        if ($booking->status->isClosed()) {
+            throw BookingNotActionable::closed($booking, $action);
+        }
     }
 
     /**

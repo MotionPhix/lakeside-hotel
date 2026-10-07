@@ -57,6 +57,19 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
         ->middleware('permission:bookings.manage')
         ->name('bookings.no-show');
 
+    /*
+     * Extras sold at the desk. Adding one is a post and removing one is a delete,
+     * because a folio keeps a line and then does not - there is no partial edit for
+     * a quantity to be trimmed to.
+     */
+    Route::post('bookings/{booking:reference}/extras', [BookingController::class, 'storeExtra'])
+        ->middleware('permission:bookings.manage')
+        ->name('bookings.extras.store');
+
+    Route::delete('bookings/{booking:reference}/extras/{extra}', [BookingController::class, 'destroyExtra'])
+        ->middleware('permission:bookings.manage')
+        ->name('bookings.extras.destroy');
+
     Route::post('bookings/{booking:reference}/payments', [BookingController::class, 'storePayment'])
         ->middleware('permission:bookings.manage')
         ->name('bookings.payments.store');
