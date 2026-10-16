@@ -11,7 +11,7 @@ import {
     Wallet,
 } from 'lucide-react';
 import type { FormEvent } from 'react';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Heading from '@/components/heading';
 import InputError from '@/components/input-error';
 import { Badge } from '@/components/ui/badge';
@@ -1008,12 +1008,41 @@ function PaymentForm({
         method: methods[0]?.value ?? 'cash',
     });
 
+    /*
+        useForm reads its defaults exactly once, so a folio that moves underneath
+        this form - which is what happens the moment the desk adds or removes an
+        extra - used to leave the field holding the balance from first paint
+        while the button below it quoted the new one. Two different figures for
+        the same payment. Follow the balance, but never overwrite a figure the
+        clerk has already started typing.
+    */
+    const edited = useRef(false);
+    const lastBalance = useRef(balance);
+
+    useEffect(() => {
+        if (lastBalance.current === balance) {
+            return;
+        }
+
+        lastBalance.current = balance;
+
+        if (!edited.current) {
+            setData('amount', balance);
+        }
+    }, [balance, setData]);
+
     const submit = (event: FormEvent) => {
         event.preventDefault();
 
         post(bookings.payments.store.url(reference), {
             preserveScroll: true,
-            onSuccess: () => reset(),
+            onSuccess: () => {
+                // Clear the "hands off, mid-typing" flag before resetting, or
+                // the field would settle on the balance we just paid off
+                // instead of the one that is now outstanding.
+                edited.current = false;
+                reset();
+            },
         });
     };
 
@@ -1035,7 +1064,10 @@ function PaymentForm({
                     step="0.01"
                     min="0"
                     value={data.amount}
-                    onChange={(event) => setData('amount', event.target.value)}
+                    onChange={(event) => {
+                        edited.current = true;
+                        setData('amount', event.target.value);
+                    }}
                     aria-invalid={Boolean(errors.amount)}
                 />
                 {errors.amount && (
