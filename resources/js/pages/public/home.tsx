@@ -14,7 +14,10 @@ import {
 } from '@/components/public/cards';
 import { HomeHero } from '@/components/public/home-hero';
 import { MapEmbed, directionsLink } from '@/components/public/map-embed';
-import { imageBoxes, ResponsiveImage } from '@/components/public/responsive-image';
+import {
+    imageBoxes,
+    ResponsiveImage,
+} from '@/components/public/responsive-image';
 import { Reveal } from '@/components/public/reveal';
 import { Section, SectionHeading } from '@/components/public/section';
 import { Button } from '@/components/ui/button';
@@ -227,9 +230,24 @@ export default function Home({
                                             {venue.tagline}
                                         </p>
                                     )}
-                                    {venue.signature_dishes.length > 0 && (
+                                    {/*
+                                     * A venue with nothing starred is not
+                                     * necessarily empty, so fall back to the
+                                     * menu itself; with no menu either, its own
+                                     * description fills the card. Otherwise two
+                                     * of the three cards were heading and
+                                     * tagline above a blank space.
+                                     */}
+                                    {venue.signature_dishes.length > 0 ||
+                                    venue.menu.length > 0 ? (
                                         <ul className="mt-4 space-y-2 text-sm text-sand/80">
-                                            {venue.signature_dishes
+                                            {(venue.signature_dishes.length > 0
+                                                ? venue.signature_dishes
+                                                : venue.menu.flatMap(
+                                                      (section) =>
+                                                          section.items,
+                                                  )
+                                            )
                                                 .slice(0, 3)
                                                 .map((dish) => (
                                                     <li
@@ -240,7 +258,11 @@ export default function Home({
                                                     </li>
                                                 ))}
                                         </ul>
-                                    )}
+                                    ) : venue.description ? (
+                                        <p className="mt-4 line-clamp-3 text-sm leading-relaxed text-sand/70">
+                                            {venue.description}
+                                        </p>
+                                    ) : null}
                                 </div>
                             </Reveal>
                         ))}
@@ -304,7 +326,7 @@ export default function Home({
                         min-width:auto, so one wide card can push the grid - and
                         the page - past the viewport. It shows up on Windows,
                         where a visible scrollbar takes ~5px off the viewport. */}
-                    <div className="mt-12 grid gap-6 [&>*]:min-w-0 md:auto-rows-fr md:grid-cols-2 lg:grid-cols-3">
+                    <div className="mt-12 grid gap-6 md:auto-rows-fr md:grid-cols-2 lg:grid-cols-3 [&>*]:min-w-0">
                         {conferencePackages.map((pkg, index) => (
                             <Reveal key={pkg.id} delay={index * 70}>
                                 <PackageCard pkg={pkg} />
@@ -368,7 +390,7 @@ export default function Home({
                         min-width:auto, so one wide card can push the grid - and
                         the page - past the viewport. It shows up on Windows,
                         where a visible scrollbar takes ~5px off the viewport. */}
-                    <div className="mt-12 grid gap-6 [&>*]:min-w-0 md:auto-rows-fr md:grid-cols-2 lg:grid-cols-3">
+                    <div className="mt-12 grid gap-6 md:auto-rows-fr md:grid-cols-2 lg:grid-cols-3 [&>*]:min-w-0">
                         {testimonials.map((testimonial, index) => (
                             <Reveal key={testimonial.id} delay={index * 60}>
                                 <TestimonialCard testimonial={testimonial} />
@@ -394,7 +416,7 @@ export default function Home({
                         min-width:auto, so one wide card can push the grid - and
                         the page - past the viewport. It shows up on Windows,
                         where a visible scrollbar takes ~5px off the viewport. */}
-                    <div className="mt-12 grid gap-6 [&>*]:min-w-0 md:auto-rows-fr md:grid-cols-2 lg:grid-cols-3">
+                    <div className="mt-12 grid gap-6 md:auto-rows-fr md:grid-cols-2 lg:grid-cols-3 [&>*]:min-w-0">
                         {offers.map((offer, index) => (
                             <Reveal key={offer.id} delay={index * 70}>
                                 <OfferCard offer={offer} tone="navy" />
@@ -448,7 +470,7 @@ export default function Home({
 
             {/* Contact */}
             <Section tone="sand" spacing="tight">
-                <div className="grid gap-8 [&>*]:min-w-0 lg:grid-cols-3 lg:items-center">
+                <div className="grid gap-8 lg:grid-cols-3 lg:items-center [&>*]:min-w-0">
                     <Reveal className="lg:col-span-2">
                         <SectionHeading
                             eyebrow="Get in touch"
