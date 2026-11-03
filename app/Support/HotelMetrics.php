@@ -148,8 +148,13 @@ final class HotelMetrics
             'taken_today' => number_format($settled($today, $dayEnd), 2, '.', ''),
             'taken_this_month' => number_format($settled($monthStart, $dayEnd), 2, '.', ''),
             'month_label' => $monthStart->format('F'),
+            // A range rather than whereDate(): wrapping the column in DATE()
+            // stops MySQL using the index on created_at, and this query runs on
+            // every dashboard load.
             'booked_today' => number_format(
-                (float) Booking::query()->whereDate('created_at', $today)->sum('total'),
+                (float) Booking::query()
+                    ->whereBetween('created_at', [$today->copy()->startOfDay(), $dayEnd])
+                    ->sum('total'),
                 2,
                 '.',
                 '',
@@ -172,16 +177,9 @@ final class HotelMetrics
      */
     public function outstanding(): string
     {
-        $balances = Booking::query()
-            ->holdingInventory()
-            ->get(['total', 'amount_paid']);
-
-        return number_format(
-            max($balances->sum(fn (Booking $booking): float => (float) $booking->balance()), 0),
-            2,
-            '.',
-            '',
-        );
+        // One definition, on the model, so the dashboard and the reservations
+        // list cannot drift apart.
+        return Booking::outstandingTotal();
     }
 
     /**

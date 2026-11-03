@@ -79,6 +79,20 @@ class DiningVenue extends Model implements HasMedia
     }
 
     /**
+     * What can actually be ordered today.
+     *
+     * This exists as a relation rather than a scope so a caller can eager load
+     * it. Asking the presenter to filter after the fact is what made the
+     * homepage query once per venue for a menu it had already been given.
+     *
+     * @return HasMany<MenuItem, $this>
+     */
+    public function availableMenuItems(): HasMany
+    {
+        return $this->menuItems()->available();
+    }
+
+    /**
      * The dishes the kitchen is known for.
      *
      * @return HasMany<MenuItem, $this>

@@ -219,6 +219,28 @@ class Booking extends Model
     }
 
     /**
+     * What every live booking still owes, as one figure for the dashboard and
+     * the reservations list.
+     *
+     * Each booking is clamped at zero before the sum, so a guest who overpaid
+     * cannot offset another guest's debt. Summing `total - amount_paid` in SQL
+     * would look tidier and report a smaller number than the truth.
+     */
+    public static function outstandingTotal(): string
+    {
+        $balances = static::query()
+            ->holdingInventory()
+            ->get(['total', 'amount_paid']);
+
+        return number_format(
+            max($balances->sum(fn (Booking $booking): float => (float) $booking->balance()), 0),
+            2,
+            '.',
+            '',
+        );
+    }
+
+    /**
      * Whether the booking is fully settled.
      */
     public function isPaidInFull(): bool
@@ -391,24 +413,40 @@ class Booking extends Model
     /**
      * Limit the query to guests arriving on a given date.
      *
+     * A half-open range rather than `whereDate()` or `where(check_in, $date)`.
+     * `whereDate()` wraps the column in DATE(), which is a function call and so
+     * cannot use the index on check_in - that is why the arrivals list read the
+     * whole table. Plain equality is no better in practice: the `date` cast
+     * writes "Y-m-d H:i:s", MySQL's date column truncates that and SQLite keeps
+     * it, so the same query silently matches nothing under test. A range is
+     * sargable and tolerates the time part on both.
+     *
      * @param  Builder<Booking>  $query
      */
     #[Scope]
     protected function arrivingOn(Builder $query, CarbonInterface $date): void
     {
-        $query->whereDate('check_in', $date)
+        $from = $date->copy()->startOfDay();
+
+        $query->where('check_in', '>=', $from->toDateString())
+            ->where('check_in', '<', $from->copy()->addDay()->toDateString())
             ->whereIn('status', [BookingStatus::Pending->value, BookingStatus::Confirmed->value]);
     }
 
     /**
      * Limit the query to guests checking out on a given date.
      *
+     * The same range as arrivingOn(), and for the same reason.
+     *
      * @param  Builder<Booking>  $query
      */
     #[Scope]
     protected function departingOn(Builder $query, CarbonInterface $date): void
     {
-        $query->whereDate('check_out', $date)
+        $from = $date->copy()->startOfDay();
+
+        $query->where('check_out', '>=', $from->toDateString())
+            ->where('check_out', '<', $from->copy()->addDay()->toDateString())
             ->where('status', BookingStatus::CheckedIn->value);
     }
 

@@ -119,6 +119,8 @@ class HomeController extends Controller
         return array_values(
             DiningVenue::query()
                 ->active()
+                // One query for every menu on the strip, instead of one per venue.
+                ->with('availableMenuItems')
                 ->get()
                 ->map(fn (DiningVenue $venue): array => SitePresenter::diningVenue($venue, true))
                 ->all(),

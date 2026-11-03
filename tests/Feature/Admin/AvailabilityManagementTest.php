@@ -280,6 +280,15 @@ test('reopening a room puts it back on sale', function () {
 test('the page says which closures are in force and which have finished', function () {
     $this->travelTo($this->day->copy()->setTime(9, 0));
 
+    /*
+     * The seed puts a closure at now()+10..+16 and a single day at now()+3, so
+     * whether one of them lands on 10 November depends on the date the suite is
+     * run - which made `closed_tonight` below fail on some days and pass on
+     * others. Clearing them leaves the count meaning what the test is asserting:
+     * the closures this test created.
+     */
+    AvailabilityBlock::query()->delete();
+
     $running = AvailabilityBlock::factory()->create([
         'room_id' => $this->rooms[0]->getKey(),
         'starts_on' => $this->day->copy()->subDay()->toDateString(),

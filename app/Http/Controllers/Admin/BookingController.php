@@ -85,7 +85,7 @@ class BookingController extends Controller
             'statuses' => BookingStatus::options(),
             'totals' => [
                 'matching' => $bookings->total(),
-                'outstanding' => $this->outstanding(),
+                'outstanding' => Booking::outstandingTotal(),
             ],
         ]);
     }
@@ -95,7 +95,19 @@ class BookingController extends Controller
      */
     public function show(Request $request, Booking $booking): Response
     {
-        $booking->load('guest', 'items.roomType', 'items.ratePlan', 'items.room', 'payments.recorder', 'coupon', 'creator', 'extras');
+        // The guest's stay count comes back with the guest. Counting through the
+        // relation instead fired a second query for a figure this page only ever
+        // needs once.
+        $booking->load([
+            'guest' => fn ($guest) => $guest->withCount('bookings'),
+            'items.roomType',
+            'items.ratePlan',
+            'items.room',
+            'payments.recorder',
+            'coupon',
+            'creator',
+            'extras',
+        ]);
 
         return Inertia::render('admin/bookings/show', [
             'booking' => $this->detail($booking),
@@ -385,7 +397,7 @@ class BookingController extends Controller
                 'phone' => $booking->guest->phone,
                 'country' => $booking->guest->country,
                 'city' => $booking->guest->city,
-                'stays' => $booking->guest->bookings()->count(),
+                'stays' => $booking->guest->bookings_count,
                 'marketing_opt_in' => $booking->guest->marketing_opt_in,
             ],
             'items' => $booking->items
@@ -430,20 +442,5 @@ class BookingController extends Controller
             'can' => $this->lifecycle->availableActions($booking)
                 + ['assign_rooms' => $booking->status->holdsInventory()],
         ];
-    }
-
-    /**
-     * What every live booking still owes.
-     */
-    private function outstanding(): string
-    {
-        $bookings = Booking::query()->holdingInventory()->get(['total', 'amount_paid']);
-
-        return number_format(
-            max($bookings->sum(fn (Booking $booking): float => (float) $booking->balance()), 0),
-            2,
-            '.',
-            '',
-        );
     }
 }

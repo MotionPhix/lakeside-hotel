@@ -499,7 +499,9 @@ class SitePresenter
         ];
 
         if ($withMenu) {
-            $items = $venue->menuItems()->available()->get();
+            // The relation, not a fresh query: the homepage eager loads it, and
+            // where nobody has, this still loads exactly the available dishes.
+            $items = $venue->availableMenuItems;
 
             $payload['signature_dishes'] = array_values(
                 $items->where('is_signature', true)

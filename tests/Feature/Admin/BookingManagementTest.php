@@ -211,6 +211,44 @@ test('a no-show can be marked once the arrival date has come', function () {
     expect($booking->refresh()->status)->toBe(BookingStatus::NoShow);
 });
 
+test('a booking can be cancelled without giving a reason', function () {
+    $booking = ($this->booking)(BookingStatus::Confirmed);
+
+    $this->actingAs($this->manager)
+        ->patch(route('admin.bookings.cancel', $booking->reference))
+        ->assertRedirect();
+
+    // The reason is a nicety, not a condition: a desk that has to type
+    // something to release a room will type nonsense.
+    expect($booking->refresh()->status)->toBe(BookingStatus::Cancelled)
+        ->and($booking->cancellation_reason)->toBeNull()
+        ->and($booking->cancelled_at)->not->toBeNull();
+});
+
+test('a cancelled booking cannot be confirmed afterwards', function () {
+    $booking = ($this->booking)(BookingStatus::Cancelled);
+
+    $this->actingAs($this->manager)
+        ->patch(route('admin.bookings.confirm', $booking->reference))
+        ->assertRedirect();
+
+    expect($booking->refresh()->status)->toBe(BookingStatus::Cancelled);
+});
+
+test('a guest who is already in house cannot be cancelled', function () {
+    $booking = ($this->booking)(BookingStatus::CheckedIn);
+
+    $this->actingAs($this->manager)
+        ->patch(route('admin.bookings.cancel', $booking->reference), [
+            'reason' => 'Guest left early',
+        ])
+        ->assertRedirect();
+
+    // A stay that has started ends by checking out, not by cancelling: the
+    // difference is whether the nights were actually stayed.
+    expect($booking->refresh()->status)->toBe(BookingStatus::CheckedIn);
+});
+
 test('recording a desk payment settles the folio and confirms the booking', function () {
     $booking = ($this->booking)(BookingStatus::Pending);
 
@@ -274,4 +312,21 @@ test('a booking that has settled cannot be paid again', function () {
             'method' => PaymentMethod::Cash->value,
         ])
         ->assertSessionHasErrors('amount');
+});
+
+test('the booking detail reports how many times the guest has stayed', function () {
+    $booking = ($this->booking)(BookingStatus::Confirmed);
+
+    // The count now arrives with the guest rather than from a second query. If
+    // that stops being true the figure silently reads null, which the page would
+    // render as an empty stay count rather than an error.
+    $earlier = ($this->booking)(BookingStatus::CheckedOut);
+    $earlier->forceFill(['guest_id' => $booking->guest_id])->save();
+
+    $this->actingAs($this->manager)
+        ->get(route('admin.bookings.show', $booking->reference))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->component('admin/bookings/show')
+            ->where('booking.guest_detail.stays', 2));
 });
