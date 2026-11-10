@@ -11,6 +11,7 @@ use App\Models\Testimonial;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 uses(RefreshDatabase::class);
@@ -243,6 +244,46 @@ test('reordering moves a record and leaves a clean running order', function () {
     // Positions are rewritten as 1..n rather than left with ties.
     $positions = Amenity::query()->orderBy('sort_order')->pluck('sort_order')->all();
     expect($positions)->toBe(range(1, count($positions)));
+});
+
+test('reordering rewrites only the two rows it swaps', function () {
+    $before = Amenity::query()->orderBy('sort_order')->orderBy('id')->pluck('id')->all();
+    $last = end($before);
+
+    $writes = [];
+
+    DB::listen(function ($query) use (&$writes): void {
+        if (str_starts_with(strtolower($query->sql), 'update') && str_contains($query->sql, 'sort_order')) {
+            $writes[] = $query->sql;
+        }
+    });
+
+    $this->actingAs($this->admin)
+        ->patch(route('admin.content.move', ['resource' => 'amenities', 'id' => $last, 'direction' => 'up']))
+        ->assertRedirect();
+
+    // Exchanging the two sort values is enough - rewriting every row to
+    // renumber the list is what this used to do.
+    expect($writes)->toHaveCount(2);
+});
+
+test('a move between rows on the same position still reorders them', function () {
+    // A freshly created record starts at 0, so ties are ordinary rather than
+    // theoretical, and swapping two equal numbers would change nothing.
+    Amenity::query()->update(['sort_order' => 0]);
+
+    $before = Amenity::query()->orderBy('sort_order')->orderBy('id')->pluck('id')->all();
+    $last = end($before);
+
+    $this->actingAs($this->admin)
+        ->patch(route('admin.content.move', ['resource' => 'amenities', 'id' => $last, 'direction' => 'up']))
+        ->assertRedirect();
+
+    $after = Amenity::query()->orderBy('sort_order')->orderBy('id')->pluck('id')->all();
+
+    expect($after[count($after) - 2])->toBe($last)
+        ->and(Amenity::query()->orderBy('sort_order')->pluck('sort_order')->all())
+        ->toBe(range(1, count($after)));
 });
 
 test('moving past either end of the list does nothing', function () {

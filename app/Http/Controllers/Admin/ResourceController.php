@@ -66,6 +66,13 @@ class ResourceController extends Controller
         $search = $request->string('search')->trim()->value();
 
         $query = $definition->model::query()
+            // One query for the whole page's media instead of one per record:
+            // getMedia() reads the relation when it has been loaded, and only
+            // falls back to querying when it has not.
+            ->when(
+                $this->carriesMedia($definition),
+                fn (Builder $builder) => $builder->with('media'),
+            )
             ->when(
                 $search !== '' && $definition->searchable !== [],
                 fn (Builder $builder) => $builder->where(
@@ -193,37 +200,93 @@ class ResourceController extends Controller
         abort_unless(in_array($direction, ['up', 'down'], true), 404);
 
         $record = $this->record($definition, $id);
+        $column = $definition->sortColumn;
+        $position = (int) $record->{$column};
+
+        $neighbour = $this->neighbourOf($definition, $record, $direction);
+
+        // Already at the end of the list: nothing to do, and no error either -
+        // the button is simply at the edge.
+        if ($neighbour === null) {
+            return back();
+        }
+
+        $theirs = (int) $neighbour->{$column};
+
+        /*
+         * Two rows sharing a sort value - which every freshly created record
+         * does, since the column defaults to 0 - cannot be reordered by swapping
+         * their numbers, because the numbers are the same. Renumbering the list
+         * is the only way to make the move visible. Everywhere else, exchanging
+         * the two values is enough and the rest of the rows are left alone.
+         */
+        if ($theirs === $position) {
+            $this->renumber($definition, $record, $neighbour);
+
+            return back();
+        }
+
+        $record->forceFill([$column => $theirs])->save();
+        $neighbour->forceFill([$column => $position])->save();
+
+        return back();
+    }
+
+    /**
+     * The record immediately before or after this one.
+     *
+     * Ordered by the sort column and then by id, so that a run of equal values
+     * still has exactly one "next" record rather than an arbitrary one.
+     */
+    private function neighbourOf(ResourceDefinition $definition, Model $record, string $direction): ?Model
+    {
+        $column = $definition->sortColumn;
+        $position = (int) $record->{$column};
+        $up = $direction === 'up';
+        $comparison = $up ? '<' : '>';
+
+        return $definition->model::query()
+            ->where(function (Builder $query) use ($column, $position, $record, $comparison): void {
+                $query->where($column, $comparison, $position)
+                    ->orWhere(fn (Builder $tie) => $tie
+                        ->where($column, $position)
+                        ->where('id', $comparison, $record->getKey()));
+            })
+            ->orderBy($column, $up ? 'desc' : 'asc')
+            ->orderBy('id', $up ? 'desc' : 'asc')
+            ->first();
+    }
+
+    /**
+     * Number the whole list one upwards, with two records exchanged.
+     *
+     * The fallback for the tied case only: a move that rewrites every row is
+     * what this controller used to do every time.
+     */
+    private function renumber(ResourceDefinition $definition, Model $record, Model $neighbour): void
+    {
+        $column = $definition->sortColumn;
 
         $ordered = $definition->model::query()
-            ->orderBy($definition->sortColumn)
+            ->orderBy($column)
             ->orderBy('id')
             ->get()
             ->all();
 
-        $index = null;
+        $keys = array_map(fn (Model $item) => $item->getKey(), $ordered);
+
+        $from = array_search($record->getKey(), $keys, true);
+        $to = array_search($neighbour->getKey(), $keys, true);
+
+        if ($from === false || $to === false) {
+            return;
+        }
+
+        [$ordered[$from], $ordered[$to]] = [$ordered[$to], $ordered[$from]];
 
         foreach ($ordered as $position => $item) {
-            if ($item->getKey() === $record->getKey()) {
-                $index = $position;
-                break;
-            }
+            $item->forceFill([$column => $position + 1])->save();
         }
-
-        $target = $direction === 'up' ? $index - 1 : $index + 1;
-
-        // Already at the end of the list: nothing to do, and no error either -
-        // the button is simply at the edge.
-        if ($index === null || $target < 0 || $target >= count($ordered)) {
-            return back();
-        }
-
-        [$ordered[$index], $ordered[$target]] = [$ordered[$target], $ordered[$index]];
-
-        foreach ($ordered as $position => $item) {
-            $item->forceFill([$definition->sortColumn => $position + 1])->save();
-        }
-
-        return back();
     }
 
     /**
@@ -478,6 +541,18 @@ class ResourceController extends Controller
     }
 
     /**
+     * Whether this resource's model carries media at all.
+     *
+     * The definition can declare collections on a model that has not been given
+     * the trait, and `with('media')` on such a model throws - so both the eager
+     * load and the reading side ask this rather than checking the config alone.
+     */
+    private function carriesMedia(ResourceDefinition $definition): bool
+    {
+        return $definition->media !== [] && method_exists($definition->model, 'getMedia');
+    }
+
+    /**
      * Media already attached, keyed by collection.
      *
      * @param  iterable<Model>  $records
@@ -485,7 +560,7 @@ class ResourceController extends Controller
      */
     private function mediaFor(ResourceDefinition $definition, iterable $records): array
     {
-        if ($definition->media === []) {
+        if (! $this->carriesMedia($definition)) {
             return [];
         }
 
