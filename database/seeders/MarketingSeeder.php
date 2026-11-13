@@ -78,7 +78,7 @@ class MarketingSeeder extends Seeder
                 'title' => 'Weekend Lakeside Special',
                 'type' => 'weekend',
                 'subtitle' => 'Two nights by the water, Friday to Sunday',
-                'description' => 'Arrive on Friday, wake up to the lake twice, and leave after a late breakfast on Sunday. Includes a complimentary sunset cruise for two and a bottle of wine in your room on arrival.',
+                'description' => 'Arrive on Friday, wake up to the lake twice, and leave after a late breakfast on Sunday. Includes a complimentary sunset cruise for two.',
                 'highlight' => 'Save 15%',
                 'discount_label' => '15% off',
                 'coupon_code' => 'WEEKEND15',

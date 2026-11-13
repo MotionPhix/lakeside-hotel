@@ -56,10 +56,10 @@ class ExperienceSeeder extends Seeder
         $bar = DiningVenue::query()->updateOrCreate(
             ['slug' => 'bar-and-lounge'],
             [
-                'name' => 'The Bar & Lounge',
+                'name' => 'The Lounge',
                 'type' => 'bar',
                 'tagline' => 'Cold drinks, a pool table, and the best sunset in Senga Bay',
-                'description' => 'The lounge opens onto the gardens, facing west across the water, with a full size pool table and the bar alongside it. Local gins, South African wine, cocktails built around baobab and mango, and a bar snack menu through the afternoon.',
+                'description' => 'The lounge opens onto the gardens, facing west across the water, with a full size pool table and the bar alongside it. Enjoy mocktails, shisha and other non-alcoholic refreshments. Alcohol is not served or permitted on the property.',
                 'opening_hours' => ['daily' => '11:00 - 23:00'],
                 'dress_code' => null,
                 'sort_order' => 2,

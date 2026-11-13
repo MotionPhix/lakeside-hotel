@@ -61,7 +61,7 @@ class AccommodationSeeder extends Seeder
             // On site.
             ['Swimming Pool', 'waves', 'general', 'An outdoor pool with a sun deck, gazebo and loungers overlooking the lake.', 11],
             ['Lakeview Restaurant', 'utensils', 'general', 'Our multi-cuisine restaurant, seating close to 400 people.', 12],
-            ['Bar & Lounge', 'wine', 'general', 'The bar and lounge, with a pool table and the lake beyond.', 13],
+            ['Bar & Lounge', 'cup-soda', 'general', 'Mocktails, shisha and a pool table in our alcohol-free lounge.', 13],
             ['Pool Table', 'target', 'general', 'A full size pool table in the lounge.', 14],
             ['Conference Centre', 'presentation', 'general', 'Four conference halls seating up to 250 delegates.', 15],
             ['Secure Parking', 'car', 'general', 'Free off-street parking inside the hotel grounds.', 16],

@@ -29,7 +29,9 @@ class DatabaseSeeder extends Seeder
             SiteSectionSeeder::class,
             AccommodationSeeder::class,
             ExperienceSeeder::class,
+            DiningPhotographySeeder::class,
             MarketingSeeder::class,
+            HotelHouseRulesSeeder::class,
             GuestSeeder::class,
         ]);
     }
