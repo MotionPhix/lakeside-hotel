@@ -34,6 +34,19 @@ class GuestSeeder extends Seeder
      */
     public function run(): void
     {
+        // Demonstration guests are for a machine somebody is working on, never for
+        // the live site: the dashboard would show them, the reports would chart
+        // them, and reception would have no way to tell them apart from real
+        // bookings. `db:seed` already refuses to run in production without
+        // --force; this is the second lock on the same door, because the cost of
+        // getting past the first one by accident is invented reservations in the
+        // guest book.
+        if (app()->environment('production')) {
+            $this->command?->warn('GuestSeeder skipped: it writes demonstration guests and bookings.');
+
+            return;
+        }
+
         $this->seedGuests();
         $this->seedBookings();
         $this->seedInquiries();
