@@ -84,8 +84,9 @@ php artisan view:cache
 `public/bucket`, which the web server serves directly.
 
 Nothing needs to stay running afterwards. No class implements `ShouldQueue`,
-nothing dispatches a job, both booking emails use `Mail::send` synchronously,
-and there is no `schedule()` call anywhere - so no worker and no cron entry.
+nothing dispatches a job, both booking emails go out through `Mail::to()->send()`
+rather than being queued, and there is no `schedule()` call anywhere - so no
+worker and no cron entry.
 
 ## Payments
 
