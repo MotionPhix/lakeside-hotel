@@ -39,14 +39,17 @@ export function SiteFooter() {
                         it can be read - below that it turns to mush, and there is
                         no point printing it.
 
-                        The file is its own resolution, so the browser is told the
-                        ratio up front and the footer does not jump when it lands.
+                         The file is its own resolution, so the browser is told the
+                         ratio up front and the footer does not jump when it lands.
+                         It is 1000px wide: about three times the 223px it renders
+                         at here, which covers a high-density screen, and small
+                         enough (133 KB rather than 938 KB) to carry on every page.
                     */}
                     <img
                         src="/bucket/lakeside-wordmark.png"
                         alt={site.name}
-                        width={8528}
-                        height={3057}
+                        width={1000}
+                        height={358}
                         loading="lazy"
                         decoding="async"
                         className="h-20 w-auto brightness-0 invert"
