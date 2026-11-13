@@ -1,7 +1,12 @@
 /.phpunit.cache
 /bootstrap/ssr
 /node_modules
-/public/build
+# `public/build` is deliberately tracked. The production host runs PHP only, so
+# there is no `npm run build` there and `@vite()` would throw a
+# ViteManifestNotFoundException on every page without the compiled assets. Build
+# with `npm run build` before committing, so the manifest matches the source it
+# was built from. The Vite dev artefacts below stay out.
+/public/hot
 # Media the application has uploaded or the media library has generated from the
 # photographs the site seeds itself with. Both are rebuildable - the originals
 # live in database/seeders/photography - so carrying a second copy of every
@@ -11,7 +16,6 @@
 !/public/bucket/lakeside-wordmark.png
 !/public/bucket/lakeside_hotel_logo.png
 /public/fonts-manifest.dev.json
-/public/hot
 /public/storage
 /storage/*.key
 /storage/pail
