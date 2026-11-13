@@ -53,7 +53,9 @@ function MenuDish({ dish }: { dish: MenuItemData }) {
 /** The kitchen's existing menu, with one readable category at a time. */
 export function DiningMenu({ venue }: { venue: DiningVenueData }) {
     const id = useId();
-    const [category, setCategory] = useState(venue.menu[0]?.key ?? 'all');
+    // Open on the full menu. Landing on the first category showed a visitor
+    // three salads while the copy invited them to browse everything.
+    const [category, setCategory] = useState('all');
     const [search, setSearch] = useState('');
     const [vegetarianOnly, setVegetarianOnly] = useState(false);
     const query = search.trim().toLocaleLowerCase();
