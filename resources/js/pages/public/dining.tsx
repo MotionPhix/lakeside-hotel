@@ -1,8 +1,12 @@
 import { SeoHead } from '@/components/public/seo-head';
 import { Clock, Shirt, Star } from 'lucide-react';
 import { ContactCta } from '@/components/public/contact-cta';
+import { DiningMenu } from '@/components/public/dining-menu';
 import { PageHero } from '@/components/public/page-hero';
-import { imageBoxes, ResponsiveImage } from '@/components/public/responsive-image';
+import {
+    imageBoxes,
+    ResponsiveImage,
+} from '@/components/public/responsive-image';
 import { Reveal } from '@/components/public/reveal';
 import { Section, SectionHeading } from '@/components/public/section';
 import { formatMoney } from '@/lib/format';
@@ -139,72 +143,7 @@ export default function Dining({ intro, venues }: Props) {
                         </Reveal>
                     </div>
 
-                    {venue.menu.length > 0 && (
-                        <Reveal delay={120}>
-                            <div className="mt-16 border-t border-navy/10 pt-12">
-                                <h3 className="font-display text-2xl font-semibold text-navy">
-                                    Full menu
-                                </h3>
-                                {venue.menu_note && (
-                                    <p className="mt-2 text-sm text-navy/60">
-                                        {venue.menu_note}
-                                    </p>
-                                )}
-
-                                {/*
-                                 * The sections are wildly uneven — one holds
-                                 * twenty-seven dishes, another a single pappad —
-                                 * so they flow down balanced newspaper columns
-                                 * instead of sitting in a ragged grid.
-                                 */}
-                                <div className="mt-8 columns-1 gap-10 md:columns-2 lg:columns-3">
-                                    {venue.menu.map((section) => (
-                                        <div
-                                            key={section.key}
-                                            className="mb-10 break-inside-avoid"
-                                        >
-                                            <p className="text-xs font-semibold tracking-[0.18em] text-gold-dark uppercase">
-                                                {section.label}
-                                            </p>
-                                            {section.note && (
-                                                <p className="mt-1 text-[11px] tracking-wide text-navy/50 uppercase">
-                                                    {section.note}
-                                                </p>
-                                            )}
-                                            <ul className="mt-4 space-y-3">
-                                                {section.items.map((dish) => (
-                                                    <li key={dish.id}>
-                                                        <div className="flex items-baseline justify-between gap-4">
-                                                            <p className="text-sm font-medium text-navy">
-                                                                {dish.name}
-                                                                {dish.is_vegetarian && (
-                                                                    <span className="ml-2 rounded-full bg-lake-light px-2 py-0.5 text-[10px] font-semibold text-lake">
-                                                                        Veg
-                                                                    </span>
-                                                                )}
-                                                            </p>
-                                                            <p className="shrink-0 text-sm text-navy/70">
-                                                                {formatMoney(
-                                                                    dish.price,
-                                                                )}
-                                                            </p>
-                                                        </div>
-                                                        {dish.description && (
-                                                            <p className="mt-0.5 text-xs text-navy/55">
-                                                                {
-                                                                    dish.description
-                                                                }
-                                                            </p>
-                                                        )}
-                                                    </li>
-                                                ))}
-                                            </ul>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        </Reveal>
-                    )}
+                    {venue.menu.length > 0 && <DiningMenu venue={venue} />}
                 </Section>
             ))}
 
