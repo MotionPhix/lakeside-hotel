@@ -28,7 +28,6 @@ import {
     Waves,
     Wifi,
     Wind,
-    Wine,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
@@ -39,7 +38,7 @@ import type { LucideIcon } from 'lucide-react';
 const icons: Record<string, LucideIcon> = {
     wifi: Wifi,
     utensils: Utensils,
-    wine: Wine,
+    wine: CupSoda,
     presentation: Presentation,
     waves: Waves,
     ship: Anchor,
