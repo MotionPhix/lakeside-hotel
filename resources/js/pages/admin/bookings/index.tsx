@@ -1,7 +1,5 @@
-import { Head, Link, router } from '@inertiajs/react';
+import { Head, Link } from '@inertiajs/react';
 import { Search } from 'lucide-react';
-import type { FormEvent } from 'react';
-import { useState } from 'react';
 import { DatePicker } from '@/components/date-picker';
 import Heading from '@/components/heading';
 import { Badge } from '@/components/ui/badge';
@@ -25,6 +23,7 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
+import { useFilters } from '@/hooks/use-filters';
 import { formatMoney, formatNight } from '@/lib/format';
 import { dashboard } from '@/routes';
 import bookings from '@/routes/admin/bookings';
@@ -64,37 +63,15 @@ export default function BookingsIndex({
     statuses,
     totals,
 }: Props) {
-    const [search, setSearch] = useState(filters.search);
-    const [status, setStatus] = useState(filters.status || ANY);
-    const [from, setFrom] = useState(filters.from);
-    const [to, setTo] = useState(filters.to);
-    const [unpaid, setUnpaid] = useState(filters.unpaid === '1');
-
-    const apply = (event?: FormEvent) => {
-        event?.preventDefault();
-
-        router.get(
-            bookings.index.url(),
-            {
-                search,
-                status: status === ANY ? '' : status,
-                from,
-                to,
-                unpaid: unpaid ? '1' : '',
-            },
-            { preserveState: true, preserveScroll: true },
-        );
-    };
-
-    const reset = () => {
-        setSearch('');
-        setStatus(ANY);
-        setFrom('');
-        setTo('');
-        setUnpaid(false);
-
-        router.get(bookings.index.url(), {}, { preserveScroll: true });
-    };
+    // Filters apply themselves: typing waits for a pause, and picking a status, a
+    // date or the unpaid box asks at once, because a choice is already a decision.
+    const { values, set, reset, active } = useFilters(bookings.index.url(), {
+        search: filters.search,
+        status: filters.status,
+        from: filters.from,
+        to: filters.to,
+        unpaid: filters.unpaid === '1',
+    });
 
     return (
         <>
@@ -119,114 +96,119 @@ export default function BookingsIndex({
                     </div>
                 </div>
 
-                <Card className="py-4">
-                    <CardContent>
-                        <form
-                            onSubmit={apply}
-                            className="grid gap-4 lg:grid-cols-12"
+                {/*
+                 * No card: the filters belong to the list below them rather than
+                 * sitting in a box of their own, and a border here draws a line
+                 * between a screen's controls and the thing they control.
+                 */}
+                <div className="grid gap-4 lg:grid-cols-12">
+                    <div className="relative grid gap-1.5 lg:col-span-4">
+                        <Label
+                            htmlFor="search"
+                            className="text-xs text-muted-foreground"
                         >
-                            <div className="grid gap-1.5 lg:col-span-4">
-                                <Label
-                                    htmlFor="search"
-                                    className="text-xs text-muted-foreground"
-                                >
-                                    Search
-                                </Label>
-                                <Input
-                                    id="search"
-                                    value={search}
-                                    onChange={(event) =>
-                                        setSearch(event.target.value)
-                                    }
-                                    placeholder="Reference, name, email or phone"
-                                />
-                            </div>
+                            Search
+                        </Label>
+                        <Search
+                            className="pointer-events-none absolute bottom-3 left-3 size-4 text-muted-foreground"
+                            aria-hidden
+                        />
+                        <Input
+                            id="search"
+                            value={values.search}
+                            onChange={(event) =>
+                                set('search', event.target.value)
+                            }
+                            placeholder="Reference, name, email or phone"
+                            className="pl-9"
+                        />
+                    </div>
 
-                            <div className="grid gap-1.5 lg:col-span-2">
-                                <Label className="text-xs text-muted-foreground">
-                                    Status
-                                </Label>
-                                <Select
-                                    value={status}
-                                    onValueChange={setStatus}
-                                >
-                                    <SelectTrigger
-                                        className="w-full"
-                                        aria-label="Status"
+                    <div className="grid gap-1.5 lg:col-span-3">
+                        <Label className="text-xs text-muted-foreground">
+                            Status
+                        </Label>
+                        {/*
+                         * The control says "any" but the query says nothing: the
+                         * back end takes a status that is one of its own, so
+                         * sending the word "any" would be refused rather than
+                         * understood. A blank filter is left out of the URL
+                         * altogether, which is what "any" means.
+                         */}
+                        <Select
+                            value={values.status === '' ? ANY : values.status}
+                            onValueChange={(value) =>
+                                set('status', value === ANY ? '' : value, true)
+                            }
+                        >
+                            <SelectTrigger
+                                className="w-full"
+                                aria-label="Status"
+                            >
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value={ANY}>Any status</SelectItem>
+                                {statuses.map((option) => (
+                                    <SelectItem
+                                        key={option.value}
+                                        value={option.value}
                                     >
-                                        <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value={ANY}>
-                                            Any status
-                                        </SelectItem>
-                                        {statuses.map((option) => (
-                                            <SelectItem
-                                                key={option.value}
-                                                value={option.value}
-                                            >
-                                                {option.label}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                            </div>
+                                        {option.label}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
 
-                            <div className="grid gap-1.5 lg:col-span-2">
-                                <Label className="text-xs text-muted-foreground">
-                                    Arriving from
-                                </Label>
-                                <DatePicker
-                                    value={from}
-                                    onChange={setFrom}
-                                    clearable
-                                    placeholder="Any date"
-                                />
-                            </div>
+                    <div className="grid gap-1.5 lg:col-span-2">
+                        <Label className="text-xs text-muted-foreground">
+                            Arriving from
+                        </Label>
+                        <DatePicker
+                            value={values.from}
+                            onChange={(value) => set('from', value, true)}
+                            clearable
+                            placeholder="Any date"
+                        />
+                    </div>
 
-                            <div className="grid gap-1.5 lg:col-span-2">
-                                <Label className="text-xs text-muted-foreground">
-                                    Arriving to
-                                </Label>
-                                <DatePicker
-                                    value={to}
-                                    onChange={setTo}
-                                    clearable
-                                    placeholder="Any date"
-                                    min={from || undefined}
-                                />
-                            </div>
+                    <div className="grid gap-1.5 lg:col-span-3">
+                        <Label className="text-xs text-muted-foreground">
+                            Arriving to
+                        </Label>
+                        <DatePicker
+                            value={values.to}
+                            onChange={(value) => set('to', value, true)}
+                            clearable
+                            placeholder="Any date"
+                            min={values.from || undefined}
+                        />
+                    </div>
 
-                            <div className="flex items-end gap-2 lg:col-span-2">
-                                <Button type="submit" className="w-full">
-                                    <Search />
-                                    Filter
-                                </Button>
-                            </div>
+                    <div className="flex flex-wrap items-center gap-4 lg:col-span-12">
+                        <label className="flex items-center gap-2 text-sm">
+                            <Checkbox
+                                checked={values.unpaid}
+                                onCheckedChange={(checked) =>
+                                    set('unpaid', checked === true, true)
+                                }
+                            />
+                            Only what is still owed
+                        </label>
 
-                            <div className="flex flex-wrap items-center gap-4 lg:col-span-12">
-                                <label className="flex items-center gap-2 text-sm">
-                                    <Checkbox
-                                        checked={unpaid}
-                                        onCheckedChange={(checked) =>
-                                            setUnpaid(checked === true)
-                                        }
-                                    />
-                                    Only what is still owed
-                                </label>
-
-                                <Button
-                                    type="button"
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={reset}
-                                >
-                                    Clear
-                                </Button>
-                            </div>
-                        </form>
-                    </CardContent>
-                </Card>
+                        {active && (
+                            <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                onClick={reset}
+                            >
+                                Clear
+                            </Button>
+                        )}
+                    </div>
+                </div>
 
                 <Card>
                     <CardContent>

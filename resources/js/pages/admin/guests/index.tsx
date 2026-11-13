@@ -1,7 +1,5 @@
-import { Head, Link, router } from '@inertiajs/react';
+import { Head, Link } from '@inertiajs/react';
 import { Search } from 'lucide-react';
-import type { FormEvent } from 'react';
-import { useState } from 'react';
 import Heading from '@/components/heading';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -24,6 +22,7 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
+import { useFilters } from '@/hooks/use-filters';
 import { formatLongDate, formatMoney } from '@/lib/format';
 import { dashboard } from '@/routes';
 import guests from '@/routes/admin/guests';
@@ -58,27 +57,14 @@ const SORTS: SelectOption[] = [
  * have stayed more than once" can be sent to somebody as a link.
  */
 export default function GuestsIndex({ guests: page, filters, totals }: Props) {
-    const [search, setSearch] = useState(filters.search);
-    const [returning, setReturning] = useState(filters.returning === '1');
-    const [sort, setSort] = useState(filters.sort || 'recent');
-
-    const apply = (event?: FormEvent) => {
-        event?.preventDefault();
-
-        router.get(
-            guests.index.url(),
-            { search, returning: returning ? '1' : '', sort },
-            { preserveState: true, preserveScroll: true },
-        );
-    };
-
-    const reset = () => {
-        setSearch('');
-        setReturning(false);
-        setSort('recent');
-
-        router.get(guests.index.url(), {}, { preserveScroll: true });
-    };
+    // The filters apply themselves: typing waits for a pause, and choosing from a
+    // select or a checkbox asks at once. There is no Filter button, because
+    // filtering is what the controls are for.
+    const { values, set, reset, active } = useFilters(guests.index.url(), {
+        search: filters.search,
+        returning: filters.returning === '1',
+        sort: filters.sort || 'recent',
+    });
 
     return (
         <>
@@ -103,87 +89,67 @@ export default function GuestsIndex({ guests: page, filters, totals }: Props) {
                     </div>
                 </div>
 
-                <Card>
-                    <CardContent className="pt-6">
-                        <form
-                            onSubmit={apply}
-                            className="flex flex-wrap items-end gap-3"
+                {/*
+                 * No card: the filters belong to the list below them rather than
+                 * sitting in a box of their own, and a border here draws a line
+                 * between a screen's controls and the thing they control.
+                 */}
+                <div className="flex flex-wrap items-end gap-3">
+                    <div className="relative grid min-w-[16rem] flex-1 gap-2">
+                        <Label htmlFor="search">Search</Label>
+                        <Search
+                            className="pointer-events-none absolute bottom-3 left-3 size-4 text-muted-foreground"
+                            aria-hidden
+                        />
+                        <Input
+                            id="search"
+                            value={values.search}
+                            onChange={(event) =>
+                                set('search', event.target.value)
+                            }
+                            placeholder="Name, email or phone"
+                            className="pl-9"
+                        />
+                    </div>
+
+                    <div className="grid gap-2">
+                        <Label htmlFor="sort">Order by</Label>
+                        <Select
+                            value={values.sort}
+                            onValueChange={(value) => set('sort', value, true)}
                         >
-                            <div className="grid min-w-[16rem] flex-1 gap-2">
-                                <Label htmlFor="search">Search</Label>
-                                <Input
-                                    id="search"
-                                    value={search}
-                                    onChange={(event) =>
-                                        setSearch(event.target.value)
-                                    }
-                                    placeholder="Name, email or phone"
-                                />
-                            </div>
+                            <SelectTrigger id="sort" className="w-56">
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {SORTS.map((option) => (
+                                    <SelectItem
+                                        key={option.value}
+                                        value={option.value}
+                                    >
+                                        {option.label}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
 
-                            <div className="grid gap-2">
-                                <Label htmlFor="sort">Order by</Label>
-                                <Select
-                                    value={sort}
-                                    onValueChange={(value) => {
-                                        setSort(value);
+                    <label className="flex h-11 items-center gap-2 text-sm">
+                        <Checkbox
+                            checked={values.returning}
+                            onCheckedChange={(checked) =>
+                                set('returning', checked === true, true)
+                            }
+                        />
+                        Returning only
+                    </label>
 
-                                        router.get(
-                                            guests.index.url(),
-                                            {
-                                                search,
-                                                returning: returning ? '1' : '',
-                                                sort: value,
-                                            },
-                                            {
-                                                preserveState: true,
-                                                preserveScroll: true,
-                                            },
-                                        );
-                                    }}
-                                >
-                                    <SelectTrigger id="sort" className="w-56">
-                                        <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {SORTS.map((option) => (
-                                            <SelectItem
-                                                key={option.value}
-                                                value={option.value}
-                                            >
-                                                {option.label}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                            </div>
-
-                            <label className="flex h-11 items-center gap-2 text-sm">
-                                <Checkbox
-                                    checked={returning}
-                                    onCheckedChange={(checked) =>
-                                        setReturning(checked === true)
-                                    }
-                                />
-                                Returning only
-                            </label>
-
-                            <div className="flex items-center gap-2">
-                                <Button type="submit">
-                                    <Search />
-                                    Filter
-                                </Button>
-                                <Button
-                                    type="button"
-                                    variant="ghost"
-                                    onClick={reset}
-                                >
-                                    Clear
-                                </Button>
-                            </div>
-                        </form>
-                    </CardContent>
-                </Card>
+                    {active && (
+                        <Button type="button" variant="ghost" onClick={reset}>
+                            Clear
+                        </Button>
+                    )}
+                </div>
 
                 <Card>
                     <CardContent className="pt-6">

@@ -1,5 +1,5 @@
-import type * as React from 'react';
 import { cn } from '@/lib/utils';
+import type * as React from 'react';
 
 /**
  * The width the admin panel's main column is held to.
@@ -14,7 +14,7 @@ import { cn } from '@/lib/utils';
  * line lengths getting away from the reader, which is the widest thing the
  * dashboard actually has to show.
  */
-export const PAGE_MAX_WIDTH = 'max-w-4xl';
+export const PAGE_MAX_WIDTH = 'max-w-6xl';
 
 /**
  * The one container an admin screen's content sits in.
