@@ -115,6 +115,7 @@ final class SettingSchema
                         'control' => self::TIME,
                         'rules' => ['date_format:H:i'],
                     ],
+                    ['key' => 'booking.house_rules', 'label' => 'House rules', 'control' => self::TEXTAREA, 'rules' => ['string', 'max:2000']],
                     [
                         'key' => 'booking.cancellation_policy',
                         'label' => 'Cancellation policy',

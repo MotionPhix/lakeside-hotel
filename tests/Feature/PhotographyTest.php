@@ -1,8 +1,10 @@
 <?php
 
+use App\Models\DiningVenue;
 use App\Models\GalleryItem;
 use App\Models\HeroSlide;
 use App\Models\RoomType;
+use Database\Seeders\DiningPhotographySeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
@@ -127,4 +129,37 @@ test('the seeded photographs are the repository\'s own, not copies the seeder at
     foreach ($photographs as $photograph) {
         expect(filesize($photograph))->toBeGreaterThan(0, basename($photograph).' was emptied by seeding');
     }
+});
+
+test('every dining venue has an accessible cover from the hotel photographs', function () {
+    $this->seed();
+
+    foreach (DiningVenue::query()->get() as $venue) {
+        $cover = $venue->getFirstMedia('cover');
+
+        expect($cover)->not->toBeNull("the venue '{$venue->name}' has no cover");
+        expect($cover->file_name)->toStartWith('real-');
+        expect($cover->getCustomProperty('alt'))->not->toBeEmpty();
+        expect(file_exists($cover->getPath()))->toBeTrue();
+    }
+
+    $this->get(route('site.dining'))->assertInertia(fn ($page) => $page
+        ->has('venues', 3)
+        ->where('venues.0.cover.alt', 'A table overlooking Lake Malawi at the Lakeview Restaurant')
+        ->where('venues.1.cover.alt', 'The bar and lounge at Lakeside Hotel')
+        ->where('venues.2.cover.alt', 'The pool and lakeside seating at Lakeside Hotel'));
+});
+
+test('filling missing dining photographs preserves an existing CMS cover', function () {
+    $this->seed();
+    $venue = DiningVenue::query()->where('slug', 'lakeview-restaurant')->sole();
+    $cover = $venue->getFirstMedia('cover');
+    $cover->setCustomProperty('alt', 'A photograph chosen by the hotel team');
+    $cover->save();
+
+    $this->seed(DiningPhotographySeeder::class);
+
+    $preserved = $venue->fresh()->getFirstMedia('cover');
+    expect($preserved->getKey())->toBe($cover->getKey());
+    expect($preserved->getCustomProperty('alt'))->toBe('A photograph chosen by the hotel team');
 });

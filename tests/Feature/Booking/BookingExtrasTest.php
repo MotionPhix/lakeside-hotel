@@ -8,6 +8,7 @@ use App\Models\RoomType;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\URL;
 
 uses(RefreshDatabase::class);
 
@@ -228,7 +229,7 @@ test('the guest is shown the extras on their own confirmation', function () {
 
     $booking = lastBooking();
 
-    $reservation = $this->get(route('site.booking.show', $booking->reference))
+    $reservation = $this->get(URL::signedRoute('site.booking.show', $booking->reference))
         ->viewData('page')['props']['reservation'];
 
     expect($reservation['extras'])->toHaveCount(1)

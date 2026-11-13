@@ -17,6 +17,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 
 /**
  * A reservation: who is coming, for which nights, in which room categories, and
@@ -364,35 +365,44 @@ class Booking extends Model
     }
 
     /**
-     * Build the next human-friendly booking reference, e.g. `LH-2026-0007`.
-     *
-     * The number follows the highest one already on file, which reads well and
-     * keeps references in the order they were taken. That alone is not safe,
-     * though: two bookings taken at the same moment both read the same highest
-     * number and settle on the same next one, and the guest is handed a reference
-     * that already belongs to somebody else. So anything already taken is stepped
-     * over here, and the unique index on the column remains the final guard for
-     * the case where two processes pass this check at once.
+     * Allocate a human-friendly reference under a shared annual sequence lock.
+     * Unused numbers are allowed; two requests must never receive the same one.
      */
     public static function generateReference(): string
     {
-        $prefix = 'LH-'.now()->format('Y').'-';
+        return DB::transaction(function (): string {
+            $year = (int) now()->format('Y');
+            $prefix = 'LH-'.$year.'-';
+            // The no-op upsert acquires an exclusive lock even for an existing year.
+            DB::table('booking_reference_sequences')->upsert([
+                ['year' => $year, 'next_number' => 0],
+            ], ['year'], ['year']);
 
-        $latest = static::query()
-            ->where('reference', 'like', $prefix.'%')
-            ->orderByDesc('reference')
-            ->value('reference');
+            $sequence = DB::table('booking_reference_sequences')
+                ->where('year', $year)
+                ->lockForUpdate()
+                ->firstOrFail();
 
-        $next = $latest === null
-            ? 1
-            : ((int) substr((string) $latest, strlen($prefix))) + 1;
+            $next = (int) $sequence->next_number;
 
-        do {
-            $reference = $prefix.str_pad((string) $next, 4, '0', STR_PAD_LEFT);
-            $next++;
-        } while (static::query()->where('reference', $reference)->exists());
+            // Bootstrap an upgraded installation from its existing references.
+            if ($next === 0) {
+                $highest = static::query()->where('reference', 'like', $prefix.'%')
+                    ->pluck('reference')
+                    ->map(fn ($reference): int => (int) substr((string) $reference, strlen($prefix)))
+                    ->max();
+                $next = max($next, (int) $highest + 1);
+            }
 
-        return $reference;
+            do {
+                $reference = $prefix.str_pad((string) $next, 4, '0', STR_PAD_LEFT);
+                $next++;
+            } while (static::query()->where('reference', $reference)->exists());
+
+            DB::table('booking_reference_sequences')->where('year', $year)->update(['next_number' => $next]);
+
+            return $reference;
+        }, attempts: 3);
     }
 
     /**

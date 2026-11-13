@@ -35,6 +35,7 @@ export type SiteBookingInfo = {
     pay_at_hotel_enabled: boolean;
     cancellation_policy: string;
     child_policy: string;
+    house_rules: string;
     transfer_note: string;
 };
 

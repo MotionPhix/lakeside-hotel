@@ -5,7 +5,9 @@ namespace App\Services\Booking;
 use App\Enums\BookingStatus;
 use App\Exceptions\BookingNotActionable;
 use App\Models\Booking;
+use App\Models\RoomType;
 use Carbon\CarbonInterface;
+use Illuminate\Support\Facades\DB;
 
 /**
  * The moves a reservation can make once it exists, and the state each move is
@@ -63,7 +65,7 @@ final class BookingLifecycle
     {
         $this->allow($booking, 'confirm');
 
-        return $this->move($booking, BookingStatus::Confirmed, ['confirmed_at' => now()]);
+        return $this->move($booking, 'confirm', BookingStatus::Confirmed, ['confirmed_at' => now()]);
     }
 
     /**
@@ -77,7 +79,7 @@ final class BookingLifecycle
     {
         $this->allow($booking, 'cancel');
 
-        return $this->move($booking, BookingStatus::Cancelled, [
+        return $this->move($booking, 'cancel', BookingStatus::Cancelled, [
             'cancelled_at' => now(),
             'cancellation_reason' => $reason,
         ]);
@@ -90,7 +92,7 @@ final class BookingLifecycle
     {
         $this->allow($booking, 'check_in');
 
-        return $this->move($booking, BookingStatus::CheckedIn, [
+        return $this->move($booking, 'check_in', BookingStatus::CheckedIn, [
             'checked_in_at' => $at ?? now(),
         ]);
     }
@@ -103,7 +105,7 @@ final class BookingLifecycle
     {
         $this->allow($booking, 'check_out');
 
-        return $this->move($booking, BookingStatus::CheckedOut, [
+        return $this->move($booking, 'check_out', BookingStatus::CheckedOut, [
             'checked_out_at' => $at ?? now(),
         ]);
     }
@@ -125,7 +127,7 @@ final class BookingLifecycle
             throw BookingNotActionable::tooEarly($booking, $booking->check_in);
         }
 
-        return $this->move($booking, BookingStatus::NoShow, ['cancelled_at' => $at]);
+        return $this->move($booking, 'no_show', BookingStatus::NoShow, ['cancelled_at' => $at]);
     }
 
     private function allow(Booking $booking, string $action): void
@@ -138,10 +140,18 @@ final class BookingLifecycle
     /**
      * @param  array<string, mixed>  $attributes
      */
-    private function move(Booking $booking, BookingStatus $status, array $attributes = []): Booking
+    private function move(Booking $booking, string $action, BookingStatus $status, array $attributes = []): Booking
     {
-        $booking->forceFill($attributes + ['status' => $status])->save();
+        return DB::transaction(function () use ($booking, $action, $status, $attributes): Booking {
+            $typeIds = $booking->items()->pluck('room_type_id');
+            RoomType::query()->whereKey($typeIds)->orderBy('id')->lockForUpdate()->get();
+            $current = Booking::query()->whereKey($booking->getKey())->lockForUpdate()->firstOrFail();
 
-        return $booking->refresh();
+            // A staff screen may predate another user's cancellation or check-in.
+            $this->allow($current, $action);
+            $current->forceFill($attributes + ['status' => $status])->save();
+
+            return $booking->refresh();
+        }, attempts: 3);
     }
 }

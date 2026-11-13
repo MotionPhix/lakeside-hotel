@@ -112,6 +112,7 @@ export type BookingContext = {
 /** A reservation as the guest sees it. */
 export type Reservation = {
     reference: string;
+    payment_url: string;
     status: string;
     status_label: string;
     payment_status: string;

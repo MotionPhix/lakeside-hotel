@@ -12,6 +12,13 @@ use App\Models\Setting;
  */
 final class HotelProfile
 {
+    public const HOUSE_RULES = 'Alcohol is not permitted anywhere on the property. Guests may not bring their own food.';
+
+    public static function houseRules(): string
+    {
+        return (string) Setting::value('booking.house_rules', self::HOUSE_RULES);
+    }
+
     /**
      * @return array<string, string>
      */

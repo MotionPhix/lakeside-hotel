@@ -14,7 +14,7 @@
     $room = $booking->items->first()?->roomType?->name;
     $settled = (float) $booking->amount_paid >= (float) $booking->total;
     $balance = (float) $booking->balance();
-    $bookingUrl = route('site.booking.show', $booking->reference);
+    $bookingUrl = \Illuminate\Support\Facades\URL::signedRoute('site.booking.show', $booking->reference);
 
     $eyebrow = 'margin:0 0 6px;font-size:12px;letter-spacing:.09em;text-transform:uppercase;color:#0f5e9c;font-weight:700;';
     $lead = 'margin:0 0 4px;font-size:15px;color:#17324d;';
@@ -163,6 +163,7 @@
             <p style="margin:26px 0 0;{{ $eyebrow }}">Good to know</p>
             <p style="margin:10px 0 0;font-size:14px;color:#5b6b7c;">{{ $cancellationPolicy }}</p>
             <p style="margin:8px 0 0;font-size:14px;color:#5b6b7c;">{{ $childPolicy }}</p>
+            <p style="margin:8px 0 0;font-size:14px;color:#5b6b7c;">{{ $houseRules }}</p>
         </td>
     </tr>
     <tr>

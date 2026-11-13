@@ -12,6 +12,7 @@ use App\Http\Controllers\Site\OfferController;
 use App\Http\Controllers\Site\PageController;
 use App\Http\Controllers\Site\RoomController;
 use App\Http\Controllers\Site\SitemapController;
+use Illuminate\Routing\Middleware\ValidateSignature;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -64,13 +65,17 @@ Route::post('/booking', [BookingController::class, 'store'])
     ->middleware('throttle:10,1')
     ->name('site.booking.store');
 
-Route::get('/booking/{booking:reference}', [BookingController::class, 'show'])->name('site.booking.show');
+Route::get('/booking/{booking:reference}', [BookingController::class, 'show'])
+    ->middleware('signed')
+    ->name('site.booking.show');
 
 Route::post('/booking/{booking:reference}/pay', [BookingController::class, 'pay'])
     ->middleware('throttle:10,1')
+    ->middleware('signed')
     ->name('site.booking.pay');
 
 Route::get('/booking/{booking:reference}/callback', [BookingController::class, 'callback'])
+    ->middleware(ValidateSignature::absolute(['tx_ref', 'status']))
     ->name('site.booking.callback');
 
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('site.sitemap');

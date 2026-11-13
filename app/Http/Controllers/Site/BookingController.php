@@ -20,6 +20,7 @@ use App\Support\BookingPresenter;
 use App\Support\SitePresenter;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -151,7 +152,7 @@ class BookingController extends Controller
             'message' => __('Your booking is held. Your reference is :reference.', ['reference' => $booking->reference]),
         ]);
 
-        return to_route('site.booking.show', $booking->reference);
+        return redirect()->to(URL::signedRoute('site.booking.show', $booking->reference));
     }
 
     /**
@@ -175,7 +176,7 @@ class BookingController extends Controller
     public function pay(Booking $booking): RedirectResponse
     {
         if ($booking->isPaidInFull()) {
-            return to_route('site.booking.show', $booking->reference);
+            return redirect()->to(URL::signedRoute('site.booking.show', $booking->reference));
         }
 
         if (! $this->payments->isOnlinePaymentEnabled()) {
@@ -184,7 +185,7 @@ class BookingController extends Controller
                 'message' => __('Online payment is unavailable at the moment. Your booking is held and can be settled at the hotel.'),
             ]);
 
-            return to_route('site.booking.show', $booking->reference);
+            return redirect()->to(URL::signedRoute('site.booking.show', $booking->reference));
         }
 
         $payment = $this->payments->start($booking);
@@ -199,7 +200,7 @@ class BookingController extends Controller
                 'message' => __('We could not reach the payment provider. Your booking is held - please try again, or settle at the hotel.'),
             ]);
 
-            return to_route('site.booking.show', $booking->reference);
+            return redirect()->to(URL::signedRoute('site.booking.show', $booking->reference));
         }
 
         return redirect()->away($url);
@@ -217,7 +218,7 @@ class BookingController extends Controller
         $payment = $this->paymentFor($booking, (string) $request->query('tx_ref', ''));
 
         if (! $payment instanceof Payment) {
-            return to_route('site.booking.show', $booking->reference);
+            return redirect()->to(URL::signedRoute('site.booking.show', $booking->reference));
         }
 
         try {
@@ -229,7 +230,7 @@ class BookingController extends Controller
             ]);
         }
 
-        return to_route('site.booking.show', $booking->reference);
+        return redirect()->to(URL::signedRoute('site.booking.show', $booking->reference));
     }
 
     /**

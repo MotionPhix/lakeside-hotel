@@ -58,6 +58,7 @@ final class BookingConfirmed extends Mailable
                 'hotel' => HotelProfile::details(),
                 'cancellationPolicy' => HotelProfile::cancellationPolicy(),
                 'childPolicy' => HotelProfile::childPolicy(),
+                'houseRules' => HotelProfile::houseRules(),
             ],
         );
     }

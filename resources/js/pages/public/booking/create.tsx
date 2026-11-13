@@ -2,6 +2,7 @@ import { useForm } from '@inertiajs/react';
 import { SeoHead } from '@/components/public/seo-head';
 import { CalendarDays, Check, Users } from 'lucide-react';
 import type { FormEvent } from 'react';
+import { HouseRules } from '@/components/public/house-rules';
 import InputError from '@/components/input-error';
 import { BookingTotals } from '@/components/public/booking-totals';
 import { PageHero } from '@/components/public/page-hero';
@@ -698,6 +699,7 @@ export default function BookingCreate({
                             </div>
                         </Fieldset>
 
+                        <HouseRules />
                         <div className="grid gap-4 border-t border-navy/10 pt-6">
                             <label className="flex items-start gap-3">
                                 <Checkbox
@@ -709,7 +711,7 @@ export default function BookingCreate({
                                 />
                                 <span className="text-sm text-navy/75">
                                     I have read the booking terms, including the
-                                    cancellation policy below.
+                                    cancellation policy and house rules.
                                 </span>
                             </label>
                             <InputError message={errors.terms} />

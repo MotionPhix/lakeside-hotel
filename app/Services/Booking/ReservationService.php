@@ -54,7 +54,10 @@ final class ReservationService
             $coupon, $airportTransfer, $specialRequests, $transfer, $source,
             $extras,
         ): Booking {
-            if (! $this->availability->isAvailable($roomType, $stay)) {
+            // Serialize sales of this category before taking an availability snapshot.
+            $roomType = RoomType::query()->whereKey($roomType->getKey())->lockForUpdate()->firstOrFail();
+
+            if (! $roomType->is_active || ! $this->availability->isAvailable($roomType, $stay)) {
                 throw StayNotAvailable::for($roomType, $stay);
             }
 
@@ -118,7 +121,7 @@ final class ReservationService
             $booking->recalculateTotals()->syncPaymentStatus()->save();
 
             return $booking->load('guest', 'items.roomType', 'extras');
-        });
+        }, attempts: 3);
     }
 
     /**

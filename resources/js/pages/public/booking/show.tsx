@@ -9,7 +9,6 @@ import { Section } from '@/components/public/section';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { formatLongDate, formatMoney } from '@/lib/format';
-import bookingRoutes from '@/routes/site/booking';
 import type { BookingContext, Reservation } from '@/types';
 
 type Props = {
@@ -22,7 +21,7 @@ const formatDate = (value: string) => formatLongDate(value);
 /**
  * Step three: the guest's copy of the reservation.
  *
- * Deliberately reachable by reference alone, with no account behind it, so the
+ * Reachable through a signed link without an account, so the
  * link in the confirmation email works for however long the guest keeps it.
  */
 export default function BookingShow({ reservation, booking }: Props) {
@@ -35,7 +34,7 @@ export default function BookingShow({ reservation, booking }: Props) {
         setPaying(true);
 
         router.post(
-            bookingRoutes.pay.url(reservation.reference),
+            reservation.payment_url,
             {},
             // The guest is part-way down a long folio; leaving them where they
             // were matters more here than anywhere.

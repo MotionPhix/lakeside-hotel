@@ -6,6 +6,7 @@ use App\Models\Setting;
 use App\Support\Tax;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\URL;
 
 uses(RefreshDatabase::class);
 
@@ -181,7 +182,7 @@ test('a discount is taken off in the same terms as the total it comes off', func
 test('a reservation shows the tax inside its total, not on top of it', function () {
     $booking = Booking::factory()->confirmed()->create();
 
-    $reservation = pageProps($this->get(route('site.booking.show', $booking->reference)))['reservation'];
+    $reservation = pageProps($this->get(URL::signedRoute('site.booking.show', $booking->reference)))['reservation'];
 
     $pricing = $reservation['pricing'];
 

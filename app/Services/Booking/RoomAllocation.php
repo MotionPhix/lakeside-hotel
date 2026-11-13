@@ -7,8 +7,10 @@ use App\Models\AvailabilityBlock;
 use App\Models\Booking;
 use App\Models\BookingItem;
 use App\Models\Room;
+use App\Models\RoomType;
 use Carbon\CarbonInterface;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Which door a guest actually gets.
@@ -93,43 +95,45 @@ final class RoomAllocation
      */
     public function assign(BookingItem $item, ?Room $room): BookingItem
     {
-        $booking = $item->booking;
+        return DB::transaction(function () use ($item, $room): BookingItem {
+            RoomType::query()->whereKey($item->room_type_id)->lockForUpdate()->firstOrFail();
+            $booking = Booking::query()->whereKey($item->booking_id)->lockForUpdate()->firstOrFail();
+            $current = BookingItem::query()->whereKey($item->getKey())->lockForUpdate()->firstOrFail();
 
-        if (! $booking instanceof Booking) {
-            throw RoomNotAvailable::released($item->booking()->firstOrFail());
-        }
+            if (! $booking->status->holdsInventory()) {
+                throw RoomNotAvailable::released($booking);
+            }
 
-        if (! $booking->status->holdsInventory()) {
-            throw RoomNotAvailable::released($booking);
-        }
+            if ($room === null) {
+                $current->room_id = null;
+                $current->save();
 
-        if ($room === null) {
-            $item->room_id = null;
-            $item->save();
+                return $item->refresh();
+            }
 
-            return $item;
-        }
+            $room = Room::query()->whereKey($room->getKey())->lockForUpdate()->firstOrFail();
 
-        if ((int) $room->room_type_id !== (int) $item->room_type_id) {
-            throw RoomNotAvailable::wrongType($room, $item);
-        }
+            if ((int) $room->room_type_id !== (int) $current->room_type_id) {
+                throw RoomNotAvailable::wrongType($room, $current);
+            }
 
-        if (! $room->isBookable()) {
-            throw RoomNotAvailable::notSellable($room);
-        }
+            if (! $room->isBookable()) {
+                throw RoomNotAvailable::notSellable($room);
+            }
 
-        if ($this->isBlocked($room, $booking->check_in, $booking->check_out)) {
-            throw RoomNotAvailable::blocked($room, $booking->check_in, $booking->check_out);
-        }
+            if ($this->isBlocked($room, $booking->check_in, $booking->check_out)) {
+                throw RoomNotAvailable::blocked($room, $booking->check_in, $booking->check_out);
+            }
 
-        if ($this->isTaken($room, $booking->check_in, $booking->check_out, $item)) {
-            throw RoomNotAvailable::taken($room, $booking->check_in, $booking->check_out);
-        }
+            if ($this->isTaken($room, $booking->check_in, $booking->check_out, $current)) {
+                throw RoomNotAvailable::taken($room, $booking->check_in, $booking->check_out);
+            }
 
-        $item->room_id = $room->getKey();
-        $item->save();
+            $current->room_id = $room->getKey();
+            $current->save();
 
-        return $item;
+            return $item->refresh();
+        }, attempts: 3);
     }
 
     /**

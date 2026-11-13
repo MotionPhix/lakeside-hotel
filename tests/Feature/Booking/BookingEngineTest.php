@@ -27,6 +27,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\URL;
 
 uses(RefreshDatabase::class);
 
@@ -337,7 +338,7 @@ test('a guest can reserve through the form and lands on their confirmation', fun
         ->whereHas('guest', fn ($query) => $query->where('email', 'chikondi@example.com'))
         ->sole();
 
-    $response->assertRedirect(route('site.booking.show', $booking->reference));
+    $response->assertRedirect(URL::signedRoute('site.booking.show', $booking->reference));
 
     expect($booking->guest->email)->toBe('chikondi@example.com')
         ->and($booking->source->value)->toBe('website')
@@ -497,8 +498,12 @@ test('paying online hands the guest to the gateway checkout', function () {
         'phone' => '+265 999 000 999',
     ], PaymentOption::PayNow);
 
-    $this->post(route('site.booking.pay', $booking->reference))
+    $this->post(URL::signedRoute('site.booking.pay', $booking->reference))
         ->assertRedirect('https://checkout.paychangu.test/abc');
+
+    Http::assertSent(fn ($request): bool => $request->url() === rtrim((string) config('paychangu.base_url'), '/').'/payment'
+        && $request['callback_url'] === URL::signedRoute('site.booking.callback', $booking->reference)
+        && $request['return_url'] === URL::signedRoute('site.booking.show', $booking->reference));
 
     expect($booking->payments()->sole()->provider_reference)->toBe($booking->reference.'-P1');
 });
@@ -516,8 +521,8 @@ test('online payment is withheld when the hotel has switched it off', function (
         'phone' => '+265 999 001 000',
     ], PaymentOption::PayNow);
 
-    $this->post(route('site.booking.pay', $booking->reference))
-        ->assertRedirect(route('site.booking.show', $booking->reference));
+    $this->post(URL::signedRoute('site.booking.pay', $booking->reference))
+        ->assertRedirect(URL::signedRoute('site.booking.show', $booking->reference));
 
     expect($booking->payments()->count())->toBe(0);
 });

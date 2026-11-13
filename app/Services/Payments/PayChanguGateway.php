@@ -8,6 +8,7 @@ use App\Models\Booking;
 use App\Models\Payment;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\URL;
 
 /**
  * Talks to PayChangu's Standard Checkout.
@@ -45,8 +46,8 @@ final class PayChanguGateway
             'first_name' => $guest->first_name,
             'last_name' => $guest->last_name,
             'tx_ref' => $payment->provider_reference,
-            'callback_url' => route('site.booking.callback', $booking->reference),
-            'return_url' => route('site.booking.show', $booking->reference),
+            'callback_url' => URL::signedRoute('site.booking.callback', $booking->reference),
+            'return_url' => URL::signedRoute('site.booking.show', $booking->reference),
             'customization' => [
                 'title' => 'Lakeside Hotel',
                 'description' => 'Booking '.$booking->reference,

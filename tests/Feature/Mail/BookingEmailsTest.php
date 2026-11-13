@@ -5,6 +5,7 @@ use App\Mail\BookingReceived;
 use App\Models\Booking;
 use App\Models\Setting;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\URL;
 
 uses(RefreshDatabase::class);
 
@@ -32,7 +33,7 @@ test('the guest\'s confirmation reads as a letter, not a data dump', function ()
     $html = (new BookingConfirmed($this->booking))->render();
 
     expect($html)
-        ->toContain('Dear '.$this->booking->guest->fullName())
+        ->toContain(e('Dear '.$this->booking->guest->fullName()))
         ->toContain($this->booking->reference)
         ->toContain($this->booking->check_in->format('D j F Y'))
         ->toContain($this->booking->check_out->format('D j F Y'))
@@ -40,7 +41,7 @@ test('the guest\'s confirmation reads as a letter, not a data dump', function ()
         // read very differently by somebody checking a price.
         ->toContain(number_format((float) $this->booking->total, 0, '.', ','))
         // A way to get back to the booking.
-        ->toContain(route('site.booking.show', $this->booking->reference));
+        ->toContain(URL::signedRoute('site.booking.show', $this->booking->reference));
 });
 
 test('the desk\'s copy carries what the desk acts on', function () {

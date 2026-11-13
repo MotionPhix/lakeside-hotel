@@ -1,6 +1,7 @@
-import type { ReactNode } from 'react';
+import { HouseRules } from '@/components/public/house-rules';
 import { SiteFooter } from '@/components/public/site-footer';
 import { SiteHeader } from '@/components/public/site-header';
+import type { ReactNode } from 'react';
 
 /**
  * The public website shell.
@@ -19,6 +20,11 @@ export default function PublicLayout({ children }: { children: ReactNode }) {
         <div className="flex min-h-screen flex-col bg-white text-navy">
             <SiteHeader />
             <main className="flex-1">{children}</main>
+            <div className="border-t border-navy/10 px-5 py-8 sm:px-8">
+                <div className="mx-auto max-w-7xl">
+                    <HouseRules />
+                </div>
+            </div>
             <SiteFooter />
         </div>
     );

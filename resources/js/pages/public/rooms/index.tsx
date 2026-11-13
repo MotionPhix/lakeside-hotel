@@ -1,5 +1,6 @@
 import { SeoHead } from '@/components/public/seo-head';
-import { AmenityTile, RoomCard } from '@/components/public/cards';
+import { AmenityTile } from '@/components/public/cards';
+import { RoomExplorer } from '@/components/public/room-explorer';
 import { ContactCta } from '@/components/public/contact-cta';
 import { PageHero } from '@/components/public/page-hero';
 import { Reveal } from '@/components/public/reveal';
@@ -19,18 +20,12 @@ export default function RoomsIndex({ roomTypes, amenities }: Props) {
             <PageHero
                 eyebrow="Accommodation"
                 title="Rooms, suites and lakeside chalets"
-                description="Five room categories, all with air conditioning, hot water and views over the gardens or the lake. Rates include breakfast for two."
+                description={`${roomTypes.length} room categories, from doubles to suites. Compare the space, beds and amenities, then find the right stay for your dates.`}
                 breadcrumb="Rooms"
             />
 
             <Section tone="white">
-                <div className="grid gap-6 sm:auto-rows-fr sm:grid-cols-2 lg:grid-cols-3">
-                    {roomTypes.map((roomType, index) => (
-                        <Reveal key={roomType.id} delay={index * 60}>
-                            <RoomCard roomType={roomType} />
-                        </Reveal>
-                    ))}
-                </div>
+                <RoomExplorer roomTypes={roomTypes} />
             </Section>
 
             {amenities.length > 0 && (

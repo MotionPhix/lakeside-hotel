@@ -9,6 +9,7 @@ use App\Models\BookingExtra;
 use App\Models\Setting;
 use App\Services\Booking\AvailabilityOffer;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\URL;
 
 /**
  * Shapes the booking engine's output for the website.
@@ -141,6 +142,7 @@ final class BookingPresenter
     {
         return [
             'reference' => $booking->reference,
+            'payment_url' => URL::signedRoute('site.booking.pay', $booking->reference),
             'status' => $booking->status->value,
             'status_label' => $booking->status->label(),
             'payment_status' => $booking->payment_status->value,

@@ -89,6 +89,7 @@ class SitePresenter
                 'pay_at_hotel_enabled' => $get('booking.pay_at_hotel_enabled', '1') === '1',
                 'cancellation_policy' => $get('booking.cancellation_policy'),
                 'child_policy' => $get('booking.child_policy'),
+                'house_rules' => $get('booking.house_rules', HotelProfile::HOUSE_RULES),
                 'transfer_note' => $get('booking.transfer_note'),
             ],
             'social' => [
