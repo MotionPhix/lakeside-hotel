@@ -8,9 +8,11 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreAvailabilityBlockRequest;
 use App\Models\AvailabilityBlock;
 use App\Models\Room;
+use App\Models\RoomType;
 use App\Services\Booking\RoomAllocation;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -83,26 +85,31 @@ class AvailabilityController extends Controller
         $startsOn = $request->startsOn();
         $endsOn = $request->endsOn();
 
-        // The block is inclusive of both dates; allocation speaks in check-in and
-        // check-out terms, where the last night is the night before the morning
-        // after. So the range a guest is asked about ends the day after the last
-        // blocked night.
-        if ($this->allocation->isGivenToAGuest($room, $startsOn, $endsOn->copy()->addDay())) {
-            // Reported against the room field rather than as a toast: the desk is
-            // filling in a form, and the thing that is wrong is one of the answers.
-            throw ValidationException::withMessages([
-                'room_id' => RoomNotAvailable::givenToAGuest($room, $startsOn, $endsOn)->getMessage(),
-            ]);
-        }
+        DB::transaction(function () use ($request, $room, $startsOn, $endsOn): void {
+            RoomType::query()->whereKey($room->room_type_id)->lockForUpdate()->firstOrFail();
+            $room = Room::query()->whereKey($room->getKey())->lockForUpdate()->firstOrFail();
 
-        AvailabilityBlock::query()->create([
-            'room_id' => $room->getKey(),
-            'starts_on' => $startsOn,
-            'ends_on' => $endsOn,
-            'reason' => $request->reason(),
-            'notes' => $request->notes(),
-            'created_by' => $request->user()?->getKey(),
-        ]);
+            // The block is inclusive of both dates; allocation speaks in check-in and
+            // check-out terms, where the last night is the night before the morning
+            // after. So the range a guest is asked about ends the day after the last
+            // blocked night.
+            if ($this->allocation->isGivenToAGuest($room, $startsOn, $endsOn->copy()->addDay())) {
+                // Reported against the room field rather than as a toast: the desk is
+                // filling in a form, and the thing that is wrong is one of the answers.
+                throw ValidationException::withMessages([
+                    'room_id' => RoomNotAvailable::givenToAGuest($room, $startsOn, $endsOn)->getMessage(),
+                ]);
+            }
+
+            AvailabilityBlock::query()->create([
+                'room_id' => $room->getKey(),
+                'starts_on' => $startsOn,
+                'ends_on' => $endsOn,
+                'reason' => $request->reason(),
+                'notes' => $request->notes(),
+                'created_by' => $request->user()?->getKey(),
+            ]);
+        }, attempts: 3);
 
         Inertia::flash('toast', [
             'type' => 'success',
