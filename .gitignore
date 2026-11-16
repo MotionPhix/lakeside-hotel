@@ -14,6 +14,7 @@
 # are exceptions: they are source files, not output.
 /public/bucket/*
 !/public/bucket/lakeside-wordmark.png
+!/public/bucket/lakeside-wordmark_v1.png
 !/public/bucket/lakeside_hotel_logo.png
 /public/fonts-manifest.dev.json
 /public/storage
