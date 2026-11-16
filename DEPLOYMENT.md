@@ -91,8 +91,15 @@ a live site.
 `public/bucket` is not in git. The 75 MB in it is output: resized copies of the
 51 photographs the repository does ship in `database/seeders/photography`. The
 content seeders above regenerate it, which is why they are run on the server
-rather than copied over. The two brand marks (`lakeside-wordmark.png`,
-`lakeside_hotel_logo.png`) are source files and are tracked.
+rather than copied over. The brand marks (`lakeside-wordmark.png`,
+`lakeside-wordmark_v1.png`, `lakeside_hotel_logo.png`) are source files, not
+output, and are tracked - each one is named in a `!` line in `.gitignore`,
+because `public/bucket/*` is ignored wholesale.
+
+Add every new brand mark to that un-ignore list in the same commit that starts
+referencing it. `lakeside-wordmark_v1.png` was added to `SitePresenter` without
+one, so it existed on the machine that made it and nowhere else: the live header
+rendered a 168x48 empty box and 404'd the file until `544bcb9`.
 
 If you would rather not have the server generate them, upload the local
 `public/bucket` folder by SFTP into place before seeding. The paths are the same
@@ -131,18 +138,27 @@ worker and no cron entry.
 
 ## Mail
 
-The deployed `.env` currently has `MAIL_MAILER=log`. That is deliberate but
-incomplete: a booking still succeeds, and the confirmation email is written to
-`storage/logs/laravel.log` instead of being sent, so the guest hears nothing and
-nothing fails visibly. This is the one setting that turns a working booking page
-into a working hotel.
+Live as of 16 Nov 2026: `MAIL_MAILER=smtp`, `MAIL_SCHEME=smtps`,
+`MAIL_HOST=mail.lakesidehotelmw.net`, `MAIL_PORT=465`, authenticating as the
+`hello@lakesidehotelmw.net` mailbox and sending as
+`reservations@lakesidehotelmw.net`. A message was accepted by the mail server
+after `config:cache`, so the path from Laravel to the relay is proven. What that
+does not prove is inbox placement - watch for a spam folder on the first real
+booking.
 
-Create a mailbox in cPanel (Email Accounts → `reservations@lakesidehotelmw.net`),
-then set `MAIL_MAILER=smtp`, `MAIL_HOST` (the host's own mail server or
-`localhost`), `MAIL_PORT` (587 with STARTTLS, 465 with implicit TLS via
-`MAIL_SCHEME=smtps`), `MAIL_USERNAME`, `MAIL_PASSWORD`, and run
-`php artisan config:cache`. Send one test booking and confirm the message arrives
-before telling anyone the site is live.
+To set this up on a fresh host: create the mailbox in cPanel (Email Accounts),
+put the credentials in `.env`, and run `php artisan config:cache`. Send one test
+booking and confirm the message arrives before telling anyone the site is live.
+
+Two traps, both hit during the first deployment:
+
+- Set the mailbox password through the cPanel UI. `uapi Email passwd_pop` with
+  the password as an argument form-encodes it, so `+` arrives as a space and the
+  mailbox ends up holding something other than what `.env` says. The symptom is
+  a bare `535 Incorrect authentication data` on every send.
+- `.env.example` ships `MAIL_FROM_NAME="${APP_NAME}"`. Appending a second
+  `MAIL_FROM_NAME` leaves two lines for one key; the later one wins, so it works,
+  but the duplicate is worth deleting.
 
 Password resets go out through the same mailer, so staff cannot recover an
 account until this is configured.
@@ -154,9 +170,16 @@ online: `isOnlinePaymentEnabled()` returns false, the booking page drops the Pay
 Now option, and the server rejects a payment attempt anyway. Guests reserve and
 settle at the hotel.
 
+As of 16 Nov 2026 the live `.env` holds PayChangu **test** keys
+(`sec-test-…`, webhook secret `nofuss_no_bash`), so the checkout path can be
+exercised against the sandbox. Replace them with live keys before taking real
+money.
+
 Two things have to be true for online payment to appear, not one: the key has to
 be set, and the **Online card payment** toggle under the dashboard's booking
-settings has to be on.
+settings has to be on. With a test key in place and the toggle on, a real guest
+would reach a sandbox checkout - decide which of the two you want while the keys
+are still test keys.
 
 To turn payments on, set `PAYCHANGU_SECRET_KEY` and `PAYCHANGU_WEBHOOK_SECRET`,
 then point the webhook in the PayChangu dashboard at:
