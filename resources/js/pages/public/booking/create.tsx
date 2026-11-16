@@ -293,250 +293,226 @@ export default function BookingCreate({
                                 </p>
                             ) : (
                                 <>
-                                    <div className="grid gap-4 sm:grid-cols-2">
-                                        {extras.map((extra) => {
-                                            const position =
-                                                data.extras.findIndex(
-                                                    (chosen) =>
-                                                        chosen.id === extra.id,
-                                                );
-                                            const chosen =
-                                                position >= 0
-                                                    ? data.extras[position]
-                                                    : null;
+                                    <div className="overflow-x-auto rounded-xl border border-navy/10">
+                                        <table className="w-full border-collapse text-left">
+                                            <thead>
+                                                <tr className="border-b border-navy/10 bg-navy/[0.03]">
+                                                    <th
+                                                        scope="col"
+                                                        className="w-12 px-4 py-3"
+                                                    >
+                                                        <span className="sr-only">
+                                                            Choose an extra
+                                                        </span>
+                                                    </th>
+                                                    <th
+                                                        scope="col"
+                                                        className="px-2 py-3 text-xs font-semibold tracking-wide text-navy/60 uppercase"
+                                                    >
+                                                        Activity
+                                                    </th>
+                                                    <th
+                                                        scope="col"
+                                                        className="px-4 py-3 text-right text-xs font-semibold tracking-wide text-navy/60 uppercase"
+                                                    >
+                                                        Price
+                                                    </th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {extras.map((extra) => {
+                                                    const position =
+                                                        data.extras.findIndex(
+                                                            (chosen) =>
+                                                                chosen.id ===
+                                                                extra.id,
+                                                        );
+                                                    const chosen =
+                                                        position >= 0
+                                                            ? data.extras[
+                                                                  position
+                                                              ]
+                                                            : null;
 
-                                            return (
-                                                <div
-                                                    key={extra.id}
-                                                    className={cn(
-                                                        /* Cards in a row are the same
-                                                           height whatever the length
-                                                           of their descriptions, so
-                                                           the price is pinned to the
-                                                           bottom and the gaps fall
-                                                           above it rather than
-                                                           leaving each card's figure
-                                                           at a different height. */
-                                                        'flex h-full flex-col rounded-xl border p-4 transition-colors',
-                                                        chosen
-                                                            ? 'border-lake bg-lake-light/50'
-                                                            : 'border-navy/10 bg-white',
-                                                    )}
-                                                >
-                                                    {/* No `items-start` here: it
-                                                        stopped the column beside
-                                                        the checkbox from taking the
-                                                        height of the card, which
-                                                        left the price below with no
-                                                        free space to be pushed
-                                                        down into. */}
-                                                    <div className="flex gap-3">
-                                                        <Checkbox
-                                                            id={`extra-${extra.id}`}
-                                                            className="mt-0.5"
-                                                            checked={Boolean(
-                                                                chosen,
+                                                    return (
+                                                        <tr
+                                                            key={extra.id}
+                                                            className={cn(
+                                                                /* One amenity per
+                                                                   row. The
+                                                                   checkbox
+                                                                   column stays
+                                                                   fixed so the
+                                                                   names line
+                                                                   up down the
+                                                                   page, and
+                                                                   only the
+                                                                   description
+                                                                   wraps. */
+                                                                'border-b border-navy/10 align-top transition-colors last:border-b-0',
+                                                                chosen
+                                                                    ? 'bg-lake-light/40'
+                                                                    : 'bg-white hover:bg-navy/[0.02]',
                                                             )}
-                                                            onCheckedChange={(
-                                                                checked,
-                                                            ) =>
-                                                                checked === true
-                                                                    ? addExtra(
-                                                                          extra,
-                                                                      )
-                                                                    : removeExtra(
-                                                                          extra.id,
-                                                                      )
-                                                            }
-                                                        />
-                                                        {/* The description keeps
-                                                            the whole width: the
-                                                            figures live on the
-                                                            line below instead, so
-                                                            ticking a card does not
-                                                            narrow the text. */}
-                                                        <div className="min-w-0 flex-1">
-                                                            <Label
-                                                                htmlFor={`extra-${extra.id}`}
-                                                                className="font-display text-base font-semibold text-navy"
-                                                            >
-                                                                {extra.name}
-                                                            </Label>
+                                                        >
+                                                            <td className="w-12 px-4 py-4">
+                                                                <Checkbox
+                                                                    id={`extra-${extra.id}`}
+                                                                    className="mt-1"
+                                                                    checked={Boolean(
+                                                                        chosen,
+                                                                    )}
+                                                                    onCheckedChange={(
+                                                                        checked,
+                                                                    ) =>
+                                                                        checked ===
+                                                                        true
+                                                                            ? addExtra(
+                                                                                  extra,
+                                                                              )
+                                                                            : removeExtra(
+                                                                                  extra.id,
+                                                                              )
+                                                                    }
+                                                                />
+                                                            </td>
 
-                                                            {extra.description && (
-                                                                <p className="mt-1 text-sm text-navy/70">
+                                                            <td className="px-2 py-4">
+                                                                <Label
+                                                                    htmlFor={`extra-${extra.id}`}
+                                                                    className="font-display text-base font-semibold text-navy"
+                                                                >
+                                                                    {extra.name}
+                                                                </Label>
+
+                                                                {extra.description && (
+                                                                    <p className="mt-1 max-w-prose text-sm text-navy/70">
+                                                                        {
+                                                                            extra.description
+                                                                        }
+                                                                    </p>
+                                                                )}
+
+                                                                {/* Counted
+                                                                    extras put
+                                                                    their
+                                                                    control
+                                                                    under the
+                                                                    description,
+                                                                    where it
+                                                                    belongs to
+                                                                    the row it
+                                                                    changes. */}
+                                                                {chosen &&
+                                                                    extra.quantity_label && (
+                                                                        <div className="mt-3 flex items-center gap-3">
+                                                                            <Label
+                                                                                htmlFor={`extra-${extra.id}-quantity`}
+                                                                                className="text-sm text-navy/70"
+                                                                            >
+                                                                                {
+                                                                                    extra.quantity_label
+                                                                                }
+                                                                            </Label>
+                                                                            <Select
+                                                                                value={String(
+                                                                                    chosen.quantity,
+                                                                                )}
+                                                                                onValueChange={(
+                                                                                    value,
+                                                                                ) =>
+                                                                                    setExtraQuantity(
+                                                                                        extra.id,
+                                                                                        Number(
+                                                                                            value,
+                                                                                        ),
+                                                                                    )
+                                                                                }
+                                                                            >
+                                                                                <SelectTrigger
+                                                                                    id={`extra-${extra.id}-quantity`}
+                                                                                    aria-label={
+                                                                                        extra.quantity_label
+                                                                                    }
+                                                                                    className="w-24 rounded-md border-navy/15 bg-white text-sm text-navy"
+                                                                                >
+                                                                                    <SelectValue />
+                                                                                </SelectTrigger>
+                                                                                <SelectContent>
+                                                                                    {quantitiesBetween(
+                                                                                        extra.min_quantity,
+                                                                                        extra.max_quantity,
+                                                                                    ).map(
+                                                                                        (
+                                                                                            count,
+                                                                                        ) => (
+                                                                                            <SelectItem
+                                                                                                key={
+                                                                                                    count
+                                                                                                }
+                                                                                                value={String(
+                                                                                                    count,
+                                                                                                )}
+                                                                                            >
+                                                                                                {
+                                                                                                    count
+                                                                                                }
+                                                                                            </SelectItem>
+                                                                                        ),
+                                                                                    )}
+                                                                                </SelectContent>
+                                                                            </Select>
+                                                                        </div>
+                                                                    )}
+
+                                                                <InputError
+                                                                    className="mt-2"
+                                                                    message={
+                                                                        errors[
+                                                                            `extras.${position}.quantity`
+                                                                        ]
+                                                                    }
+                                                                />
+                                                            </td>
+
+                                                            <td className="px-4 py-4 text-right">
+                                                                <p className="text-sm text-navy/70">
+                                                                    <span className="font-medium text-lake">
+                                                                        {formatMoney(
+                                                                            extra.price,
+                                                                        )}
+                                                                    </span>{' '}
                                                                     {
-                                                                        extra.description
+                                                                        extra.basis_label
                                                                     }
                                                                 </p>
-                                                            )}
-                                                        </div>
-                                                    </div>
 
-                                                    {/*
-                                                        The figures have to be the
-                                                        last line of the card, and
-                                                        not merely bottom-anchored.
-                                                        With a quantity control
-                                                        rendering after them,
-                                                        `mt-auto` was pushed up by
-                                                        the height of that control,
-                                                        so a row with one card ticked
-                                                        and its neighbour not left
-                                                        the two prices 81px apart.
-
-                                                        The control is therefore
-                                                        drawn above the figures with
-                                                        `order-1` against the
-                                                        figures' `order-2`. Laying
-                                                        it out this way round rather
-                                                        than moving it in the markup
-                                                        keeps the change small; the
-                                                        reading order a screen reader
-                                                        gets is the price and then
-                                                        how many, which is a sensible
-                                                        order to hear them in.
-                                                    */}
-                                                    <div
-                                                        className={cn(
-                                                            'order-2 flex items-end justify-between gap-3 pt-3',
-                                                            /* The figures take the
-                                                               flexible space only
-                                                               when there is no
-                                                               quantity control below
-                                                               them - otherwise the
-                                                               control above them
-                                                               does, so the figures
-                                                               stay the last line. */
-                                                            !(
-                                                                chosen &&
-                                                                extra.quantity_label
-                                                            ) && 'mt-auto',
-                                                        )}
-                                                    >
-                                                        {/* Allowed to shrink and
-                                                            wrap: it is a sentence,
-                                                            and it is the figure
-                                                            beside it that must not
-                                                            break. */}
-                                                        <p className="min-w-0 text-sm text-navy/70">
-                                                            <span className="font-medium text-lake">
-                                                                {formatMoney(
-                                                                    extra.price,
-                                                                )}
-                                                            </span>{' '}
-                                                            {extra.basis_label}
-                                                            {extra.duration && (
-                                                                <>
-                                                                    {' '}
-                                                                    ·{' '}
-                                                                    {
-                                                                        extra.duration
-                                                                    }
-                                                                </>
-                                                            )}
-                                                        </p>
-
-                                                        {chosen && (
-                                                            /* Never broken across
-                                                               lines. At a card's
-                                                               width the amount was
-                                                               landing as "MWK" on
-                                                               one line and the
-                                                               figure on the next,
-                                                               which is the one
-                                                               number in the card
-                                                               that has to read at a
-                                                               glance. */
-                                                            <p className="shrink-0 font-display text-base font-semibold whitespace-nowrap text-lake">
-                                                                {formatMoney(
-                                                                    extraSubtotal(
-                                                                        extra,
-                                                                        chosen.quantity,
-                                                                    ).toFixed(
-                                                                        2,
-                                                                    ),
-                                                                )}
-                                                            </p>
-                                                        )}
-                                                    </div>
-
-                                                    {/* Only where there is something to
-                                                        count - a group price is one
-                                                        group, so it is left as it is. */}
-                                                    {chosen &&
-                                                        extra.quantity_label && (
-                                                            <div className="order-1 mt-auto flex items-center justify-between gap-3 border-t border-navy/10 pt-3">
-                                                                <Label
-                                                                    htmlFor={`extra-${extra.id}-quantity`}
-                                                                    className="text-sm text-navy/70"
-                                                                >
-                                                                    {
-                                                                        extra.quantity_label
-                                                                    }
-                                                                </Label>
-                                                                <Select
-                                                                    value={String(
-                                                                        chosen.quantity,
-                                                                    )}
-                                                                    onValueChange={(
-                                                                        value,
-                                                                    ) =>
-                                                                        setExtraQuantity(
-                                                                            extra.id,
-                                                                            Number(
-                                                                                value,
-                                                                            ),
-                                                                        )
-                                                                    }
-                                                                >
-                                                                    <SelectTrigger
-                                                                        id={`extra-${extra.id}-quantity`}
-                                                                        aria-label={
-                                                                            extra.quantity_label
+                                                                {extra.duration && (
+                                                                    <p className="mt-0.5 text-xs text-navy/50">
+                                                                        {
+                                                                            extra.duration
                                                                         }
-                                                                        className="w-24 rounded-md border-navy/15 bg-white text-sm text-navy"
-                                                                    >
-                                                                        <SelectValue />
-                                                                    </SelectTrigger>
-                                                                    <SelectContent>
-                                                                        {quantitiesBetween(
-                                                                            extra.min_quantity,
-                                                                            extra.max_quantity,
-                                                                        ).map(
-                                                                            (
-                                                                                count,
-                                                                            ) => (
-                                                                                <SelectItem
-                                                                                    key={
-                                                                                        count
-                                                                                    }
-                                                                                    value={String(
-                                                                                        count,
-                                                                                    )}
-                                                                                >
-                                                                                    {
-                                                                                        count
-                                                                                    }
-                                                                                </SelectItem>
+                                                                    </p>
+                                                                )}
+
+                                                                {chosen && (
+                                                                    <p className="mt-1 font-display text-base font-semibold whitespace-nowrap text-lake">
+                                                                        {formatMoney(
+                                                                            extraSubtotal(
+                                                                                extra,
+                                                                                chosen.quantity,
+                                                                            ).toFixed(
+                                                                                2,
                                                                             ),
                                                                         )}
-                                                                    </SelectContent>
-                                                                </Select>
-                                                            </div>
-                                                        )}
-
-                                                    <InputError
-                                                        className="mt-2"
-                                                        message={
-                                                            errors[
-                                                                `extras.${position}.quantity`
-                                                            ]
-                                                        }
-                                                    />
-                                                </div>
-                                            );
-                                        })}
+                                                                    </p>
+                                                                )}
+                                                            </td>
+                                                        </tr>
+                                                    );
+                                                })}
+                                            </tbody>
+                                        </table>
                                     </div>
 
                                     <InputError
