@@ -39,9 +39,18 @@ class SitemapController extends Controller
             );
         }
 
-        return response()
-            ->view('sitemap', ['urls' => $urls])
-            ->header('Content-Type', 'application/xml; charset=UTF-8');
+        // The XML declaration is prepended here rather than written into the
+        // template. In the template it had to be echoed through a Blade raw block
+        // to stop Blade treating it as a tag, and on the production host - where
+        // PHP is built with short_open_tag on - the declaration was swallowed and
+        // the literal `{!! '' !!}` was served ahead of the urlset, which is not
+        // valid XML. A crawler reads this before anything else, so it is built
+        // here where no template setting can reach it.
+        return response(
+            '<?xml version="1.0" encoding="UTF-8"?>'."\n".view('sitemap', ['urls' => $urls])->render(),
+            200,
+            ['Content-Type' => 'application/xml; charset=UTF-8'],
+        );
     }
 
     /**
