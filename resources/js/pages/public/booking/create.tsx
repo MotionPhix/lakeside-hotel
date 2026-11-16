@@ -313,7 +313,16 @@ export default function BookingCreate({
                                                     </th>
                                                     <th
                                                         scope="col"
-                                                        className="px-4 py-3 text-right text-xs font-semibold tracking-wide text-navy/60 uppercase"
+                                                        /* Wide enough for the
+                                                           longest unit line -
+                                                           "MWK 85,000 per person
+                                                           · 15 minutes" - so
+                                                           nothing in this
+                                                           column wraps and the
+                                                           figures stay
+                                                           comparable down the
+                                                           page. */
+                                                        className="w-48 px-4 py-3 text-right text-xs font-semibold tracking-wide text-navy/60 uppercase"
                                                     >
                                                         Price
                                                     </th>
@@ -476,24 +485,43 @@ export default function BookingCreate({
                                                             </td>
 
                                                             <td className="px-4 py-4 text-right">
-                                                                <p className="text-sm text-navy/70">
+                                                                {/* The figure
+                                                                    is the thing
+                                                                    being compared
+                                                                    down this
+                                                                    column, so it
+                                                                    gets a line to
+                                                                    itself and the
+                                                                    unit moves
+                                                                    below with the
+                                                                    duration. The
+                                                                    two used to
+                                                                    share a line
+                                                                    and the price
+                                                                    broke after
+                                                                    "per". */}
+                                                                <p className="text-sm whitespace-nowrap text-navy/70">
                                                                     <span className="font-medium text-lake">
                                                                         {formatMoney(
                                                                             extra.price,
                                                                         )}
-                                                                    </span>{' '}
+                                                                    </span>
+                                                                </p>
+
+                                                                <p className="mt-0.5 text-xs whitespace-nowrap text-navy/50">
                                                                     {
                                                                         extra.basis_label
                                                                     }
+                                                                    {extra.duration && (
+                                                                        <>
+                                                                            {' '}
+                                                                            ·{' '}
+                                                                            {
+                                                                                extra.duration
+                                                                            }
+                                                                        </>
+                                                                    )}
                                                                 </p>
-
-                                                                {extra.duration && (
-                                                                    <p className="mt-0.5 text-xs text-navy/50">
-                                                                        {
-                                                                            extra.duration
-                                                                        }
-                                                                    </p>
-                                                                )}
 
                                                                 {chosen && (
                                                                     <p className="mt-1 font-display text-base font-semibold whitespace-nowrap text-lake">
