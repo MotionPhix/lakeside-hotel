@@ -6,13 +6,11 @@ use App\Enums\BookingStatus;
 use App\Enums\PaymentMethod;
 use App\Enums\PaymentRecordStatus;
 use App\Exceptions\PaymentGatewayException;
-use App\Mail\BookingConfirmed;
-use App\Mail\BookingReceived;
 use App\Models\Booking;
 use App\Models\Payment;
 use App\Models\Setting;
 use App\Models\User;
-use Illuminate\Support\Facades\Mail;
+use App\Services\Booking\BookingNotifier;
 
 /**
  * Turns what the gateway says into what the booking says.
@@ -24,7 +22,10 @@ use Illuminate\Support\Facades\Mail;
  */
 final class PaymentService
 {
-    public function __construct(private readonly PayChanguGateway $gateway) {}
+    public function __construct(
+        private readonly PayChanguGateway $gateway,
+        private readonly BookingNotifier $notifier,
+    ) {}
 
     /**
      * Whether the hotel can take money online at all.
@@ -159,8 +160,7 @@ final class PaymentService
         $booking->save();
 
         // Only reached on the transition from unpaid, so the guest hears once.
-        Mail::to($booking->guest->email)->send(new BookingConfirmed($booking));
-        $this->notifyHotel($booking);
+        $this->notifier->bookingHeld($booking);
 
         return $payment;
     }
@@ -180,20 +180,5 @@ final class PaymentService
         $payment->markFailed($payload);
 
         return $payment;
-    }
-
-    /**
-     * Tell the reservations desk. Sent to the address the hotel edits in the
-     * dashboard, so a booking never lands somewhere nobody reads.
-     */
-    private function notifyHotel(Booking $booking): void
-    {
-        $inbox = Setting::value('hotel.email', config('mail.from.address'));
-
-        if ($inbox === null || $inbox === '') {
-            return;
-        }
-
-        Mail::to($inbox)->send(new BookingReceived($booking));
     }
 }

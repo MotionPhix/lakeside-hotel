@@ -14,6 +14,7 @@ use App\Models\Coupon;
 use App\Models\Payment;
 use App\Models\RoomType;
 use App\Services\Booking\AvailabilityService;
+use App\Services\Booking\BookingNotifier;
 use App\Services\Booking\ReservationService;
 use App\Services\Payments\PaymentService;
 use App\Support\BookingPresenter;
@@ -24,6 +25,7 @@ use Illuminate\Support\Facades\URL;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
+use Throwable;
 
 /**
  * The public booking flow, in three steps: what is free, who is coming, and the
@@ -41,6 +43,7 @@ class BookingController extends Controller
         private readonly AvailabilityService $availability,
         private readonly ReservationService $reservations,
         private readonly PaymentService $payments,
+        private readonly BookingNotifier $notifier,
     ) {}
 
     /**
@@ -145,6 +148,22 @@ class BookingController extends Controller
             ]);
 
             return to_route('site.booking.index', $request->only('check_in', 'check_out', 'adults', 'children'));
+        }
+
+        /*
+         * The confirmation page tells the guest their copy is on its way, so
+         * something has to send it. A gateway booking is confirmed from the
+         * payment reconciliation once the money lands; a booking held for the
+         * desk never goes near the gateway, and this is the only place it can
+         * be announced. A mail failure must not lose the reservation, so it is
+         * reported rather than thrown - the guest still gets their reference.
+         */
+        if (! $request->paymentOption()->usesGateway()) {
+            try {
+                $this->notifier->bookingHeld($booking);
+            } catch (Throwable $e) {
+                report($e);
+            }
         }
 
         Inertia::flash('toast', [
