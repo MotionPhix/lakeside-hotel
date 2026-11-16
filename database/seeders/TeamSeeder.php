@@ -5,10 +5,20 @@ namespace Database\Seeders;
 use App\Enums\Role;
 use App\Models\User;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Str;
 
 /**
  * One account per staff role, so every corner of the dashboard can be explored.
- * All of them sign in with the password `password`.
+ *
+ * The accounts are created directly rather than through the factory. Factories
+ * lean on `fake()`, and `fakerphp/faker` is a development dependency: on a
+ * production install built with `composer install --no-dev` there is no faker to
+ * call, and seeding died on "Call to undefined function Database\Factories\fake()".
+ *
+ * The password is not `password` on a live site. Set `SEED_TEAM_PASSWORD` to
+ * choose it; without that, production gets a random one per run and it is printed
+ * once so it can be recorded. Local and test seeding keep the predictable
+ * password the rest of the project's fixtures assume.
  */
 class TeamSeeder extends Seeder
 {
@@ -25,14 +35,31 @@ class TeamSeeder extends Seeder
             ['name' => 'Yamikani Zulu', 'email' => 'marketing@lakesidehotel.mw', 'role' => Role::Marketing, 'job_title' => 'Marketing Officer'],
         ];
 
+        $password = env('SEED_TEAM_PASSWORD') ?: (app()->isProduction() ? Str::password(20) : 'password');
+
+        if (app()->isProduction() && ! env('SEED_TEAM_PASSWORD')) {
+            $this->command?->warn("SEED_TEAM_PASSWORD is not set. These accounts were given the password: {$password}");
+        }
+
         foreach ($team as $member) {
-            User::factory()->role($member['role'])->create([
-                'name' => $member['name'],
-                'email' => $member['email'],
-                'job_title' => $member['job_title'],
-                'phone' => '+265 99 000 0000',
-                'email_verified_at' => now(),
-            ]);
+            // Keyed on the email so running this twice repairs the accounts rather
+            // than failing on the unique index half way through the list.
+            $user = User::firstOrCreate(
+                ['email' => $member['email']],
+                [
+                    'name' => $member['name'],
+                    'password' => $password,
+                    'role' => $member['role'],
+                    'phone' => '+265 99 000 0000',
+                    'job_title' => $member['job_title'],
+                    'is_active' => true,
+                ],
+            );
+
+            // Not mass-assignable, so it is set on the model rather than passed in.
+            if ($user->email_verified_at === null) {
+                $user->forceFill(['email_verified_at' => now()])->save();
+            }
         }
     }
 }
