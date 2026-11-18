@@ -155,7 +155,7 @@
 ---
 
 ### TASK-009: Eager Load Room Counts in SitePresenter
-- **Status:** [ ] Pending
+- **Status:** [x] Done — `withCount('rooms')`, 2026-11-18
 - **Priority:** Medium
 - **Effort:** S
 - **Impact:** Low-Medium — reduces queries on room detail pages
@@ -164,6 +164,16 @@
   `roomType()` calls `$roomType->rooms()->count()` when `$withDetail = true`, triggering a COUNT query per room type.
   Fix: Use `withCount('rooms')` in controllers that pass `$withDetail = true`.
 - **Done when:** Room detail pages don't trigger extra COUNT queries
+- **Measured:** the audit called this a room-detail problem; the listing was the
+  worse case, because it passes `$withDetail = true` for every category.
+  `/rooms`: **24 queries → 17**, with the seven per-category COUNTs replaced by
+  one counting subquery inside the query that lists them. `/rooms/{slug}`
+  (one category plus three suggestions): **15 → 12**. Seven categories, one
+  `count(*)` in total, asserted in `PublicPagesTest`.
+- **Note:** the presenter still falls back to `rooms()->count()` when the
+  attribute is absent, so a future caller that forgets `withCount` prints the
+  right figure rather than nothing - it costs a query and the test above catches
+  the drift. `rooms_count` is declared on `RoomType`'s docblock for Larastan.
 
 ---
 
@@ -284,3 +294,12 @@ has to clear the cache, because those writes fire no model event.
 The remaining medium tasks are TASK-009 (room counts), TASK-010 (settings/profile
 tests) and then the low-priority four. TASK-009 is the last of the small
 performance items and is the natural next one.
+
+**2026-11-18 — TASK-009.** Room counts come from `withCount('rooms')`; the
+listing's seven per-category COUNTs are one subquery now. Third time the audit
+was right about the symptom and short on the scope: it described a room-detail
+cost, but `/rooms` was paying it seven times over.
+
+The last medium task is TASK-010: profile and security settings have no tests at
+all, and they are the flows most likely to break silently - an email change that
+skips re-verification, a two-factor switch that turns itself off.

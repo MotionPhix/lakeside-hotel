@@ -41,6 +41,7 @@ use Spatie\MediaLibrary\InteractsWithMedia;
  * @property bool $is_active
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
+ * @property int|null $rooms_count Present only on a query that asked for it with `withCount('rooms')`.
  */
 #[Fillable([
     'name', 'slug', 'tagline', 'description', 'capacity_adults', 'capacity_children',

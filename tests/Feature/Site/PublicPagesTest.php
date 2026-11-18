@@ -3,6 +3,7 @@
 use App\Enums\Role;
 use App\Models\RoomType;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 use Inertia\Testing\AssertableInertia as Assert;
 
 test('every public page renders for a visitor', function (string $routeName) {
@@ -82,6 +83,32 @@ test('a room category page resolves by its slug', function () {
             ->has('roomType.amenities')
             ->has('otherRoomTypes', 3)
         );
+});
+
+test('the rooms listing counts its rooms in the query, not once per category', function () {
+    $this->seed();
+
+    DB::flushQueryLog();
+    DB::enableQueryLog();
+
+    $this->get(route('site.rooms.index'))
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->has('roomTypes', 7)
+            ->where('roomTypes.0.name', 'Standard Double')
+            ->where('roomTypes.0.total_rooms', 10)
+        );
+
+    $counts = array_values(array_filter(
+        DB::getQueryLog(),
+        fn (array $query): bool => str_contains($query['query'], 'count(*)'),
+    ));
+
+    // Seven categories, one counting subquery inside the query that lists them.
+    // One `rooms()->count()` per category would show up here as seven.
+    expect($counts)->toHaveCount(1);
+
+    DB::disableQueryLog();
 });
 
 test('a room category that is off sale is not reachable', function () {

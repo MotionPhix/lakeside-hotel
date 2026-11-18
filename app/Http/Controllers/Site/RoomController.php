@@ -18,7 +18,11 @@ class RoomController extends Controller
     {
         return Inertia::render('public/rooms/index', [
             'roomTypes' => SitePresenter::roomTypes(
-                RoomType::query()->active()->with('amenities')->get(),
+                RoomType::query()
+                    ->active()
+                    ->with('amenities')
+                    ->withCount('rooms')
+                    ->get(),
                 true,
             ),
             'amenities' => SitePresenter::amenities(Amenity::query()->active()->get()),
@@ -33,12 +37,16 @@ class RoomController extends Controller
         abort_unless($roomType->is_active, 404);
 
         return Inertia::render('public/rooms/show', [
-            'roomType' => SitePresenter::roomType($roomType->load('amenities'), true),
+            'roomType' => SitePresenter::roomType(
+                $roomType->load('amenities')->loadCount('rooms'),
+                true,
+            ),
             'otherRoomTypes' => SitePresenter::roomTypes(
                 RoomType::query()
                     ->active()
                     ->whereKeyNot($roomType->getKey())
                     ->with('amenities')
+                    ->withCount('rooms')
                     ->limit(3)
                     ->get(),
                 true,

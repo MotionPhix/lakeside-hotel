@@ -319,7 +319,14 @@ class SitePresenter
         ];
 
         if ($withDetail) {
-            $payload['total_rooms'] = $roomType->rooms()->count();
+            /*
+             * `rooms_count` is there when the controller asked for it with
+             * `withCount('rooms')`, which is what keeps a page listing seven
+             * categories from running seven COUNTs. The fallback is for a caller
+             * that did not: it costs a query, but it prints the right figure
+             * rather than nothing.
+             */
+            $payload['total_rooms'] = $roomType->rooms_count ?? $roomType->rooms()->count();
             $payload['url'] = route('site.rooms.show', $roomType);
         }
 
