@@ -83,3 +83,42 @@ test('correct password must be provided to delete account', function () {
 
     expect($user->fresh())->not->toBeNull();
 });
+
+test('an email another account already uses is refused', function () {
+    $user = User::factory()->create();
+    User::factory()->create(['email' => 'taken@example.com']);
+
+    $this->actingAs($user)
+        ->from(route('profile.edit'))
+        ->patch(route('profile.update'), [
+            'name' => 'Test User',
+            'email' => 'taken@example.com',
+        ])
+        ->assertSessionHasErrors('email')
+        ->assertRedirect(route('profile.edit'));
+
+    // The address is what a password reset is sent to, so a refused change must
+    // leave the account on the one it had.
+    expect($user->refresh()->email)->not->toBe('taken@example.com');
+});
+
+test('a profile without a name is refused', function () {
+    $user = User::factory()->create();
+
+    $this->actingAs($user)
+        ->from(route('profile.edit'))
+        ->patch(route('profile.update'), [
+            'name' => '',
+            'email' => $user->email,
+        ])
+        ->assertSessionHasErrors('name');
+
+    expect($user->refresh()->name)->not->toBe('');
+});
+
+test('a guest cannot update a profile', function () {
+    $this->patch(route('profile.update'), [
+        'name' => 'Nobody',
+        'email' => 'nobody@example.com',
+    ])->assertRedirect(route('login'));
+});

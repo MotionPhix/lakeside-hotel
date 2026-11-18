@@ -178,7 +178,7 @@
 ---
 
 ### TASK-010: Write Tests for Settings/Profile Updates
-- **Status:** [ ] Pending
+- **Status:** [x] Done — 2026-11-18
 - **Priority:** Medium
 - **Effort:** S
 - **Impact:** Medium — protects auth-related user flows
@@ -190,6 +190,22 @@
   - Two-factor enable/disable
   Follow patterns in existing `ProfileUpdateTest.php` and `SecurityTest.php`.
 - **Done when:** Settings/profile flows have passing tests
+- **Correction — two of the three bullets were already covered, and one describes
+  a form that does not exist:**
+  - *Profile update, email change re-verification, account deletion, password
+    change, password confirmation* were all already tested in
+    `ProfileUpdateTest.php` and `SecurityTest.php` before this task. What was
+    missing there was the refusals: a duplicate address, a blank name, a guest.
+    Those are added.
+  - *Phone* is not on the self-service profile form at all. It belongs to staff
+    accounts (`StoreUserRequest`/`UpdateUserRequest`) and to guest bookings, and
+    `PhoneValidationTest` covers both, including normalisation and the message.
+    Nothing to test on `profile.update`, so nothing invented.
+  - *Two-factor* was the genuine hole: nothing exercised enable, confirm or
+    disable, so a switch that failed to clear the secret on the way out would
+    have shipped silently. That is now covered end to end, including the
+    password-confirmation gate.
+- **Coverage added:** 5 tests (2 two-factor, 3 profile refusals).
 
 ---
 
@@ -303,3 +319,13 @@ cost, but `/rooms` was paying it seven times over.
 The last medium task is TASK-010: profile and security settings have no tests at
 all, and they are the flows most likely to break silently - an email change that
 skips re-verification, a two-factor switch that turns itself off.
+
+**2026-11-18 — TASK-010.** Half the task was already done and a third of it was
+describing something that does not exist. Profile refusals and the whole
+two-factor cycle are now covered. Two-factor was the real gap: enable, confirm
+and disable had no test between them, which is the one place a mistake leaves a
+secret behind on an account the guest believes they have switched off.
+
+That clears the medium list. What is left is the four low-priority items, and of
+those TASK-011 (a rate limit on the payment webhook) is the only one with a
+security edge.
