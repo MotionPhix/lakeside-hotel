@@ -58,13 +58,18 @@ export function ContactCta({
                         address has no space to break at, so it is given permission
                         to wrap mid-word rather than shove the page sideways on a
                         narrow phone. */}
-                    <Button asChild variant="ghost" size="lg" className="h-auto py-3">
+                    <Button
+                        asChild
+                        variant="ghost"
+                        size="lg"
+                        className="h-auto py-3"
+                    >
                         <a
                             href={`mailto:${contact.email}`}
                             className="min-w-0 whitespace-normal"
                         >
                             <Mail className="shrink-0" />
-                            <span className="break-all text-left leading-tight">
+                            <span className="text-left leading-tight break-all">
                                 {contact.email}
                             </span>
                         </a>

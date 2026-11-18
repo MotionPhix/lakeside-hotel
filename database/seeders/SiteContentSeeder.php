@@ -61,7 +61,7 @@ class SiteContentSeeder extends Seeder
             ['hotel.check_out_time', '11:00', 'booking', 'time'],
             ['hotel.currency', 'MWK', 'booking', 'string'],
             ['hotel.rooms_total', '42', 'general', 'integer'],
-            ['booking.vat_rate', '16.5', 'booking', 'decimal'],
+            ['booking.vat_rate', '17.5', 'booking', 'decimal'],
             ['booking.tourism_levy_rate', '1', 'booking', 'decimal'],
 
             /*
@@ -70,10 +70,10 @@ class SiteContentSeeder extends Seeder
              * the same total either way, shown two ways.
              */
             ['booking.show_taxes_separately', '0', 'booking', 'boolean'],
-            ['booking.deposit_percentage', '50', 'booking', 'integer'],
+            ['booking.deposit_percentage', '25', 'booking', 'integer'],
             ['booking.pay_at_hotel_enabled', '1', 'booking', 'boolean'],
             ['booking.online_payment_enabled', '1', 'booking', 'boolean'],
-            ['booking.cancellation_policy', 'Free cancellation up to 7 days before arrival. Within 7 days the first night is charged. No shows are charged in full.', 'booking', 'text'],
+            ['booking.cancellation_policy', 'Cancellations must be in writing. The 25% deposit is non-refundable, and the charge rises with shorter notice: the deposit plus 30% under 8 weeks, 50% under 4, 60% under 3, and 100% under 2. The full scale is on the booking policies page.', 'booking', 'text'],
             ['booking.child_policy', 'Children under 12 stay free when sharing with two adults. Cots and extra beds are available on request.', 'booking', 'text'],
             ['booking.transfer_note', 'We can collect you from Kamuzu International Airport in Lilongwe, or from our reservations office in Area 3. The drive to Senga Bay takes about one hour forty-five minutes. Please request your transfer at least 24 hours before arrival.', 'booking', 'text'],
             ['restaurant.capacity', '400', 'general', 'integer'],
@@ -181,11 +181,23 @@ There is tubing, parasailing, fishing off the island, and bird watching and feed
                    time they move. */
                 'body' => 'Rates are quoted per room per night in Malawian Kwacha, include breakfast for two, and include government value added tax and the tourism levy. There is nothing to add at checkout: the price you are quoted is the price you pay.
 
-Check in is from 14:00 and check out is by 11:00. Later check out can be arranged at reception, subject to availability.
+A booking is confirmed when we issue the confirmation invoice, which is also our acceptance of it. A deposit of 25% of the invoice is payable then and is non-refundable. Once your signed information form and the deposit are with us, we reserve your room, subject to availability.
 
-Free cancellation applies up to 7 days before arrival. Within 7 days the first night is charged. No shows are charged in full.
+The balance is due no later than four weeks before arrival. When it is paid we send your vouchers and the information you need for the trip, and we ask you to read it before you leave.
 
-We accept card payments and mobile money through Airtel Money and TNM Mpamba, or you can reserve now and settle at the hotel.',
+A cancellation is only effective once we have it in writing, and what it costs depends on the notice we are given. More than eight weeks before arrival, the 25% deposit is forfeited. Less than eight weeks, the deposit plus 30% of the invoice. Less than four weeks, 50%. Less than three weeks, 60%. Less than two weeks, 100%.
+
+Changing a confirmed booking, including moving a departure earlier, carries an amendment fee of US$25 and is subject to availability. Postponing a departure is treated as a cancellation, so the normal charges apply.
+
+Malawi is a malarial area, so please take your doctor\'s advice on anti-malarial precautions before travelling. A yellow fever vaccination is required, and proof of it may be asked for at border points.
+
+Prices can rise after confirmation if government taxes, exchange rates or other costs outside our control move. We do our best to hold published prices, but we reserve the right to surcharge without notice, up to a maximum of 10% of the invoice.
+
+Every effort goes into having your room and any excursion ready as planned. If something is unavailable and no reasonable alternative can be found, no refund is due, whole or part, and the same applies to any service in the itinerary a guest does not use.
+
+Lakeside Hotel, and anyone acting for it, is not liable for loss or damage arising from delays, sickness, theft, injury or death, or from errors or omissions in these conditions. We may cancel a booking, or change the accommodation, price or other arrangements, at our discretion, and extra costs that follow from that are the guest\'s.
+
+Check in is from 14:00 and check out is by 11:00. Later check out can be arranged at reception, subject to availability. We accept card payments and mobile money through Airtel Money and TNM Mpamba, or you can reserve now and settle at the hotel.',
             ],
             [
                 'key' => 'transfers',

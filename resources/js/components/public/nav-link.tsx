@@ -99,9 +99,20 @@ export function NavLink({
      * every page of the site. Everything else owns the paths beneath it, which is
      * what makes a room's own page still read as Rooms. The trailing slash
      * matters: without it `/offers-archive` would answer to Offers.
+     *
+     * The footer is the exception. There the same links are a site map rather
+     * than the current location, so a section match would leave Rooms underlined
+     * while the guest reads a room - and, because both footer columns use these
+     * links, a second copy of the page name lit up far below the fold. A footer
+     * link is marked only when it is the page itself.
      */
+    const marksSections = variant !== 'footer';
+
     const isSection =
-        !isExact && target !== '/' && here.startsWith(`${target}/`);
+        marksSections &&
+        !isExact &&
+        target !== '/' &&
+        here.startsWith(`${target}/`);
 
     const active = isExact || isSection;
 

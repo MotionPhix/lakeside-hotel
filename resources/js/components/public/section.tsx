@@ -1,6 +1,23 @@
 import type { ReactNode } from 'react';
 import { cn } from '@/lib/utils';
 
+/**
+ * The one column every piece of page content sits in.
+ *
+ * Wider than nothing, narrower than the header band (`max-w-7xl`): the
+ * navigation is chrome and reads as a full-width bar, while the text, grids,
+ * the booking checker and the footer all share this column and so share a left
+ * and right edge at every viewport.
+ *
+ * The horizontal padding belongs *here*, on the same element as the max-width,
+ * and not on an outer wrapper. `max-w-6xl` inside a padded parent centres in
+ * the padding box, which moves the content 32px outboard of anything that
+ * applies its padding inside the max-width - that was what put the Welcome
+ * section out of line with the availability checker. One class string, used
+ * everywhere, keeps them together.
+ */
+export const contentColumn = 'mx-auto w-full max-w-6xl px-5 sm:px-8';
+
 type Tone = 'white' | 'sand' | 'mist' | 'navy';
 
 const toneClasses: Record<Tone, string> = {
@@ -40,13 +57,12 @@ export function Section({
         <section
             id={id}
             className={cn(
-                'px-5 sm:px-8',
                 spacingClasses[spacing],
                 toneClasses[tone],
                 className,
             )}
         >
-            <div className="mx-auto w-full max-w-7xl">{children}</div>
+            <div className={contentColumn}>{children}</div>
         </section>
     );
 }

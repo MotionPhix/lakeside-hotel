@@ -71,6 +71,12 @@ export default defineConfig({
         ignorePatterns: [
             '.github/**',
             'composer.json',
+            // Compiled assets are committed (the production host has no Node), so
+            // the formatter must not try to reformat minified build output.
+            'public/**',
+            // Prose is written to be read, not reflowed to 80 columns by a code
+            // formatter - tables and long commands in the docs break when it tries.
+            '**/*.md',
             'resources/js/components/ui/*',
             'resources/views/mail/*',
         ],

@@ -195,7 +195,7 @@ test('a reservation shows the tax inside its total, not on top of it', function 
 });
 
 test('the rates come from the settings, and fall back to the statutory ones', function () {
-    expect(Tax::vatRate())->toBe(16.5)
+    expect(Tax::vatRate())->toBe(17.5)
         ->and(Tax::levyRate())->toBe(1.0);
 
     Setting::store(Tax::VAT_SETTING, '12.5', 'booking', 'decimal');

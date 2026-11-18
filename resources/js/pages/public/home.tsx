@@ -1,4 +1,5 @@
 import { Link, usePage } from '@inertiajs/react';
+import { contentColumn } from '@/components/public/section';
 import { SeoHead } from '@/components/public/seo-head';
 import { ArrowRight, Mail, MapPin, MessageCircle, Phone } from 'lucide-react';
 import { BookingWidget } from '@/components/public/booking-widget';
@@ -84,7 +85,7 @@ export default function Home({
             />
 
             {bookableRoomTypes.length > 0 && (
-                <div className="relative z-10 mx-auto -mt-12 max-w-7xl px-5 sm:px-8">
+                <div className={`relative z-10 -mt-12 ${contentColumn}`}>
                     <BookingWidget roomTypes={bookableRoomTypes} />
                 </div>
             )}

@@ -240,10 +240,10 @@ test('reserving takes a room off sale and prices the stay with tax', function ()
         ->and($booking->items)->toHaveCount(1)
         ->and($booking->items->first()->nightly_rates)->toHaveCount(2);
 
-    // Tax is the two statutory charges on the discounted subtotal, 17.5%.
+    // Tax is the two statutory charges on the discounted subtotal, 18.5%.
     $subtotal = (float) $booking->subtotal;
-    expect($booking->tax_total)->toBe(number_format($subtotal * 0.175, 2, '.', ''))
-        ->and($booking->total)->toBe(number_format($subtotal * 1.175, 2, '.', ''))
+    expect($booking->tax_total)->toBe(number_format($subtotal * 0.185, 2, '.', ''))
+        ->and($booking->total)->toBe(number_format($subtotal * 1.185, 2, '.', ''))
         ->and($booking->payment_status->value)->toBe('unpaid');
 
     expect($this->availability->availableRooms($roomType, $stay))->toBe($before - 1);
@@ -390,7 +390,7 @@ test('a valid discount code reduces the taxable amount', function () {
 
     expect((float) $booking->discount_total)->toBeGreaterThan(0)
         ->and((float) $booking->total)->toBeLessThan(
-            (float) $booking->subtotal * 1.175,
+            (float) $booking->subtotal * 1.185,
         );
 });
 

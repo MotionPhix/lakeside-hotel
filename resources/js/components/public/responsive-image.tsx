@@ -56,7 +56,10 @@ export function ResponsiveImage({
     alt?: string;
     className?: string;
     priority?: boolean;
-} & Omit<React.ComponentPropsWithoutRef<'img'>, 'src' | 'srcSet' | 'sizes' | 'alt' | 'width' | 'height' | 'loading'>) {
+} & Omit<
+    React.ComponentPropsWithoutRef<'img'>,
+    'src' | 'srcSet' | 'sizes' | 'alt' | 'width' | 'height' | 'loading'
+>) {
     const box = boxFor[from];
 
     return (

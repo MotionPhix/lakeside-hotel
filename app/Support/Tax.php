@@ -28,8 +28,13 @@ class Tax
 {
     /**
      * Value added tax on accommodation in Malawi.
+     *
+     * Raised from 16.5% to 17.5%; the migration of the same date moves the stored
+     * setting, so a site that was already running does not keep charging the old
+     * rate. This constant is only the fallback for a database with no setting at
+     * all.
      */
-    public const VAT_RATE = 16.5;
+    public const VAT_RATE = 17.5;
 
     /**
      * Tourism levy charged on accommodation in Malawi.

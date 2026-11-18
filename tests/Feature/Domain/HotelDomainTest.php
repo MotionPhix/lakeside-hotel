@@ -145,12 +145,12 @@ test('a booking totals its room lines and adds Malawian accommodation taxes', fu
     $booking->recalculateTotals()->save();
     $booking->refresh();
 
-    // 16.5% VAT plus the 1% tourism levy on the discounted subtotal.
+    // 17.5% VAT plus the 1% tourism levy on the discounted subtotal.
     expect($booking->subtotal)->toBe('300000.00')
         ->and($booking->discount_total)->toBe('0.00')
-        ->and($booking->tax_total)->toBe('52500.00')
-        ->and($booking->total)->toBe('352500.00')
-        ->and($booking->balance())->toBe('352500.00')
+        ->and($booking->tax_total)->toBe('55500.00')
+        ->and($booking->total)->toBe('355500.00')
+        ->and($booking->balance())->toBe('355500.00')
         ->and($booking->isPaidInFull())->toBeFalse();
 });
 
@@ -171,8 +171,8 @@ test('a coupon reduces the taxable part of a booking', function () {
 
     expect($booking->subtotal)->toBe('200000.00')
         ->and($booking->discount_total)->toBe('20000.00')
-        ->and($booking->tax_total)->toBe('31500.00')
-        ->and($booking->total)->toBe('211500.00');
+        ->and($booking->tax_total)->toBe('33300.00')
+        ->and($booking->total)->toBe('213300.00');
 });
 
 test('a coupon only discounts when it is actually redeemable', function () {

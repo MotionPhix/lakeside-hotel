@@ -100,7 +100,7 @@ test('hotel settings are shared with every page', function () {
             ->where('site.contact.email', 'reservations@lakesidehotelmw.net')
             ->where('site.contact.phone', '+265 1 263 400')
             ->where('site.contact.latitude', -13.7167)
-            ->where('site.booking.vat_rate', 16.5)
+            ->where('site.booking.vat_rate', 17.5)
             ->where('site.booking.currency', 'MWK')
             ->where('site.whatsapp_link', 'https://wa.me/265999311228')
         );

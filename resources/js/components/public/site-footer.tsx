@@ -2,6 +2,8 @@ import { Link, usePage } from '@inertiajs/react';
 import { Clock, Facebook, Instagram, Mail, MapPin, Phone } from 'lucide-react';
 import { NavLink } from '@/components/public/nav-link';
 import { NewsletterForm } from '@/components/public/newsletter-form';
+import { contentColumn } from '@/components/public/section';
+import { cn } from '@/lib/utils';
 import { footerNav, siteNav, whatsappLink } from '@/lib/site-nav';
 import { login } from '@/routes';
 import type { SharedData } from '@/types';
@@ -32,7 +34,12 @@ export function SiteFooter() {
 
     return (
         <footer className="bg-navy text-sand">
-            <div className="mx-auto grid max-w-7xl gap-10 px-5 py-14 sm:px-8 lg:grid-cols-12 lg:gap-8 lg:py-20">
+            <div
+                className={cn(
+                    'grid gap-10 py-14 lg:grid-cols-12 lg:gap-8 lg:py-20',
+                    contentColumn,
+                )}
+            >
                 <div className="lg:col-span-4">
                     {/*
                         80px tall, which is the height the strapline needs before
@@ -187,7 +194,12 @@ export function SiteFooter() {
             </div>
 
             <div className="border-t border-sand/15">
-                <div className="mx-auto flex max-w-7xl flex-col gap-3 px-5 py-6 text-xs text-sand/60 sm:flex-row sm:items-center sm:justify-between sm:px-8">
+                <div
+                    className={cn(
+                        'flex flex-col gap-3 py-6 text-xs text-sand/60 sm:flex-row sm:items-center sm:justify-between',
+                        contentColumn,
+                    )}
+                >
                     <p>
                         © {new Date().getFullYear()} {site.name}. All rights
                         reserved.

@@ -1,7 +1,11 @@
 import { Link } from '@inertiajs/react';
 import { ChevronRight } from 'lucide-react';
 import type { ReactNode } from 'react';
-import { imageBoxes, ResponsiveImage } from '@/components/public/responsive-image';
+import {
+    imageBoxes,
+    ResponsiveImage,
+} from '@/components/public/responsive-image';
+import { contentColumn } from '@/components/public/section';
 import { cn } from '@/lib/utils';
 import { home } from '@/routes';
 import type { MediaImage } from '@/types';
@@ -33,7 +37,7 @@ export function PageHero({
     return (
         <section
             className={cn(
-                'relative isolate overflow-hidden px-5 pt-14 pb-16 sm:px-8 sm:pt-16 sm:pb-20',
+                'relative isolate overflow-hidden pt-14 pb-16 sm:pt-16 sm:pb-20',
                 !photographic && tone === 'sand' && 'bg-sand',
                 !photographic && tone === 'navy' && 'bg-navy',
                 photographic && 'bg-navy',
@@ -58,7 +62,7 @@ export function PageHero({
                 </>
             )}
 
-            <div className="relative mx-auto w-full max-w-7xl">
+            <div className={cn('relative', contentColumn)}>
                 <nav
                     aria-label="Breadcrumb"
                     className={cn(

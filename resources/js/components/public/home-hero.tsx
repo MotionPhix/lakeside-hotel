@@ -1,7 +1,11 @@
 import { Link } from '@inertiajs/react';
 import { CalendarCheck } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { imageBoxes, ResponsiveImage } from '@/components/public/responsive-image';
+import {
+    imageBoxes,
+    ResponsiveImage,
+} from '@/components/public/responsive-image';
+import { contentColumn } from '@/components/public/section';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import type { HeroSlideData } from '@/types';
@@ -87,7 +91,7 @@ export function HomeHero({
                 className="absolute inset-0 bg-linear-to-t from-navy/92 via-navy/55 to-navy/25"
             />
 
-            <div className="relative mx-auto w-full max-w-7xl px-5 pt-28 pb-24 sm:px-8 lg:pb-28">
+            <div className={cn('relative pt-28 pb-24 lg:pb-28', contentColumn)}>
                 <p className="text-xs font-semibold tracking-[0.25em] text-gold uppercase">
                     {eyebrow}
                 </p>

@@ -165,7 +165,7 @@ function Row({
 }
 
 /**
- * 16.5 rather than 16.50, and 1 rather than 1.0 - the rates are decimal settings
+ * 17.5 rather than 17.50, and 1 rather than 1.0 - the rates are decimal settings
  * and a trailing zero reads as precision nobody asked for.
  */
 export function rate(percent: number): string {

@@ -1,9 +1,16 @@
 import { Link, usePage } from '@inertiajs/react';
-import { CalendarCheck, Phone } from 'lucide-react';
+import { CalendarCheck, MoreHorizontal, Phone } from 'lucide-react';
 import { ListSortDescending } from '@/components/icons/list-sort-descending';
 import { NavLink } from '@/components/public/nav-link';
-import { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { cn } from '@/lib/utils';
+import { useState } from 'react';
 import {
     Sheet,
     SheetContent,
@@ -11,7 +18,7 @@ import {
     SheetTrigger,
 } from '@/components/ui/sheet';
 import { useCurrentUrl } from '@/hooks/use-current-url';
-import { siteNav } from '@/lib/site-nav';
+import { moreNav, primaryNav, siteNav } from '@/lib/site-nav';
 import { home } from '@/routes';
 import bookingRoutes from '@/routes/site/booking';
 import type { SharedData } from '@/types';
@@ -30,8 +37,18 @@ export function SiteHeader() {
 
     const bookingLink = bookingRoutes.index.url();
 
+    /* Is the page on screen one of the three behind More? */
+    const moreIsCurrent = moreNav.some((item) => isCurrentUrl(item.href));
+
     return (
         <header className="sticky top-0 z-50 border-b border-navy/10 bg-white">
+            {/*
+                The bar is deliberately one step wider (`max-w-7xl`) than the
+                content column in `section.tsx` (`max-w-6xl`). The navigation is
+                chrome: it reads as a full-width band with the logo sitting a
+                little outside the text below it, while the sections, page heroes
+                and the footer all line up in the tighter column.
+            */}
             <div className="mx-auto flex h-18 max-w-7xl items-center justify-between gap-4 px-5 sm:px-8">
                 {/*
                     The logo is the only way home from the desktop bar - there is
@@ -60,29 +77,89 @@ export function SiteHeader() {
                 </Link>
 
                 {/*
-                    Eight links, a phone number and a button need about 1280px
-                    between them. They were switching on at `lg` (1024px), which
-                    is exactly where an iPad Pro 13 sits in portrait - 1032px -
-                    so the widest tablet in common use got a desktop layout with
-                    13px of overflow, the phone number broken over three lines
-                    inside a 72px bar, and the button cut off at the edge. Below
-                    this the menu button takes over, which is the layout that
-                    width can actually carry.
+                    The bar still switches on at `xl` (1280px), for the same
+                    reason it always did: below that, a phone number that must
+                    not wrap and a booking button with a label do not fit beside
+                    the links, and the menu button takes over.
+
+                    What changed is how much has to fit. Four links and the More
+                    trigger are narrower than the eight links they replace, so
+                    the bar has room to breathe rather than being fitted to the
+                    pixel - and the three pages that moved into More are still
+                    one click away, which is the trade that buys the longer
+                    labels ("Accommodation" is half again the width of "Rooms").
+
+                    Both sit in one flex row: as separate children of the
+                    space-between bar they would be pushed apart, leaving More
+                    floating in the gap between the links and the phone number.
                 */}
-                <nav
-                    aria-label="Main"
-                    className="hidden items-center gap-0.5 xl:flex"
-                >
-                    {siteNav.map((item) => (
-                        <NavLink
-                            key={item.title}
-                            href={item.href}
-                            variant="header"
-                        >
-                            {item.title}
-                        </NavLink>
-                    ))}
-                </nav>
+                <div className="hidden items-center gap-0.5 xl:flex">
+                    <nav
+                        aria-label="Main"
+                        className="flex items-center gap-0.5"
+                    >
+                        {primaryNav.map((item) => (
+                            <NavLink
+                                key={item.title}
+                                href={item.href}
+                                variant="header"
+                            >
+                                {item.title}
+                            </NavLink>
+                        ))}
+                    </nav>
+
+                    {/*
+                        The More icon carries the rest of the old bar. It is
+                        icon-only so the row stays short, which makes the
+                        accessible name - not the glyph - the thing that tells a
+                        screen reader what it opens.
+
+                        The gold rule under it is the header's own "you are
+                        here" marker, reused: while the guest is on Gallery,
+                        Offers or About, the page they are reading is hidden
+                        behind this button, so the button is what has to say so.
+                    */}
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <button
+                                type="button"
+                                aria-label="More pages"
+                                className={cn(
+                                    'relative inline-flex size-9 cursor-pointer items-center justify-center rounded-md text-navy/80 transition-colors hover:bg-sand hover:text-lake focus-visible:ring-2 focus-visible:ring-lake focus-visible:outline-none',
+                                    moreIsCurrent &&
+                                        "text-lake after:absolute after:inset-x-1.5 after:bottom-0.5 after:h-0.5 after:rounded-full after:bg-gold after:content-['']",
+                                )}
+                            >
+                                <MoreHorizontal
+                                    className="size-5"
+                                    aria-hidden
+                                />
+                            </button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-44">
+                            {moreNav.map((item) => (
+                                <DropdownMenuItem key={item.title} asChild>
+                                    <Link
+                                        href={item.href}
+                                        className={cn(
+                                            'cursor-pointer',
+                                            isCurrentUrl(item.href) &&
+                                                'text-lake',
+                                        )}
+                                        aria-current={
+                                            isCurrentUrl(item.href)
+                                                ? 'page'
+                                                : undefined
+                                        }
+                                    >
+                                        {item.title}
+                                    </Link>
+                                </DropdownMenuItem>
+                            ))}
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                </div>
 
                 <div className="hidden items-center gap-2 xl:flex">
                     {/*
@@ -100,7 +177,7 @@ export function SiteHeader() {
                     <Button asChild size="lg">
                         <Link href={bookingLink}>
                             <CalendarCheck />
-                            Book Your Stay
+                            Book now
                         </Link>
                     </Button>
                 </div>
@@ -154,7 +231,7 @@ export function SiteHeader() {
                                     onClick={() => setOpen(false)}
                                 >
                                     <CalendarCheck />
-                                    Book Your Stay
+                                    Book now
                                 </Link>
                             </Button>
                             <Button

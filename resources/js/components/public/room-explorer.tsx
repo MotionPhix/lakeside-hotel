@@ -6,6 +6,14 @@ import {
     imageBoxes,
 } from '@/components/public/responsive-image';
 import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
 import { formatMoney } from '@/lib/format';
 import { cn } from '@/lib/utils';
 import rooms from '@/routes/site/rooms';
@@ -53,81 +61,116 @@ export function RoomExplorer({ roomTypes }: { roomTypes: RoomTypeDetail[] }) {
         );
     }
 
+    const labelClass = 'text-sm font-medium text-navy';
+    /*
+     * The same control the availability bar uses on the homepage: the height is
+     * forced to 44px by app.css, so only the colour and radius are declared
+     * here, and the trigger fills its column instead of shrink-wrapping the
+     * longest option label.
+     */
     const fieldClass =
-        'mt-2 h-11 w-full rounded-lg border border-navy/20 bg-white px-3 text-base text-navy focus-visible:ring-2 focus-visible:ring-lake focus-visible:outline-none sm:text-sm';
+        'w-full rounded-lg border-navy/20 bg-white text-sm text-navy focus-visible:border-lake focus-visible:ring-[3px] focus-visible:ring-lake/35';
     return (
         <div>
             <div className="rounded-xl border border-navy/10 bg-sand/50 p-5 sm:p-6">
                 <div className="grid gap-4 sm:grid-cols-3">
-                    <label
-                        htmlFor={`${id}-adults`}
-                        className="text-sm font-medium text-navy"
-                    >
-                        Adults
-                        <select
-                            id={`${id}-adults`}
-                            value={adults}
-                            onChange={(event) =>
-                                setAdults(Number(event.target.value))
+                    <div className="flex flex-col gap-1.5">
+                        <Label htmlFor={`${id}-adults`} className={labelClass}>
+                            Adults
+                        </Label>
+                        <Select
+                            value={String(adults)}
+                            onValueChange={(value) => setAdults(Number(value))}
+                        >
+                            <SelectTrigger
+                                id={`${id}-adults`}
+                                className={fieldClass}
+                                aria-label="Adults"
+                            >
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="0">Any number</SelectItem>
+                                {Array.from(
+                                    { length: maxAdults },
+                                    (_, index) => index + 1,
+                                ).map((value) => (
+                                    <SelectItem
+                                        key={value}
+                                        value={String(value)}
+                                    >
+                                        {value}{' '}
+                                        {value === 1 ? 'adult' : 'adults'}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
+                    <div className="flex flex-col gap-1.5">
+                        <Label
+                            htmlFor={`${id}-children`}
+                            className={labelClass}
+                        >
+                            Children
+                        </Label>
+                        <Select
+                            value={String(children)}
+                            onValueChange={(value) =>
+                                setChildren(Number(value))
                             }
-                            className={fieldClass}
                         >
-                            <option value={0}>Any number</option>
-                            {Array.from(
-                                { length: maxAdults },
-                                (_, index) => index + 1,
-                            ).map((value) => (
-                                <option key={value} value={value}>
-                                    {value} {value === 1 ? 'adult' : 'adults'}
-                                </option>
-                            ))}
-                        </select>
-                    </label>
-                    <label
-                        htmlFor={`${id}-children`}
-                        className="text-sm font-medium text-navy"
-                    >
-                        Children
-                        <select
-                            id={`${id}-children`}
-                            value={children}
-                            onChange={(event) =>
-                                setChildren(Number(event.target.value))
-                            }
-                            className={fieldClass}
-                        >
-                            <option value={0}>No preference</option>
-                            {Array.from(
-                                { length: maxChildren },
-                                (_, index) => index + 1,
-                            ).map((value) => (
-                                <option key={value} value={value}>
-                                    {value} {value === 1 ? 'child' : 'children'}
-                                </option>
-                            ))}
-                        </select>
-                    </label>
-                    <label
-                        htmlFor={`${id}-sort`}
-                        className="text-sm font-medium text-navy"
-                    >
-                        Sort rooms
-                        <select
-                            id={`${id}-sort`}
-                            value={sort}
-                            onChange={(event) => setSort(event.target.value)}
-                            className={fieldClass}
-                        >
-                            <option value="recommended">Hotel order</option>
-                            <option value="price-low">
-                                Price: low to high
-                            </option>
-                            <option value="price-high">
-                                Price: high to low
-                            </option>
-                            <option value="space">Largest rooms first</option>
-                        </select>
-                    </label>
+                            <SelectTrigger
+                                id={`${id}-children`}
+                                className={fieldClass}
+                                aria-label="Children"
+                            >
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="0">No preference</SelectItem>
+                                {Array.from(
+                                    { length: maxChildren },
+                                    (_, index) => index + 1,
+                                ).map((value) => (
+                                    <SelectItem
+                                        key={value}
+                                        value={String(value)}
+                                    >
+                                        {value}{' '}
+                                        {value === 1 ? 'child' : 'children'}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
+                    <div className="flex flex-col gap-1.5">
+                        <Label htmlFor={`${id}-sort`} className={labelClass}>
+                            Sort rooms
+                        </Label>
+                        <Select value={sort} onValueChange={setSort}>
+                            <SelectTrigger
+                                id={`${id}-sort`}
+                                className={fieldClass}
+                                aria-label="Sort rooms"
+                            >
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="recommended">
+                                    Hotel order
+                                </SelectItem>
+                                <SelectItem value="price-low">
+                                    Price: low to high
+                                </SelectItem>
+                                <SelectItem value="price-high">
+                                    Price: high to low
+                                </SelectItem>
+                                <SelectItem value="space">
+                                    Largest rooms first
+                                </SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
                 </div>
                 <p className="mt-4 text-xs leading-relaxed text-navy/70">
                     Filter by your party, then check availability for your

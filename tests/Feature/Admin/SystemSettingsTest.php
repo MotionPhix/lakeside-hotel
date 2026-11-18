@@ -120,7 +120,7 @@ test('a rate outside nought to a hundred is refused, under the name the form use
         ]))
         ->assertSessionHasErrors('settings.'.SettingSchema::wireName(Tax::VAT_SETTING));
 
-    expect(Setting::value(Tax::VAT_SETTING))->toBe('16.5');
+    expect(Setting::value(Tax::VAT_SETTING))->toBe('17.5');
 });
 
 test('a rate that is not a number is refused', function () {
