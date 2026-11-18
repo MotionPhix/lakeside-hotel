@@ -39,11 +39,15 @@ class SitePresenter
     /**
      * Hotel details, booking rules and social links, read in a single query.
      *
+     * The rows come from {@see Setting::values()}, which caches them, so this is
+     * one query per hour rather than one per request - and the tax rates read
+     * below through `Tax` come from the same array instead of asking again.
+     *
      * @return array<string, mixed>
      */
     public static function settings(): array
     {
-        $values = Setting::query()->pluck('value', 'key')->all();
+        $values = Setting::values();
 
         $get = fn (string $key, string $default = ''): string => (string) ($values[$key] ?? $default);
 

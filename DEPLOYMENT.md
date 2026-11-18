@@ -206,8 +206,15 @@ with a signature over the raw body instead.
 git pull
 composer install --no-dev --optimize-autoloader
 php artisan migrate --force
+php artisan cache:clear
 php artisan config:cache && php artisan route:cache && php artisan view:cache
 ```
+
+`cache:clear` is not housekeeping. Hotel settings are cached (`Setting::values()`)
+for an hour, and a migration that changes one - the VAT rate, a policy default -
+writes with the query builder, which fires no model event. Without the clear, the
+first request after the deploy can be served the figure the migration just
+replaced. Sessions live in their own table and are untouched by it.
 
 If the update touched anything under `resources/`, build on a machine with Node
 (`npm run build`), commit `public/build` with it, and pull that. Do not leave the

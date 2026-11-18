@@ -138,7 +138,7 @@
 ---
 
 ### TASK-008: Cache Hotel Settings
-- **Status:** [ ] Pending
+- **Status:** [x] Done — `Setting::values()`, 2026-11-18
 - **Priority:** Medium
 - **Effort:** S
 - **Impact:** Medium — reduces database queries on every page load
@@ -147,6 +147,10 @@
   `Setting::value()` is called on every request for hotel configuration (currency, rates, contact info). Each call hits the database.
   Fix: Cache settings with `Cache::remember()`, invalidate on update in the CMS.
 - **Done when:** Settings are cached; CMS edits invalidate cache
+- **Measured:** `SitePresenter::settings()` on its own issued **6** queries — one pluck of the table, then five more from `Tax` asking for the two rates, their sum and the "show separately" flag, each through `Setting::value()`. Three bare `value()` calls cost 3. Now the table is plucked once and held: **1** query on a warm request, **0** for every later read in the same request, and 3 on the very first request after a cache clear (cache read, pluck, cache write).
+- **Correction:** the audit's fix, taken literally, would have **moved the problem rather than solved it**. `CACHE_STORE` is `database` on this host, so a `Cache::remember()` per `value()` call is still one query per call — six settings-table reads would have become six cache-table reads. The cache is therefore paired with an array held for the life of the application instance, keyed to the container so a test or a worker that swaps applications cannot inherit the previous one's settings.
+  - Invalidation is model events (`saved`, `deleted`) plus `Setting::flushCache()` for anything writing through the query builder. The TTL of an hour is a backstop for a row changed by hand in SQL, not the mechanism.
+  - One operational consequence, written into `DEPLOYMENT.md`: a migration that changes a setting must be followed by `php artisan cache:clear`, because query-builder writes fire no event.
 
 ---
 
@@ -269,3 +273,14 @@ overstated N+1). The remaining medium/low tasks were not touched.
 Observation, out of scope: the public homepage still runs ~209 queries in total,
 1 of which is now menu-related. The bulk is elsewhere (site sections, media) and
 is a separate, larger job than anything on this list.
+
+**2026-11-18 — TASK-008.** Settings are cached and held per request; six queries
+per page load became one. As with the first pass, the audit's prescription was
+incomplete on its own: on a database cache store, `Cache::remember()` per lookup
+is still a query per lookup, so the cache needed a per-application array beside
+it. Also noted above that a deploy which changes a setting through a migration
+has to clear the cache, because those writes fire no model event.
+
+The remaining medium tasks are TASK-009 (room counts), TASK-010 (settings/profile
+tests) and then the low-priority four. TASK-009 is the last of the small
+performance items and is the natural next one.
