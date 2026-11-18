@@ -133,7 +133,7 @@ class ExperienceSeeder extends Seeder
     {
         return [
             'salads' => [
-                'price' => 10_000,
+                'price' => 15_000,
                 'items' => [
                     ['Greek Salad', true],
                     ['Green Salad', true],
@@ -142,7 +142,7 @@ class ExperienceSeeder extends Seeder
             ],
 
             'soups' => [
-                'price' => 12_000,
+                'price' => 20_000,
                 'items' => [
                     ['Sweet Corn Soup (Veg/Chicken/Beef)', false],
                     ['Hot-n-Sour Soup (Veg/Chicken/Beef)', false],
@@ -154,7 +154,7 @@ class ExperienceSeeder extends Seeder
             ],
 
             'light_bites' => [
-                'price' => 12_000,
+                'price' => 22_500,
                 'items' => [
                     ['Bruschetta (Italian) — Veg/Chicken', false],
                     ['Garlic Bread (Italian) — Veg/Chicken', false],
@@ -166,7 +166,7 @@ class ExperienceSeeder extends Seeder
             ],
 
             'sandwiches' => [
-                'price' => 18_000,
+                'price' => 32_000,
                 'note' => 'All served with chips. Extra cheese MK 2,000.',
                 'items' => [
                     ['Veg Sandwich', true],
@@ -176,7 +176,7 @@ class ExperienceSeeder extends Seeder
             ],
 
             'burgers' => [
-                'price' => 18_000,
+                'price' => 34_000,
                 'note' => 'All served with chips. Extra cheese MK 2,000.',
                 'items' => [
                     ['Veg Burger', true],
@@ -188,7 +188,7 @@ class ExperienceSeeder extends Seeder
             ],
 
             'appetizers' => [
-                'price' => 18_000,
+                'price' => 32_000,
                 'items' => [
                     ['Veg Manchurian (Dry or Semi Gravy)', true],
                     ['Kung Pao Potato', true],
@@ -212,7 +212,7 @@ class ExperienceSeeder extends Seeder
             ],
 
             'pasta' => [
-                'price' => 24_000,
+                'price' => 36_000,
                 'note' => 'Extra cheese MK 2,000.',
                 'items' => [
                     ['Arabiata Pasta (Red Sauce) — Veg/Chicken', false],
@@ -223,8 +223,8 @@ class ExperienceSeeder extends Seeder
             ],
 
             'pizzas' => [
-                'price' => 35_000,
-                'note' => 'Extra cheese MK 4,000.',
+                'price' => 58_000,
+                'note' => 'Extra cheese MK 15,000.',
                 'items' => [
                     ['Margherita', true],
                     ['Chicken Pizza', false],
@@ -235,17 +235,17 @@ class ExperienceSeeder extends Seeder
             ],
 
             'braai' => [
-                'price' => 25_000,
+                'price' => 40_000,
                 'items' => [
                     ['Half Chicken Braai with Chips and Salad', false],
                     ['T-Bone with Chips and Salad', false],
                     ['Chambo with Chips and Salad', false, ['signature' => true]],
-                    ['Quarter Chicken Braai with Chips', false, ['price' => 18_000]],
+                    ['Quarter Chicken Braai with Chips', false, ['price' => 30_000]],
                 ],
             ],
 
             'warm_heart_dishes' => [
-                'price' => 25_000,
+                'price' => 40_000,
                 'note' => 'Served with chips, nsima or rice, and salad.',
                 'items' => [
                     ['Chambo Stew', false],
@@ -257,12 +257,12 @@ class ExperienceSeeder extends Seeder
                     ['Half Chicken in Bread Crumbs', false],
                     ['Half Chicken Peri-Peri', false],
                     ['Half Chicken Grilled', false],
-                    ['Quarter Chicken', false, ['price' => 18_000]],
+                    ['Quarter Chicken', false, ['price' => 30_000]],
                 ],
             ],
 
             'main_course' => [
-                'price' => 25_000,
+                'price' => 40_000,
                 'items' => [
                     ['Chicken in Garlic Sauce', false],
                     ['Sweet-n-Sour Chicken', false],
@@ -280,21 +280,21 @@ class ExperienceSeeder extends Seeder
             ],
 
             'rice' => [
-                'price' => 18_000,
+                'price' => 29_000,
                 'items' => [
                     ['Fried Rice (Veg/Chicken/Beef)', false],
                     ['Schezwan Rice (Veg/Chicken/Beef)', false],
                     ['Jeera Rice', true],
                     ['Egg Fried Rice', false],
                     ['Plain Rice', true],
-                    ['Triple Schezwan Rice', false, ['price' => 25_000]],
-                    ['Biryani (Veg/Chicken/Beef)', false, ['price' => 30_000]],
-                    ['Pulao (Veg/Chicken)', false, ['price' => 30_000]],
+                    ['Triple Schezwan Rice', false, ['price' => 40_000]],
+                    ['Biryani (Veg/Chicken/Beef)', false, ['price' => 50_000]],
+                    ['Pulao (Veg/Chicken)', false, ['price' => 50_000]],
                 ],
             ],
 
             'noodles' => [
-                'price' => 18_000,
+                'price' => 32_000,
                 'items' => [
                     ['Schezwan Noodles (Veg/Chicken/Beef)', false],
                     ['Fried Noodles (Veg/Chicken/Beef)', false],
@@ -305,7 +305,7 @@ class ExperienceSeeder extends Seeder
             ],
 
             'indian_gravy' => [
-                'price' => 20_000,
+                'price' => 34_000,
                 'items' => [
                     ['Butter Chicken', false],
                     ['Chicken Kadai', false],
@@ -338,7 +338,7 @@ class ExperienceSeeder extends Seeder
             ],
 
             'tandoor' => [
-                'price' => 25_000,
+                'price' => 40_000,
                 'items' => [
                     ['Chicken Tikka Kebab', false],
                     ['Chicken Tandoori (Half)', false],
@@ -351,7 +351,7 @@ class ExperienceSeeder extends Seeder
             ],
 
             'breads' => [
-                'price' => 5_000,
+                'price' => 8_000,
                 'items' => [
                     ['Tandoori Roti', true],
                     ['Butter Tandoori Roti', true],
@@ -363,7 +363,7 @@ class ExperienceSeeder extends Seeder
             ],
 
             'sizzlers' => [
-                'price' => 35_000,
+                'price' => 55_000,
                 'items' => [
                     ['Veg Sizzler', true],
                     ['Indian Sizzler', false],
@@ -374,14 +374,14 @@ class ExperienceSeeder extends Seeder
             ],
 
             'pappad' => [
-                'price' => 2_500,
+                'price' => 5_000,
                 'items' => [
                     ['Masala Pappad', true],
                 ],
             ],
 
             'beverages' => [
-                'price' => 2_000,
+                'price' => 4_000,
                 'items' => [
                     ['Coke', true],
                     ['Sprite', true],
@@ -397,7 +397,7 @@ class ExperienceSeeder extends Seeder
             'desserts' => [
                 'price' => null,
                 'items' => [
-                    ['Ice Cream — Cone or Cup', true, ['price' => 5_000]],
+                    ['Ice Cream — Cone or Cup', true, ['price' => 10_000]],
                     ['Fried Banana with Vanilla Ice Cream', true, ['price' => 15_000]],
                     ['Sizzling Brownie', true, ['price' => 15_000]],
                     ['Fried Ice Cream', true, ['price' => 15_000]],
