@@ -212,7 +212,7 @@
 ## LOW PRIORITY
 
 ### TASK-011: Add Rate Limiting to Payment Webhook
-- **Status:** [ ] Pending
+- **Status:** [x] Done — `throttle:60,1`, 2026-11-18
 - **Priority:** Low
 - **Effort:** S
 - **Impact:** Low — prevents abuse of public webhook endpoint
@@ -221,6 +221,17 @@
   The PayChangu webhook endpoint has no rate limiting. While it validates signatures, rate limiting would prevent brute-force signature attempts.
   Fix: Add `throttle:` middleware to the webhook route.
 - **Done when:** Webhook endpoint has rate limiting
+- **Correction:** it is not signature brute force. The signature is an HMAC-SHA256
+  against a server-side secret - there is nothing to guess, only to be spent.
+   What the open endpoint actually costs is a `payments` lookup on every request,
+  and a gateway call for every reference that resolves: capacity, not secrecy.
+  - Limit: **60 a minute per caller**, which is far above one-notification-per-payment
+    and far below what makes a flood worth starting.
+  - A throttled request is not a 200, so PayChangu retries on its normal
+    half-hour schedule, by which time the bucket has emptied. The limit cannot
+    silently swallow a real payment.
+  - Test: 60 bad-signature posts answer 401, the 61st answers 429 - proving the
+    middleware sits in front of the signature check rather than behind it.
 
 ---
 
@@ -255,6 +266,29 @@
   - Publish toggle
   - Sort order operations
 - **Done when:** CMS resource operations have passing tests
+
+---
+
+### TASK-014: Pin the Booking Email Test That Flaked Once
+- **Status:** [ ] Pending
+- **Priority:** Low
+- **Effort:** S
+- **Impact:** Low — one assertion in the suite is not trustworthy yet
+- **Files:** `tests/Feature/Mail/BookingEmailsTest.php`
+- **Description:**
+  `the guest's confirmation reads as a letter, not a data dump` failed once at
+  line 51 on a full run (516 passed, 1 failed, 3131 assertions), then passed on
+  the next identical run (517 passed, 3135 assertions) and passes on its own.
+  Something in it depends on order or on the clock, and neither is pinned.
+  Two suspects, both cheap to remove:
+  - `Booking::query()->with(...)->firstOrFail()` picks a seeded booking with no
+    `orderBy`, so it takes whatever the database returns first.
+  - The seeder builds stays relative to `now()`, so the total it stores can
+    change shape across a day boundary (a stay that gains or loses a weekend
+    night), which is when the failing run happened.
+  Fix: order the booking selection explicitly, and assert against the value the
+  letter actually printed rather than one recomputed beside it.
+- **Done when:** the file runs green ten times in a row, in suite and alone
 
 ---
 
@@ -329,3 +363,12 @@ secret behind on an account the guest believes they have switched off.
 That clears the medium list. What is left is the four low-priority items, and of
 those TASK-011 (a rate limit on the payment webhook) is the only one with a
 security edge.
+
+**2026-11-18 — TASK-011.** The webhook is limited to 60 requests a minute per
+caller. The audit called this defence against brute-forcing the signature; it is
+not - an HMAC cannot be guessed, it can only be made expensive, and the expense
+lands on the `payments` table. Worth saying plainly because a limit justified by
+the wrong threat gets tuned by the wrong number later.
+
+Three items left, all of them honestly low: search index usage at scale
+(TASK-012), then TASK-013's CMS controller tests.

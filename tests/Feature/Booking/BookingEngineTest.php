@@ -592,3 +592,17 @@ test('a signed webhook for a transaction we do not know is acknowledged, not ret
         $body,
     )->assertOk();
 });
+
+test('the webhook stops answering a caller that floods it', function () {
+    for ($attempt = 0; $attempt < 60; $attempt++) {
+        $this->postJson(route('webhooks.paychangu'), ['tx_ref' => 'flood'], [
+            'Signature' => 'not-the-right-signature',
+        ])->assertStatus(401);
+    }
+
+    // The sixty-first inside the same minute is refused before it reaches the
+    // signature check at all.
+    $this->postJson(route('webhooks.paychangu'), ['tx_ref' => 'flood'], [
+        'Signature' => 'not-the-right-signature',
+    ])->assertStatus(429);
+});

@@ -12,7 +12,19 @@ use Illuminate\Support\Facades\Route;
 | Signature header instead, and answers 200 only when the news has been taken in.
 |
 */
+/*
+ * Sixty a minute, per caller. PayChangu sends one notification per payment and
+ * retries a failure at half-hour intervals, so real traffic is nowhere near
+ * this; what the limit is for is the other use of a public URL - a script
+ * guessing at the signature, or simply hammering the endpoint. An HMAC is cheap
+ * but the database behind it is not.
+ *
+ * If a genuine notification ever is caught by the limit, the throttled response
+ * is not a 200, so PayChangu retries in thirty minutes, by which time the bucket
+ * has long emptied. It is the same retry it already does for a 500.
+ */
 Route::post('webhooks/paychangu', PayChanguWebhookController::class)
+    ->middleware('throttle:60,1')
     ->name('webhooks.paychangu');
 
 Route::middleware(['auth', 'verified'])->group(function (): void {
