@@ -4,6 +4,7 @@ use App\Mail\BookingConfirmed;
 use App\Mail\BookingReceived;
 use App\Models\Booking;
 use App\Models\Setting;
+use App\Support\Money;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\URL;
 
@@ -21,7 +22,13 @@ uses(RefreshDatabase::class);
 beforeEach(function (): void {
     $this->seed();
 
-    $this->booking = Booking::query()->with('guest', 'items.roomType')->firstOrFail();
+    // Ordered, because `first()` without one takes whatever the database hands
+    // back first - which is how a guest with an apostrophe in their name can
+    // appear in one run and not the next.
+    $this->booking = Booking::query()
+        ->with('guest', 'items.roomType')
+        ->orderBy('id')
+        ->firstOrFail();
 
     Setting::store('hotel.name', 'Lakeside Hotel and Conference Centre', 'general');
     Setting::store('hotel.email', 'reservations@lakesidehotelmw.net', 'general');
@@ -38,8 +45,10 @@ test('the guest\'s confirmation reads as a letter, not a data dump', function ()
         ->toContain($this->booking->check_in->format('D j F Y'))
         ->toContain($this->booking->check_out->format('D j F Y'))
         // The currency and the thousands separator, because 320000 and 320,000 are
-        // read very differently by somebody checking a price.
-        ->toContain(number_format((float) $this->booking->total, 0, '.', ','))
+        // read very differently by somebody checking a price. Formatted by the
+        // same class the letter uses, so the two cannot drift apart.
+        ->toContain(Money::format($this->booking->currency, $this->booking->total))
+        ->toContain(',')
         // A way to get back to the booking.
         ->toContain(URL::signedRoute('site.booking.show', $this->booking->reference));
 });
@@ -47,8 +56,14 @@ test('the guest\'s confirmation reads as a letter, not a data dump', function ()
 test('the desk\'s copy carries what the desk acts on', function () {
     $html = (new BookingReceived($this->booking))->render();
 
+    /*
+     * Escaped, because the letter escapes it. Comparing against the raw name
+     * passes for every guest whose name is plain letters and fails for one
+     * called O'Brien - which is a test that reports on the seeder's luck rather
+     * than on the letter.
+     */
     expect($html)
-        ->toContain($this->booking->guest->fullName())
+        ->toContain(e($this->booking->guest->fullName()))
         ->toContain($this->booking->guest->email)
         ->toContain($this->booking->reference)
         ->toContain(route('admin.bookings.show', $this->booking->reference))
@@ -139,4 +154,15 @@ test('a booking with nothing paid does not claim a payment was made', function (
 
     // A "Paid" row reading zero reads like a mistake; the absence of one does not.
     expect($html)->not->toContain('>Paid<');
+});
+
+test('a name with an apostrophe still arrives in the desk copy', function () {
+    $this->booking->guest->update(['first_name' => "O'Brien", 'last_name' => 'Mwale']);
+
+    $booking = $this->booking->fresh(['guest', 'items.roomType']);
+
+    // The letter escapes its variables, so this is what the receptionist sees
+    // once the mail client has rendered it - and what the old assertion missed.
+    expect((new BookingReceived($booking))->render())
+        ->toContain(e("O'Brien Mwale"));
 });

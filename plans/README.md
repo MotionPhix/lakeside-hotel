@@ -270,7 +270,7 @@
 ---
 
 ### TASK-014: Pin the Booking Email Test That Flaked Once
-- **Status:** [ ] Pending
+- **Status:** [x] Done — root cause found, 2026-11-19
 - **Priority:** Low
 - **Effort:** S
 - **Impact:** Low — one assertion in the suite is not trustworthy yet
@@ -289,6 +289,21 @@
   Fix: order the booking selection explicitly, and assert against the value the
   letter actually printed rather than one recomputed beside it.
 - **Done when:** the file runs green ten times in a row, in suite and alone
+- **Root cause, found by reading the line rather than by resampling:** line 51
+  is in *the desk's copy* test, and it compared the rendered letter against the
+  **raw** guest name. The letter escapes its variables, so any guest called
+  O'Brien renders as `O&#039;Brien` and the assertion misses. Whether the run
+  passed depended on which booking `first()` happened to return - which is real
+  guest data from the seeder, not a fixture. Both halves are now fixed:
+  - the selection is ordered by `id`, so the same booking is tested every run;
+  - the assertion compares against `e(...)`, the same escaped string the letter
+    contains. The price assertion uses `Money::format()` for the same reason.
+  A regression test seals it: a guest renamed to `O'Brien Mwale` must still
+  arrive in the desk's copy.
+- **Evidence:** 9 tests / 39 assertions in the file, 10 consecutive green runs
+  standalone (0 failures), plus a full-suite run. The clock and the seeder were
+  innocent; the comment above records that so the next reader does not re-derive
+  it from the failure time.
 
 ---
 
@@ -372,3 +387,15 @@ the wrong threat gets tuned by the wrong number later.
 
 Three items left, all of them honestly low: search index usage at scale
 (TASK-012), then TASK-013's CMS controller tests.
+
+**2026-11-19 — TASK-014.** The flake was not the clock. The desk's letter test
+compared the rendered HTML against the raw guest name, and the letter escapes
+its variables - so a guest called O'Brien failed it, and whether that guest was
+in the row `first()` returned was luck. Ordered the selection, compared against
+the escaped string, and added a guest with an apostrophe as a standing case.
+
+Worth noting the method: re-running the suite to gather evidence would have
+taken half an hour and proved nothing, because the failure rate is a property of
+the seed data. Reading line 51 - which the stack trace had already named - found
+it in a minute. When a test is intermittent, the trace still points at the line;
+the rarity is in the data, not in the location.
