@@ -413,3 +413,71 @@ test('a guest account cannot reach the content admin at all', function () {
         ->get(route('admin.content.index', 'amenities'))
         ->assertForbidden();
 });
+
+test('a file that is not an image is refused as a cover', function () {
+    Storage::fake('bucket');
+
+    $block = ContentBlock::factory()->create();
+
+    $this->actingAs($this->admin)
+        ->post(route('admin.content.media.store', ['resource' => 'content-blocks', 'id' => $block->getKey()]), [
+            'collection' => 'image',
+            'file' => UploadedFile::fake()->create('menu.pdf', 120, 'application/pdf'),
+        ])
+        ->assertSessionHasErrors('file');
+
+    expect($block->refresh()->getMedia('image'))->toHaveCount(0);
+});
+
+test('an image past the size the bucket accepts is refused', function () {
+    Storage::fake('bucket');
+
+    $block = ContentBlock::factory()->create();
+
+    $this->actingAs($this->admin)
+        ->post(route('admin.content.media.store', ['resource' => 'content-blocks', 'id' => $block->getKey()]), [
+            'collection' => 'image',
+            // The rule is max:8192, in kilobytes.
+            'file' => UploadedFile::fake()->image('huge.jpg')->size(9000),
+        ])
+        ->assertSessionHasErrors('file');
+
+    expect($block->refresh()->getMedia('image'))->toHaveCount(0);
+});
+
+test('a media id is only removable through the record that owns it', function () {
+    Storage::fake('bucket');
+
+    $owner = ContentBlock::factory()->create();
+    $other = ContentBlock::factory()->create();
+
+    $this->actingAs($this->admin)
+        ->post(route('admin.content.media.store', ['resource' => 'content-blocks', 'id' => $owner->getKey()]), [
+            'collection' => 'image',
+            'file' => UploadedFile::fake()->image('lake.jpg', 1200, 800),
+        ]);
+
+    $media = $owner->refresh()->getMedia('image')->firstOrFail();
+
+    $this->actingAs($this->admin)
+        ->delete(route('admin.content.media.destroy', [
+            'resource' => 'content-blocks',
+            'id' => $other->getKey(),
+            'mediaId' => $media->getKey(),
+        ]))
+        ->assertNotFound();
+
+    expect($owner->refresh()->getMedia('image'))->toHaveCount(1);
+});
+
+test('a move in a direction that does not exist is refused', function () {
+    $amenity = Amenity::query()->firstOrFail();
+
+    $this->actingAs($this->admin)
+        ->patch(route('admin.content.move', [
+            'resource' => 'amenities',
+            'id' => $amenity->getKey(),
+            'direction' => 'sideways',
+        ]))
+        ->assertNotFound();
+});

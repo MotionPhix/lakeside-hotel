@@ -253,9 +253,9 @@
 ---
 
 ### TASK-013: Add CMS Resource Controller Tests
-- **Status:** [ ] Pending
+- **Status:** [x] Done — four edge cases added, 2026-11-19
 - **Priority:** Low
-- **Effort:** M
+- **Effort:** S, not M — see below
 - **Impact:** Medium — protects generic CMS layer
 - **Files:** `tests/Feature/Admin/ContentManagementTest.php` (extend existing)
 - **Description:**
@@ -266,6 +266,21 @@
   - Publish toggle
   - Sort order operations
 - **Done when:** CMS resource operations have passing tests
+- **Correction — the file already held 21 tests covering every bullet:**
+  listing and create/edit forms for every type in the registry, unknown type as
+  404, hub filtering by permission, module mismatch refused, guest refused, field
+  round-trip, slug generation and collision, four reorder cases including both
+  ends of the list and duplicate sort values, publish across three different
+  publish columns, "not publishable" as 404, delete, upload/replace/remove, and an
+  undeclared collection refused. The audit's "minimal coverage" was wrong.
+- **What was actually missing, and is now covered (4 tests):**
+  - a non-image posted as a cover — `image` rule never exercised;
+  - an image past `max:8192` — the size ceiling never exercised;
+  - destroying a media id through a *different* record — `$record->media()->find()`
+    is the guard that stops one record's photo being deleted from another's form,
+    and nothing proved it;
+  - a move direction other than up/down — the route is public to any signed-in
+    editor and the UI hides the rest.
 
 ---
 
@@ -399,3 +414,14 @@ taken half an hour and proved nothing, because the failure rate is a property of
 the seed data. Reading line 51 - which the stack trace had already named - found
 it in a minute. When a test is intermittent, the trace still points at the line;
 the rarity is in the data, not in the location.
+
+**2026-11-19 — TASK-013.** The CMS audit undercounted a file that already had 21
+tests across all five of its bullets, so the "M" was really an S. The four tests
+added are the ones nobody had exercised: a non-image as a cover, an image past
+the size ceiling, a media id destroyed through the wrong record, and a move
+direction that is not up or down. Each is a guard that exists in the controller
+and had no test standing behind it.
+
+Both lists are now clear except TASK-012, which is the only item left and is
+deliberately deferred: `LIKE '%term%'` is fine at this size, and the fix wants a
+decision about MySQL full-text against a sqlite test suite.
